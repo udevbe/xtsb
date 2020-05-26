@@ -505,6 +505,78 @@ export enum Window {
   None = 0,
 }
 
+export type KeyPressEvent = {
+  detail: KEYCODE
+  time: TIMESTAMP
+  root: WINDOW
+  event: WINDOW
+  child: WINDOW
+  rootX: number
+  rootY: number
+  eventX: number
+  eventY: number
+  state: number
+  sameScreen: number
+}
+
+const unmarshallKeyPressEvent: Unmarshaller<KeyPressEvent> = (buffer, offset = 0) => {
+  const [detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen] = unpackFrom('xB2xIIIIhhhhHBx', buffer, offset)
+  offset += 32
+
+  return {
+    value: {
+      detail,
+      time,
+      root,
+      event,
+      child,
+      rootX,
+      rootY,
+      eventX,
+      eventY,
+      state,
+      sameScreen
+    },
+    offset
+  }
+}
+
+export type KeyReleaseEvent = {
+  detail: KEYCODE
+  time: TIMESTAMP
+  root: WINDOW
+  event: WINDOW
+  child: WINDOW
+  rootX: number
+  rootY: number
+  eventX: number
+  eventY: number
+  state: number
+  sameScreen: number
+}
+
+const unmarshallKeyReleaseEvent: Unmarshaller<KeyReleaseEvent> = (buffer, offset = 0) => {
+  const [detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen] = unpackFrom('xB2xIIIIhhhhHBx', buffer, offset)
+  offset += 32
+
+  return {
+    value: {
+      detail,
+      time,
+      root,
+      event,
+      child,
+      rootX,
+      rootY,
+      eventX,
+      eventY,
+      state,
+      sameScreen
+    },
+    offset
+  }
+}
+
 export enum ButtonMask {
   _1 = 256,
   _2 = 512,
@@ -514,9 +586,117 @@ export enum ButtonMask {
   Any = 32768,
 }
 
+export type ButtonPressEvent = {
+  detail: BUTTON
+  time: TIMESTAMP
+  root: WINDOW
+  event: WINDOW
+  child: WINDOW
+  rootX: number
+  rootY: number
+  eventX: number
+  eventY: number
+  state: number
+  sameScreen: number
+}
+
+const unmarshallButtonPressEvent: Unmarshaller<ButtonPressEvent> = (buffer, offset = 0) => {
+  const [detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen] = unpackFrom('xB2xIIIIhhhhHBx', buffer, offset)
+  offset += 32
+
+  return {
+    value: {
+      detail,
+      time,
+      root,
+      event,
+      child,
+      rootX,
+      rootY,
+      eventX,
+      eventY,
+      state,
+      sameScreen
+    },
+    offset
+  }
+}
+
+export type ButtonReleaseEvent = {
+  detail: BUTTON
+  time: TIMESTAMP
+  root: WINDOW
+  event: WINDOW
+  child: WINDOW
+  rootX: number
+  rootY: number
+  eventX: number
+  eventY: number
+  state: number
+  sameScreen: number
+}
+
+const unmarshallButtonReleaseEvent: Unmarshaller<ButtonReleaseEvent> = (buffer, offset = 0) => {
+  const [detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen] = unpackFrom('xB2xIIIIhhhhHBx', buffer, offset)
+  offset += 32
+
+  return {
+    value: {
+      detail,
+      time,
+      root,
+      event,
+      child,
+      rootX,
+      rootY,
+      eventX,
+      eventY,
+      state,
+      sameScreen
+    },
+    offset
+  }
+}
+
 export enum Motion {
   Normal = 0,
   Hint = 1,
+}
+
+export type MotionNotifyEvent = {
+  detail: Motion
+  time: TIMESTAMP
+  root: WINDOW
+  event: WINDOW
+  child: WINDOW
+  rootX: number
+  rootY: number
+  eventX: number
+  eventY: number
+  state: number
+  sameScreen: number
+}
+
+const unmarshallMotionNotifyEvent: Unmarshaller<MotionNotifyEvent> = (buffer, offset = 0) => {
+  const [detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen] = unpackFrom('xB2xIIIIhhhhHBx', buffer, offset)
+  offset += 32
+
+  return {
+    value: {
+      detail,
+      time,
+      root,
+      event,
+      child,
+      rootX,
+      rootY,
+      eventX,
+      eventY,
+      state,
+      sameScreen
+    },
+    offset
+  }
 }
 
 export enum NotifyDetail {
@@ -537,10 +717,478 @@ export enum NotifyMode {
   WhileGrabbed = 3,
 }
 
+export type EnterNotifyEvent = {
+  detail: NotifyDetail
+  time: TIMESTAMP
+  root: WINDOW
+  event: WINDOW
+  child: WINDOW
+  rootX: number
+  rootY: number
+  eventX: number
+  eventY: number
+  state: number
+  mode: NotifyMode
+  sameScreenFocus: number
+}
+
+const unmarshallEnterNotifyEvent: Unmarshaller<EnterNotifyEvent> = (buffer, offset = 0) => {
+  const [detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus] = unpackFrom('xB2xIIIIhhhhHBB', buffer, offset)
+  offset += 32
+
+  return {
+    value: {
+      detail,
+      time,
+      root,
+      event,
+      child,
+      rootX,
+      rootY,
+      eventX,
+      eventY,
+      state,
+      mode,
+      sameScreenFocus
+    },
+    offset
+  }
+}
+
+export type LeaveNotifyEvent = {
+  detail: NotifyDetail
+  time: TIMESTAMP
+  root: WINDOW
+  event: WINDOW
+  child: WINDOW
+  rootX: number
+  rootY: number
+  eventX: number
+  eventY: number
+  state: number
+  mode: NotifyMode
+  sameScreenFocus: number
+}
+
+const unmarshallLeaveNotifyEvent: Unmarshaller<LeaveNotifyEvent> = (buffer, offset = 0) => {
+  const [detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus] = unpackFrom('xB2xIIIIhhhhHBB', buffer, offset)
+  offset += 32
+
+  return {
+    value: {
+      detail,
+      time,
+      root,
+      event,
+      child,
+      rootX,
+      rootY,
+      eventX,
+      eventY,
+      state,
+      mode,
+      sameScreenFocus
+    },
+    offset
+  }
+}
+
+export type FocusInEvent = {
+  detail: NotifyDetail
+  event: WINDOW
+  mode: NotifyMode
+}
+
+const unmarshallFocusInEvent: Unmarshaller<FocusInEvent> = (buffer, offset = 0) => {
+  const [detail, event, mode] = unpackFrom('xB2xIB3x', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      detail,
+      event,
+      mode
+    },
+    offset
+  }
+}
+
+export type FocusOutEvent = {
+  detail: NotifyDetail
+  event: WINDOW
+  mode: NotifyMode
+}
+
+const unmarshallFocusOutEvent: Unmarshaller<FocusOutEvent> = (buffer, offset = 0) => {
+  const [detail, event, mode] = unpackFrom('xB2xIB3x', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      detail,
+      event,
+      mode
+    },
+    offset
+  }
+}
+
+export type KeymapNotifyEvent = {
+  keys: Uint8Array
+}
+
+const unmarshallKeymapNotifyEvent: Unmarshaller<KeymapNotifyEvent> = (buffer, offset = 0) => {
+  offset += 1
+  const keysWithOffset = xcbSimpleList(buffer, offset, 31, Uint8Array, 1)
+  offset = keysWithOffset.offset
+  const keys = keysWithOffset.value
+
+  return {
+    value: {
+      keys
+    },
+    offset
+  }
+}
+
+export type ExposeEvent = {
+  window: WINDOW
+  x: number
+  y: number
+  width: number
+  height: number
+  count: number
+}
+
+const unmarshallExposeEvent: Unmarshaller<ExposeEvent> = (buffer, offset = 0) => {
+  const [window, x, y, width, height, count] = unpackFrom('xx2xIHHHHH2x', buffer, offset)
+  offset += 20
+
+  return {
+    value: {
+      window,
+      x,
+      y,
+      width,
+      height,
+      count
+    },
+    offset
+  }
+}
+
+export type GraphicsExposureEvent = {
+  drawable: DRAWABLE
+  x: number
+  y: number
+  width: number
+  height: number
+  minorOpcode: number
+  count: number
+  majorOpcode: number
+}
+
+const unmarshallGraphicsExposureEvent: Unmarshaller<GraphicsExposureEvent> = (buffer, offset = 0) => {
+  const [drawable, x, y, width, height, minorOpcode, count, majorOpcode] = unpackFrom('xx2xIHHHHHHB3x', buffer, offset)
+  offset += 24
+
+  return {
+    value: {
+      drawable,
+      x,
+      y,
+      width,
+      height,
+      minorOpcode,
+      count,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export type NoExposureEvent = {
+  drawable: DRAWABLE
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallNoExposureEvent: Unmarshaller<NoExposureEvent> = (buffer, offset = 0) => {
+  const [drawable, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      drawable,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
 export enum Visibility {
   Unobscured = 0,
   PartiallyObscured = 1,
   FullyObscured = 2,
+}
+
+export type VisibilityNotifyEvent = {
+  window: WINDOW
+  state: Visibility
+}
+
+const unmarshallVisibilityNotifyEvent: Unmarshaller<VisibilityNotifyEvent> = (buffer, offset = 0) => {
+  const [window, state] = unpackFrom('xx2xIB3x', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      window,
+      state
+    },
+    offset
+  }
+}
+
+export type CreateNotifyEvent = {
+  parent: WINDOW
+  window: WINDOW
+  x: number
+  y: number
+  width: number
+  height: number
+  borderWidth: number
+  overrideRedirect: number
+}
+
+const unmarshallCreateNotifyEvent: Unmarshaller<CreateNotifyEvent> = (buffer, offset = 0) => {
+  const [parent, window, x, y, width, height, borderWidth, overrideRedirect] = unpackFrom('xx2xIIhhHHHBx', buffer, offset)
+  offset += 24
+
+  return {
+    value: {
+      parent,
+      window,
+      x,
+      y,
+      width,
+      height,
+      borderWidth,
+      overrideRedirect
+    },
+    offset
+  }
+}
+
+export type DestroyNotifyEvent = {
+  event: WINDOW
+  window: WINDOW
+}
+
+const unmarshallDestroyNotifyEvent: Unmarshaller<DestroyNotifyEvent> = (buffer, offset = 0) => {
+  const [event, window] = unpackFrom('xx2xII', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      event,
+      window
+    },
+    offset
+  }
+}
+
+export type UnmapNotifyEvent = {
+  event: WINDOW
+  window: WINDOW
+  fromConfigure: number
+}
+
+const unmarshallUnmapNotifyEvent: Unmarshaller<UnmapNotifyEvent> = (buffer, offset = 0) => {
+  const [event, window, fromConfigure] = unpackFrom('xx2xIIB3x', buffer, offset)
+  offset += 16
+
+  return {
+    value: {
+      event,
+      window,
+      fromConfigure
+    },
+    offset
+  }
+}
+
+export type MapNotifyEvent = {
+  event: WINDOW
+  window: WINDOW
+  overrideRedirect: number
+}
+
+const unmarshallMapNotifyEvent: Unmarshaller<MapNotifyEvent> = (buffer, offset = 0) => {
+  const [event, window, overrideRedirect] = unpackFrom('xx2xIIB3x', buffer, offset)
+  offset += 16
+
+  return {
+    value: {
+      event,
+      window,
+      overrideRedirect
+    },
+    offset
+  }
+}
+
+export type MapRequestEvent = {
+  parent: WINDOW
+  window: WINDOW
+}
+
+const unmarshallMapRequestEvent: Unmarshaller<MapRequestEvent> = (buffer, offset = 0) => {
+  const [parent, window] = unpackFrom('xx2xII', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      parent,
+      window
+    },
+    offset
+  }
+}
+
+export type ReparentNotifyEvent = {
+  event: WINDOW
+  window: WINDOW
+  parent: WINDOW
+  x: number
+  y: number
+  overrideRedirect: number
+}
+
+const unmarshallReparentNotifyEvent: Unmarshaller<ReparentNotifyEvent> = (buffer, offset = 0) => {
+  const [event, window, parent, x, y, overrideRedirect] = unpackFrom('xx2xIIIhhB3x', buffer, offset)
+  offset += 24
+
+  return {
+    value: {
+      event,
+      window,
+      parent,
+      x,
+      y,
+      overrideRedirect
+    },
+    offset
+  }
+}
+
+export type ConfigureNotifyEvent = {
+  event: WINDOW
+  window: WINDOW
+  aboveSibling: WINDOW
+  x: number
+  y: number
+  width: number
+  height: number
+  borderWidth: number
+  overrideRedirect: number
+}
+
+const unmarshallConfigureNotifyEvent: Unmarshaller<ConfigureNotifyEvent> = (buffer, offset = 0) => {
+  const [event, window, aboveSibling, x, y, width, height, borderWidth, overrideRedirect] = unpackFrom('xx2xIIIhhHHHBx', buffer, offset)
+  offset += 28
+
+  return {
+    value: {
+      event,
+      window,
+      aboveSibling,
+      x,
+      y,
+      width,
+      height,
+      borderWidth,
+      overrideRedirect
+    },
+    offset
+  }
+}
+
+export type ConfigureRequestEvent = {
+  stackMode: StackMode
+  parent: WINDOW
+  window: WINDOW
+  sibling: WINDOW
+  x: number
+  y: number
+  width: number
+  height: number
+  borderWidth: number
+  valueMask: number
+}
+
+const unmarshallConfigureRequestEvent: Unmarshaller<ConfigureRequestEvent> = (buffer, offset = 0) => {
+  const [stackMode, parent, window, sibling, x, y, width, height, borderWidth, valueMask] = unpackFrom('xB2xIIIhhHHHH', buffer, offset)
+  offset += 28
+
+  return {
+    value: {
+      stackMode,
+      parent,
+      window,
+      sibling,
+      x,
+      y,
+      width,
+      height,
+      borderWidth,
+      valueMask
+    },
+    offset
+  }
+}
+
+export type GravityNotifyEvent = {
+  event: WINDOW
+  window: WINDOW
+  x: number
+  y: number
+}
+
+const unmarshallGravityNotifyEvent: Unmarshaller<GravityNotifyEvent> = (buffer, offset = 0) => {
+  const [event, window, x, y] = unpackFrom('xx2xIIhh', buffer, offset)
+  offset += 16
+
+  return {
+    value: {
+      event,
+      window,
+      x,
+      y
+    },
+    offset
+  }
+}
+
+export type ResizeRequestEvent = {
+  window: WINDOW
+  width: number
+  height: number
+}
+
+const unmarshallResizeRequestEvent: Unmarshaller<ResizeRequestEvent> = (buffer, offset = 0) => {
+  const [window, width, height] = unpackFrom('xx2xIHH', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      window,
+      width,
+      height
+    },
+    offset
+  }
 }
 
 export enum Place {
@@ -548,9 +1196,91 @@ export enum Place {
   OnBottom = 1,
 }
 
+export type CirculateNotifyEvent = {
+  event: WINDOW
+  window: WINDOW
+  place: Place
+}
+
+const unmarshallCirculateNotifyEvent: Unmarshaller<CirculateNotifyEvent> = (buffer, offset = 0) => {
+  const [event, window, place] = unpackFrom('xx2xII4xB3x', buffer, offset)
+  offset += 20
+
+  return {
+    value: {
+      event,
+      window,
+      place
+    },
+    offset
+  }
+}
+
+export type CirculateRequestEvent = {
+  event: WINDOW
+  window: WINDOW
+  place: Place
+}
+
+const unmarshallCirculateRequestEvent: Unmarshaller<CirculateRequestEvent> = (buffer, offset = 0) => {
+  const [event, window, place] = unpackFrom('xx2xII4xB3x', buffer, offset)
+  offset += 20
+
+  return {
+    value: {
+      event,
+      window,
+      place
+    },
+    offset
+  }
+}
+
 export enum Property {
   NewValue = 0,
   Delete = 1,
+}
+
+export type PropertyNotifyEvent = {
+  window: WINDOW
+  atom: ATOM
+  time: TIMESTAMP
+  state: Property
+}
+
+const unmarshallPropertyNotifyEvent: Unmarshaller<PropertyNotifyEvent> = (buffer, offset = 0) => {
+  const [window, atom, time, state] = unpackFrom('xx2xIIIB3x', buffer, offset)
+  offset += 20
+
+  return {
+    value: {
+      window,
+      atom,
+      time,
+      state
+    },
+    offset
+  }
+}
+
+export type SelectionClearEvent = {
+  time: TIMESTAMP
+  owner: WINDOW
+  selection: ATOM
+}
+
+const unmarshallSelectionClearEvent: Unmarshaller<SelectionClearEvent> = (buffer, offset = 0) => {
+  const [time, owner, selection] = unpackFrom('xx2xIII', buffer, offset)
+  offset += 16
+
+  return {
+    value: {
+      time,
+      owner,
+      selection
+    },
+    offset
+  }
 }
 
 export enum Time {
@@ -630,6 +1360,56 @@ export enum Atom {
   wmTransientFor = 68,
 }
 
+export type SelectionRequestEvent = {
+  time: TIMESTAMP
+  owner: WINDOW
+  requestor: WINDOW
+  selection: ATOM
+  target: ATOM
+  property: ATOM
+}
+
+const unmarshallSelectionRequestEvent: Unmarshaller<SelectionRequestEvent> = (buffer, offset = 0) => {
+  const [time, owner, requestor, selection, target, property] = unpackFrom('xx2xIIIIII', buffer, offset)
+  offset += 28
+
+  return {
+    value: {
+      time,
+      owner,
+      requestor,
+      selection,
+      target,
+      property
+    },
+    offset
+  }
+}
+
+export type SelectionNotifyEvent = {
+  time: TIMESTAMP
+  requestor: WINDOW
+  selection: ATOM
+  target: ATOM
+  property: ATOM
+}
+
+const unmarshallSelectionNotifyEvent: Unmarshaller<SelectionNotifyEvent> = (buffer, offset = 0) => {
+  const [time, requestor, selection, target, property] = unpackFrom('xx2xIIIII', buffer, offset)
+  offset += 24
+
+  return {
+    value: {
+      time,
+      requestor,
+      selection,
+      target,
+      property
+    },
+    offset
+  }
+}
+
 export enum ColormapState {
   Uninstalled = 0,
   Installed = 1,
@@ -637,6 +1417,28 @@ export enum ColormapState {
 
 export enum Colormap {
   None = 0,
+}
+
+export type ColormapNotifyEvent = {
+  window: WINDOW
+  colormap: COLORMAP
+  _new: number
+  state: ColormapState
+}
+
+const unmarshallColormapNotifyEvent: Unmarshaller<ColormapNotifyEvent> = (buffer, offset = 0) => {
+  const [window, colormap, _new, state] = unpackFrom('xx2xIIBB2x', buffer, offset)
+  offset += 16
+
+  return {
+    value: {
+      window,
+      colormap,
+      _new,
+      state
+    },
+    offset
+  }
 }
 
 export type ClientMessageData = {
@@ -669,10 +1471,558 @@ const unmarshallClientMessageData: Unmarshaller<ClientMessageData> = (buffer, of
   }
 }
 
+export type ClientMessageEvent = {
+  format: number
+  window: WINDOW
+  _type: ATOM
+  data: ClientMessageData
+}
+
+const unmarshallClientMessageEvent: Unmarshaller<ClientMessageEvent> = (buffer, offset = 0) => {
+  const [format, window, _type] = unpackFrom('xB2xII', buffer, offset)
+  offset += 12
+  const dataWithOffset = unmarshallClientMessageData(buffer, offset)
+  const data = dataWithOffset.value
+  offset = dataWithOffset.offset
+
+  return {
+    value: {
+      format,
+      window,
+      _type,
+      data
+    },
+    offset
+  }
+}
+
 export enum Mapping {
   Modifier = 0,
   Keyboard = 1,
   Pointer = 2,
+}
+
+export type MappingNotifyEvent = {
+  request: Mapping
+  firstKeycode: KEYCODE
+  count: number
+}
+
+const unmarshallMappingNotifyEvent: Unmarshaller<MappingNotifyEvent> = (buffer, offset = 0) => {
+  const [request, firstKeycode, count] = unpackFrom('xx2xBBBx', buffer, offset)
+  offset += 8
+
+  return {
+    value: {
+      request,
+      firstKeycode,
+      count
+    },
+    offset
+  }
+}
+
+export type GeGenericEvent = {}
+
+const unmarshallGeGenericEvent: Unmarshaller<GeGenericEvent> = (buffer, offset = 0) => {
+
+  return {
+    value: {},
+    offset
+  }
+}
+
+export type RequestError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallRequestError: Unmarshaller<RequestError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadRequest extends Error {
+  readonly error: RequestError
+
+  constructor(error: RequestError) {
+    super()
+    this.error = error
+  }
+}
+
+export type ValueError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallValueError: Unmarshaller<ValueError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadValue extends Error {
+  readonly error: ValueError
+
+  constructor(error: ValueError) {
+    super()
+    this.error = error
+  }
+}
+
+export type WindowError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallWindowError: Unmarshaller<WindowError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadWindow extends Error {
+  readonly error: WindowError
+
+  constructor(error: WindowError) {
+    super()
+    this.error = error
+  }
+}
+
+export type PixmapError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallPixmapError: Unmarshaller<PixmapError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadPixmap extends Error {
+  readonly error: PixmapError
+
+  constructor(error: PixmapError) {
+    super()
+    this.error = error
+  }
+}
+
+export type AtomError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallAtomError: Unmarshaller<AtomError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadAtom extends Error {
+  readonly error: AtomError
+
+  constructor(error: AtomError) {
+    super()
+    this.error = error
+  }
+}
+
+export type CursorError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallCursorError: Unmarshaller<CursorError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadCursor extends Error {
+  readonly error: CursorError
+
+  constructor(error: CursorError) {
+    super()
+    this.error = error
+  }
+}
+
+export type FontError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallFontError: Unmarshaller<FontError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadFont extends Error {
+  readonly error: FontError
+
+  constructor(error: FontError) {
+    super()
+    this.error = error
+  }
+}
+
+export type MatchError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallMatchError: Unmarshaller<MatchError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadMatch extends Error {
+  readonly error: MatchError
+
+  constructor(error: MatchError) {
+    super()
+    this.error = error
+  }
+}
+
+export type DrawableError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallDrawableError: Unmarshaller<DrawableError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadDrawable extends Error {
+  readonly error: DrawableError
+
+  constructor(error: DrawableError) {
+    super()
+    this.error = error
+  }
+}
+
+export type AccessError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallAccessError: Unmarshaller<AccessError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadAccess extends Error {
+  readonly error: AccessError
+
+  constructor(error: AccessError) {
+    super()
+    this.error = error
+  }
+}
+
+export type AllocError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallAllocError: Unmarshaller<AllocError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadAlloc extends Error {
+  readonly error: AllocError
+
+  constructor(error: AllocError) {
+    super()
+    this.error = error
+  }
+}
+
+export type ColormapError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallColormapError: Unmarshaller<ColormapError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadColormap extends Error {
+  readonly error: ColormapError
+
+  constructor(error: ColormapError) {
+    super()
+    this.error = error
+  }
+}
+
+export type GContextError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallGContextError: Unmarshaller<GContextError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadGContext extends Error {
+  readonly error: GContextError
+
+  constructor(error: GContextError) {
+    super()
+    this.error = error
+  }
+}
+
+export type IDChoiceError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallIDChoiceError: Unmarshaller<IDChoiceError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadIDChoice extends Error {
+  readonly error: IDChoiceError
+
+  constructor(error: IDChoiceError) {
+    super()
+    this.error = error
+  }
+}
+
+export type NameError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallNameError: Unmarshaller<NameError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadName extends Error {
+  readonly error: NameError
+
+  constructor(error: NameError) {
+    super()
+    this.error = error
+  }
+}
+
+export type LengthError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallLengthError: Unmarshaller<LengthError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadLength extends Error {
+  readonly error: LengthError
+
+  constructor(error: LengthError) {
+    super()
+    this.error = error
+  }
+}
+
+export type ImplementationError = {
+  badValue: number
+  minorOpcode: number
+  majorOpcode: number
+}
+
+const unmarshallImplementationError: Unmarshaller<ImplementationError> = (buffer, offset = 0) => {
+  const [badValue, minorOpcode, majorOpcode] = unpackFrom('xx2xIHBx', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      badValue,
+      minorOpcode,
+      majorOpcode
+    },
+    offset
+  }
+}
+
+export class BadImplementation extends Error {
+  readonly error: ImplementationError
+
+  constructor(error: ImplementationError) {
+    super()
+    this.error = error
+  }
 }
 
 export enum WindowClass {
@@ -4120,6 +5470,7 @@ export function StoreColors(cmap: COLORMAP, itemsLen: number, items: COLORITEM[]
   requestParts.push(pack('=xx2xI', cmap))
   items.forEach(({ pixel, red, green, blue, flags }) => {
     requestParts.push(pack('=IHHHBx', pixel, red, green, blue, flags))
+
   })
 
   return sendRequest<void>(requestParts, 89, true, false)
@@ -4691,7 +6042,60 @@ export function NoOperation(): Promise<void> {
   return sendRequest<void>(requestParts, 127, true, false)
 }
 
-export const events = {}
+export const events = {
+  2: unmarshallKeyPressEvent,
+  3: unmarshallKeyReleaseEvent,
+  4: unmarshallButtonPressEvent,
+  5: unmarshallButtonReleaseEvent,
+  6: unmarshallMotionNotifyEvent,
+  7: unmarshallEnterNotifyEvent,
+  8: unmarshallLeaveNotifyEvent,
+  9: unmarshallFocusInEvent,
+  10: unmarshallFocusOutEvent,
+  11: unmarshallKeymapNotifyEvent,
+  12: unmarshallExposeEvent,
+  13: unmarshallGraphicsExposureEvent,
+  14: unmarshallNoExposureEvent,
+  15: unmarshallVisibilityNotifyEvent,
+  16: unmarshallCreateNotifyEvent,
+  17: unmarshallDestroyNotifyEvent,
+  18: unmarshallUnmapNotifyEvent,
+  19: unmarshallMapNotifyEvent,
+  20: unmarshallMapRequestEvent,
+  21: unmarshallReparentNotifyEvent,
+  22: unmarshallConfigureNotifyEvent,
+  23: unmarshallConfigureRequestEvent,
+  24: unmarshallGravityNotifyEvent,
+  25: unmarshallResizeRequestEvent,
+  26: unmarshallCirculateNotifyEvent,
+  27: unmarshallCirculateRequestEvent,
+  28: unmarshallPropertyNotifyEvent,
+  29: unmarshallSelectionClearEvent,
+  30: unmarshallSelectionRequestEvent,
+  31: unmarshallSelectionNotifyEvent,
+  32: unmarshallColormapNotifyEvent,
+  33: unmarshallClientMessageEvent,
+  34: unmarshallMappingNotifyEvent,
+  35: unmarshallGeGenericEvent
+}
 
-export const errors = {}
+export const errors = {
+  1: [unmarshallRequestError, BadRequest],
+  2: [unmarshallValueError, BadValue],
+  3: [unmarshallWindowError, BadWindow],
+  4: [unmarshallPixmapError, BadPixmap],
+  5: [unmarshallAtomError, BadAtom],
+  6: [unmarshallCursorError, BadCursor],
+  7: [unmarshallFontError, BadFont],
+  8: [unmarshallMatchError, BadMatch],
+  9: [unmarshallDrawableError, BadDrawable],
+  10: [unmarshallAccessError, BadAccess],
+  11: [unmarshallAllocError, BadAlloc],
+  12: [unmarshallColormapError, BadColormap],
+  13: [unmarshallGContextError, BadGContext],
+  14: [unmarshallIDChoiceError, BadIDChoice],
+  15: [unmarshallNameError, BadName],
+  16: [unmarshallLengthError, BadLength],
+  17: [unmarshallImplementationError, BadImplementation]
+}
 

@@ -15,7 +15,7 @@ _tsname_re = re.compile('^\d')
 _tsname_except_re = re.compile('^Bad')
 
 _ts_reserved_words = ['undefined', 'interface', 'type', 'enum', 'class', 'string', 'number',
-                      'delete']
+                      'delete', 'new']
 _ts_types = {
   'CARD8': 'number', 'uint8_t': 'number',
   'CARD16': 'number', 'uint16_t': 'number',
@@ -749,15 +749,71 @@ def ts_request(self, name):
 
 
 def ts_event(self, name):
-  pass
+  '''
+  Exported function that handles event declarations.
+  '''
+  _ts_type_setup(self, name, 'Event')
+
+  # Structure definition
+  _ts_setlevel(0)
+  _ts('')
+  _ts('export type %s = {', self.ts_event_name)
+  _ts_type_fields(self)
+  _ts('}')
+  _ts('')
+  _ts_complex(self, name)
+
+  # Opcode define
+  _ts_setlevel(2)
+  _ts('    %s : unmarshall%s,', self.opcodes[name], self.ts_event_name)
 
 
 def ts_eventstruct(self, name):
-  pass
+  '''
+  Exported function that handles structure declarations.
+  '''
+  _ts_type_setup(self, name)
+
+  _ts_setlevel(0)
+
+  _ts('')
+  _ts('export type %s  = {', self.ts_type)
+  _ts_type_fields(self)
+  _ts('}')
+  _ts('')
+  _ts_complex(self, name)
 
 
 def ts_error(self, name):
-  pass
+  '''
+  Exported function that handles error declarations.
+  '''
+  _ts_type_setup(self, name, 'Error')
+
+  # Structure definition
+  _ts_setlevel(0)
+  _ts('')
+  _ts('export type %s = {', self.ts_error_name)
+  _ts_type_fields(self)
+  _ts('}')
+  _ts('')
+
+  _ts_complex(self, name)
+
+  # Exception definition
+  _ts('')
+  _ts('export class %s extends Error {', self.ts_except_name)
+  _ts('  readonly error: %s', self.ts_error_name)
+  _ts('  constructor (error: %s) {', self.ts_error_name)
+  _ts('    super()')
+  _ts('    this.error = error')
+  _ts('  }')
+  _ts('}')
+
+  # Opcode define
+  _ts_setlevel(3)
+  _ts('    %s : [unmarshall%s, %s],', self.opcodes[name], self.ts_error_name, self.ts_except_name)
+
 
 
 # Main routine starts here
