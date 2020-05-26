@@ -12,7 +12,6 @@ import {
   sendRequest
 } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
-import TypedArray = NodeJS.TypedArray
 
 
 export type CHAR2B = {
@@ -319,19 +318,19 @@ export type SetupRequest = {
   protocolMinorVersion: number
   authorizationProtocolNameLen: number
   authorizationProtocolDataLen: number
-  authorizationProtocolName: number[] | string
-  authorizationProtocolData: number[] | string
+  authorizationProtocolName: Int8Array
+  authorizationProtocolData: Int8Array
 }
 
 const unmarshallSetupRequest: Unmarshaller<SetupRequest> = (buffer, offset = 0) => {
   const [byteOrder, protocolMajorVersion, protocolMinorVersion, authorizationProtocolNameLen, authorizationProtocolDataLen] = unpackFrom('BxHHHH2x', buffer, offset)
   offset += 12
-  const authorizationProtocolNameWithOffset = xcbSimpleList(buffer, offset, authorizationProtocolNameLen, 'b', 1)
+  const authorizationProtocolNameWithOffset = xcbSimpleList(buffer, offset, authorizationProtocolNameLen, Int8Array, 1)
   offset = authorizationProtocolNameWithOffset.offset
   const authorizationProtocolName = authorizationProtocolNameWithOffset.value
   offset += 1
   offset += typePad(1, offset)
-  const authorizationProtocolDataWithOffset = xcbSimpleList(buffer, offset, authorizationProtocolDataLen, 'b', 1)
+  const authorizationProtocolDataWithOffset = xcbSimpleList(buffer, offset, authorizationProtocolDataLen, Int8Array, 1)
   offset = authorizationProtocolDataWithOffset.offset
   const authorizationProtocolData = authorizationProtocolDataWithOffset.value
 
@@ -355,13 +354,13 @@ export type SetupFailed = {
   protocolMajorVersion: number
   protocolMinorVersion: number
   length: number
-  reason: number[] | string
+  reason: Int8Array
 }
 
 const unmarshallSetupFailed: Unmarshaller<SetupFailed> = (buffer, offset = 0) => {
   const [status, reasonLen, protocolMajorVersion, protocolMinorVersion, length] = unpackFrom('BBHHH', buffer, offset)
   offset += 8
-  const reasonWithOffset = xcbSimpleList(buffer, offset, reasonLen, 'b', 1)
+  const reasonWithOffset = xcbSimpleList(buffer, offset, reasonLen, Int8Array, 1)
   offset = reasonWithOffset.offset
   const reason = reasonWithOffset.value
 
@@ -381,13 +380,13 @@ const unmarshallSetupFailed: Unmarshaller<SetupFailed> = (buffer, offset = 0) =>
 export type SetupAuthenticate = {
   status: number
   length: number
-  reason: number[] | string
+  reason: Int8Array
 }
 
 const unmarshallSetupAuthenticate: Unmarshaller<SetupAuthenticate> = (buffer, offset = 0) => {
   const [status, length] = unpackFrom('B5xH', buffer, offset)
   offset += 8
-  const reasonWithOffset = xcbSimpleList(buffer, offset, (length * 4), 'b', 1)
+  const reasonWithOffset = xcbSimpleList(buffer, offset, (length * 4), Int8Array, 1)
   offset = reasonWithOffset.offset
   const reason = reasonWithOffset.value
 
@@ -425,7 +424,7 @@ export type Setup = {
   bitmapFormatScanlinePad: number
   minKeycode: KEYCODE
   maxKeycode: KEYCODE
-  vendor: number[] | string
+  vendor: Int8Array
   pixmapFormats: FORMAT[]
   roots: SCREEN[]
 }
@@ -433,7 +432,7 @@ export type Setup = {
 const unmarshallSetup: Unmarshaller<Setup> = (buffer, offset = 0) => {
   const [status, protocolMajorVersion, protocolMinorVersion, length, releaseNumber, resourceIdBase, resourceIdMask, motionBufferSize, vendorLen, maximumRequestLength, rootsLen, pixmapFormatsLen, imageByteOrder, bitmapFormatBitOrder, bitmapFormatScanlineUnit, bitmapFormatScanlinePad, minKeycode, maxKeycode] = unpackFrom('BxHHHIIIIHHBBBBBBBB4x', buffer, offset)
   offset += 40
-  const vendorWithOffset = xcbSimpleList(buffer, offset, vendorLen, 'b', 1)
+  const vendorWithOffset = xcbSimpleList(buffer, offset, vendorLen, Int8Array, 1)
   offset = vendorWithOffset.offset
   const vendor = vendorWithOffset.value
   offset += 1
@@ -641,21 +640,21 @@ export enum Colormap {
 }
 
 export type ClientMessageData = {
-  data8: number[]
-  data16: number[]
-  data32: number[]
+  data8: Uint8Array
+  data16: Uint16Array
+  data32: Uint32Array
 }
 
 const unmarshallClientMessageData: Unmarshaller<ClientMessageData> = (buffer, offset = 0) => {
   let size = 0
 
-  const data8WithOffset = xcbSimpleList(buffer, offset, 20, 'B', 1)
+  const data8WithOffset = xcbSimpleList(buffer, offset, 20, Uint8Array, 1)
   const data8 = data8WithOffset.value
   size = Math.max(size, data8WithOffset.offset - offset)
-  const data16WithOffset = xcbSimpleList(buffer, offset, 10, 'H', 2)
+  const data16WithOffset = xcbSimpleList(buffer, offset, 10, Uint16Array, 2)
   const data16 = data16WithOffset.value
   size = Math.max(size, data16WithOffset.offset - offset)
-  const data32WithOffset = xcbSimpleList(buffer, offset, 5, 'I', 4)
+  const data32WithOffset = xcbSimpleList(buffer, offset, 5, Uint32Array, 4)
   const data32 = data32WithOffset.value
   size = Math.max(size, data32WithOffset.offset - offset)
   offset += size
@@ -836,13 +835,13 @@ export type QueryTreeReply = {
   root: WINDOW
   parent: WINDOW
   childrenLen: number
-  children: WINDOW[]
+  children: Uint32Array
 }
 
 const unmarshallQueryTreeReply: Unmarshaller<QueryTreeReply> = (buffer, offset = 0) => {
   const [root, parent, childrenLen] = unpackFrom('xx2x4xIIH14x', buffer, offset)
   offset += 32
-  const childrenWithOffset = xcbSimpleList(buffer, offset, childrenLen, 'I', 4)
+  const childrenWithOffset = xcbSimpleList(buffer, offset, childrenLen, Uint32Array, 4)
   offset = childrenWithOffset.offset
   const children = childrenWithOffset.value
 
@@ -879,13 +878,13 @@ export type GetAtomNameCookie = Promise<GetAtomNameReply>
 
 export type GetAtomNameReply = {
   nameLen: number
-  name: number[] | string
+  name: Int8Array
 }
 
 const unmarshallGetAtomNameReply: Unmarshaller<GetAtomNameReply> = (buffer, offset = 0) => {
   const [nameLen] = unpackFrom('xx2x4xH22x', buffer, offset)
   offset += 32
-  const nameWithOffset = xcbSimpleList(buffer, offset, nameLen, 'b', 1)
+  const nameWithOffset = xcbSimpleList(buffer, offset, nameLen, Int8Array, 1)
   offset = nameWithOffset.offset
   const name = nameWithOffset.value
 
@@ -915,13 +914,13 @@ export type GetPropertyReply = {
   _type: ATOM
   bytesAfter: number
   valueLen: number
-  value: any[]
+  value: Uint8Array
 }
 
 const unmarshallGetPropertyReply: Unmarshaller<GetPropertyReply> = (buffer, offset = 0) => {
   const [format, _type, bytesAfter, valueLen] = unpackFrom('xB2x4xIII12x', buffer, offset)
   offset += 32
-  const valueWithOffset = xcbSimpleList(buffer, offset, (valueLen * (format / 8)), 'B', 1)
+  const valueWithOffset = xcbSimpleList(buffer, offset, (valueLen * (format / 8)), Uint8Array, 1)
   offset = valueWithOffset.offset
   const value = valueWithOffset.value
 
@@ -941,13 +940,13 @@ export type ListPropertiesCookie = Promise<ListPropertiesReply>
 
 export type ListPropertiesReply = {
   atomsLen: number
-  atoms: ATOM[]
+  atoms: Uint32Array
 }
 
 const unmarshallListPropertiesReply: Unmarshaller<ListPropertiesReply> = (buffer, offset = 0) => {
   const [atomsLen] = unpackFrom('xx2x4xH22x', buffer, offset)
   offset += 32
-  const atomsWithOffset = xcbSimpleList(buffer, offset, atomsLen, 'I', 4)
+  const atomsWithOffset = xcbSimpleList(buffer, offset, atomsLen, Uint32Array, 4)
   offset = atomsWithOffset.offset
   const atoms = atomsWithOffset.value
 
@@ -1189,12 +1188,12 @@ const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (buffer, 
 export type QueryKeymapCookie = Promise<QueryKeymapReply>
 
 export type QueryKeymapReply = {
-  keys: number[]
+  keys: Uint8Array
 }
 
 const unmarshallQueryKeymapReply: Unmarshaller<QueryKeymapReply> = (buffer, offset = 0) => {
   offset += 8
-  const keysWithOffset = xcbSimpleList(buffer, offset, 32, 'B', 1)
+  const keysWithOffset = xcbSimpleList(buffer, offset, 32, Uint8Array, 1)
   offset = keysWithOffset.offset
   const keys = keysWithOffset.value
 
@@ -1352,13 +1351,13 @@ const unmarshallQueryTextExtentsReply: Unmarshaller<QueryTextExtentsReply> = (bu
 
 export type STR = {
   nameLen: number
-  name: number[] | string
+  name: Int8Array
 }
 
 const unmarshallSTR: Unmarshaller<STR> = (buffer, offset = 0) => {
   const [nameLen] = unpackFrom('B', buffer, offset)
   offset += 1
-  const nameWithOffset = xcbSimpleList(buffer, offset, nameLen, 'b', 1)
+  const nameWithOffset = xcbSimpleList(buffer, offset, nameLen, Int8Array, 1)
   offset = nameWithOffset.offset
   const name = nameWithOffset.value
 
@@ -1412,7 +1411,7 @@ export type ListFontsWithInfoReply = {
   fontDescent: number
   repliesHint: number
   properties: FONTPROP[]
-  name: number[] | string
+  name: Int8Array
 }
 
 const unmarshallListFontsWithInfoReply: Unmarshaller<ListFontsWithInfoReply> = (buffer, offset = 0) => {
@@ -1433,7 +1432,7 @@ const unmarshallListFontsWithInfoReply: Unmarshaller<ListFontsWithInfoReply> = (
   offset = propertiesWithOffset.offset
   const properties = propertiesWithOffset.value
   offset += typePad(1, offset)
-  const nameWithOffset = xcbSimpleList(buffer, offset, nameLen, 'b', 1)
+  const nameWithOffset = xcbSimpleList(buffer, offset, nameLen, Int8Array, 1)
   offset = nameWithOffset.offset
   const name = nameWithOffset.value
 
@@ -1620,13 +1619,13 @@ export type GetImageCookie = Promise<GetImageReply>
 export type GetImageReply = {
   depth: number
   visual: VISUALID
-  data: number[]
+  data: Uint8Array
 }
 
 const unmarshallGetImageReply: Unmarshaller<GetImageReply> = (buffer, offset = 0) => {
   const [depth, visual] = unpackFrom('xB2x4xI20x', buffer, offset)
   offset += 32
-  const dataWithOffset = xcbSimpleList(buffer, offset, (length * 4), 'B', 1)
+  const dataWithOffset = xcbSimpleList(buffer, offset, (length * 4), Uint8Array, 1)
   offset = dataWithOffset.offset
   const data = dataWithOffset.value
 
@@ -1649,13 +1648,13 @@ export type ListInstalledColormapsCookie = Promise<ListInstalledColormapsReply>
 
 export type ListInstalledColormapsReply = {
   cmapsLen: number
-  cmaps: COLORMAP[]
+  cmaps: Uint32Array
 }
 
 const unmarshallListInstalledColormapsReply: Unmarshaller<ListInstalledColormapsReply> = (buffer, offset = 0) => {
   const [cmapsLen] = unpackFrom('xx2x4xH22x', buffer, offset)
   offset += 32
-  const cmapsWithOffset = xcbSimpleList(buffer, offset, cmapsLen, 'I', 4)
+  const cmapsWithOffset = xcbSimpleList(buffer, offset, cmapsLen, Uint32Array, 4)
   offset = cmapsWithOffset.offset
   const cmaps = cmapsWithOffset.value
 
@@ -1727,18 +1726,18 @@ export type AllocColorCellsCookie = Promise<AllocColorCellsReply>
 export type AllocColorCellsReply = {
   pixelsLen: number
   masksLen: number
-  pixels: number[]
-  masks: number[]
+  pixels: Uint32Array
+  masks: Uint32Array
 }
 
 const unmarshallAllocColorCellsReply: Unmarshaller<AllocColorCellsReply> = (buffer, offset = 0) => {
   const [pixelsLen, masksLen] = unpackFrom('xx2x4xHH20x', buffer, offset)
   offset += 32
-  const pixelsWithOffset = xcbSimpleList(buffer, offset, pixelsLen, 'I', 4)
+  const pixelsWithOffset = xcbSimpleList(buffer, offset, pixelsLen, Uint32Array, 4)
   offset = pixelsWithOffset.offset
   const pixels = pixelsWithOffset.value
   offset += typePad(4, offset)
-  const masksWithOffset = xcbSimpleList(buffer, offset, masksLen, 'I', 4)
+  const masksWithOffset = xcbSimpleList(buffer, offset, masksLen, Uint32Array, 4)
   offset = masksWithOffset.offset
   const masks = masksWithOffset.value
 
@@ -1760,13 +1759,13 @@ export type AllocColorPlanesReply = {
   redMask: number
   greenMask: number
   blueMask: number
-  pixels: number[]
+  pixels: Uint32Array
 }
 
 const unmarshallAllocColorPlanesReply: Unmarshaller<AllocColorPlanesReply> = (buffer, offset = 0) => {
   const [pixelsLen, redMask, greenMask, blueMask] = unpackFrom('xx2x4xH2xIII8x', buffer, offset)
   offset += 32
-  const pixelsWithOffset = xcbSimpleList(buffer, offset, pixelsLen, 'I', 4)
+  const pixelsWithOffset = xcbSimpleList(buffer, offset, pixelsLen, Uint32Array, 4)
   offset = pixelsWithOffset.offset
   const pixels = pixelsWithOffset.value
 
@@ -1968,13 +1967,13 @@ export type GetKeyboardMappingCookie = Promise<GetKeyboardMappingReply>
 
 export type GetKeyboardMappingReply = {
   keysymsPerKeycode: number
-  keysyms: KEYSYM[]
+  keysyms: Uint32Array
 }
 
 const unmarshallGetKeyboardMappingReply: Unmarshaller<GetKeyboardMappingReply> = (buffer, offset = 0) => {
   const [keysymsPerKeycode] = unpackFrom('xB2x4x24x', buffer, offset)
   offset += 32
-  const keysymsWithOffset = xcbSimpleList(buffer, offset, length, 'I', 4)
+  const keysymsWithOffset = xcbSimpleList(buffer, offset, length, Uint32Array, 4)
   offset = keysymsWithOffset.offset
   const keysyms = keysymsWithOffset.value
 
@@ -2018,13 +2017,13 @@ export type GetKeyboardControlReply = {
   bellPercent: number
   bellPitch: number
   bellDuration: number
-  autoRepeats: number[]
+  autoRepeats: Uint8Array
 }
 
 const unmarshallGetKeyboardControlReply: Unmarshaller<GetKeyboardControlReply> = (buffer, offset = 0) => {
   const [globalAutoRepeat, ledMask, keyClickPercent, bellPercent, bellPitch, bellDuration] = unpackFrom('xB2x4xIBBHH2x', buffer, offset)
   offset += 20
-  const autoRepeatsWithOffset = xcbSimpleList(buffer, offset, 32, 'B', 1)
+  const autoRepeatsWithOffset = xcbSimpleList(buffer, offset, 32, Uint8Array, 1)
   offset = autoRepeatsWithOffset.offset
   const autoRepeats = autoRepeatsWithOffset.value
 
@@ -2116,13 +2115,13 @@ export enum Family {
 export type HOST = {
   family: Family
   addressLen: number
-  address: number[]
+  address: Uint8Array
 }
 
 const unmarshallHOST: Unmarshaller<HOST> = (buffer, offset = 0) => {
   const [family, addressLen] = unpackFrom('BxH', buffer, offset)
   offset += 4
-  const addressWithOffset = xcbSimpleList(buffer, offset, addressLen, 'B', 1)
+  const addressWithOffset = xcbSimpleList(buffer, offset, addressLen, Uint8Array, 1)
   offset = addressWithOffset.offset
   const address = addressWithOffset.value
 
@@ -2209,13 +2208,13 @@ export type GetPointerMappingCookie = Promise<GetPointerMappingReply>
 
 export type GetPointerMappingReply = {
   mapLen: number
-  map: number[]
+  map: Uint8Array
 }
 
 const unmarshallGetPointerMappingReply: Unmarshaller<GetPointerMappingReply> = (buffer, offset = 0) => {
   const [mapLen] = unpackFrom('xB2x4x24x', buffer, offset)
   offset += 32
-  const mapWithOffset = xcbSimpleList(buffer, offset, mapLen, 'B', 1)
+  const mapWithOffset = xcbSimpleList(buffer, offset, mapLen, Uint8Array, 1)
   offset = mapWithOffset.offset
   const map = mapWithOffset.value
 
@@ -2261,13 +2260,13 @@ export type GetModifierMappingCookie = Promise<GetModifierMappingReply>
 
 export type GetModifierMappingReply = {
   keycodesPerModifier: number
-  keycodes: KEYCODE[]
+  keycodes: Uint8Array
 }
 
 const unmarshallGetModifierMappingReply: Unmarshaller<GetModifierMappingReply> = (buffer, offset = 0) => {
   const [keycodesPerModifier] = unpackFrom('xB2x4x24x', buffer, offset)
   offset += 32
-  const keycodesWithOffset = xcbSimpleList(buffer, offset, (keycodesPerModifier * 8), 'B', 1)
+  const keycodesWithOffset = xcbSimpleList(buffer, offset, (keycodesPerModifier * 8), Uint8Array, 1)
   offset = keycodesWithOffset.offset
   const keycodes = keycodesWithOffset.value
 
@@ -2655,20 +2654,22 @@ export function QueryTreeUnchecked(window: WINDOW): QueryTreeCookie {
   return sendRequest<QueryTreeReply>(requestParts, 15, false, false, unmarshallQueryTreeReply)
 }
 
-export function InternAtom(onlyIfExists: number, nameLen: number, name: number[] | string): InternAtomCookie {
+export function InternAtom(onlyIfExists: number, name: Int8Array): InternAtomCookie {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xH2x', onlyIfExists, nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<InternAtomReply>(requestParts, 16, false, true, unmarshallInternAtomReply)
 }
 
-export function InternAtomUnchecked(onlyIfExists: number, nameLen: number, name: number[] | string): InternAtomCookie {
+export function InternAtomUnchecked(onlyIfExists: number, name: Int8Array): InternAtomCookie {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xH2x', onlyIfExists, nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<InternAtomReply>(requestParts, 16, false, false, unmarshallInternAtomReply)
 }
@@ -2689,20 +2690,22 @@ export function GetAtomNameUnchecked(atom: ATOM): GetAtomNameCookie {
   return sendRequest<GetAtomNameReply>(requestParts, 17, false, false, unmarshallGetAtomNameReply)
 }
 
-export function ChangePropertyChecked(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, data: TypedArray): Promise<void> {
+export function ChangePropertyChecked(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: Uint8Array): Promise<void> {
+  const dataLen = data.length
   const requestParts: ArrayBuffer[] = []
 
-  requestParts.push(pack('=xB2xIIIB3xI', mode, window, property, _type, data.BYTES_PER_ELEMENT * 4, data.length))
+  requestParts.push(pack('=xB2xIIIB3xI', mode, window, property, _type, format, dataLen))
   requestParts.push(data.buffer)
 
   return sendRequest<void>(requestParts, 18, true, true)
 }
 
-export function ChangeProperty(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, dataLen: number, data: any[]): Promise<void> {
+export function ChangeProperty(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: Uint8Array): Promise<void> {
+  const dataLen = data.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIIB3xI', mode, window, property, _type, format, dataLen))
-  requestParts.push(pack(`=${'B'.repeat(data.length)}`, ...(typeof data === 'string' ? (data as string).split('').map(char => char.charCodeAt(0)) : data)))
+  requestParts.push(data.buffer)
 
   return sendRequest<void>(requestParts, 18, true, false)
 }
@@ -2803,20 +2806,20 @@ export function ConvertSelection(requestor: WINDOW, selection: ATOM, target: ATO
   return sendRequest<void>(requestParts, 24, true, false)
 }
 
-export function SendEventChecked(propagate: number, destination: WINDOW, eventMask: number, event: number[] | string): Promise<void> {
+export function SendEventChecked(propagate: number, destination: WINDOW, eventMask: number, event: Int8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', propagate, destination, eventMask))
-  requestParts.push(pack(`=${'b'.repeat(event.length)}`, ...(typeof event === 'string' ? (event as string).split('').map(char => char.charCodeAt(0)) : event)))
+  requestParts.push(event.buffer)
 
   return sendRequest<void>(requestParts, 25, true, true)
 }
 
-export function SendEvent(propagate: number, destination: WINDOW, eventMask: number, event: number[] | string): Promise<void> {
+export function SendEvent(propagate: number, destination: WINDOW, eventMask: number, event: Int8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', propagate, destination, eventMask))
-  requestParts.push(pack(`=${'b'.repeat(event.length)}`, ...(typeof event === 'string' ? (event as string).split('').map(char => char.charCodeAt(0)) : event)))
+  requestParts.push(event.buffer)
 
   return sendRequest<void>(requestParts, 25, true, false)
 }
@@ -3125,20 +3128,22 @@ export function QueryKeymapUnchecked(): QueryKeymapCookie {
   return sendRequest<QueryKeymapReply>(requestParts, 44, false, false, unmarshallQueryKeymapReply)
 }
 
-export function OpenFontChecked(fid: FONT, nameLen: number, name: number[] | string): Promise<void> {
+export function OpenFontChecked(fid: FONT, name: Int8Array): Promise<void> {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', fid, nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<void>(requestParts, 45, true, true)
 }
 
-export function OpenFont(fid: FONT, nameLen: number, name: number[] | string): Promise<void> {
+export function OpenFont(fid: FONT, name: Int8Array): Promise<void> {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', fid, nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<void>(requestParts, 45, true, false)
 }
@@ -3181,7 +3186,10 @@ export function QueryTextExtents(font: FONTABLE, stringLen: number, _string: CHA
   requestParts.push(pack('=x'))
   requestParts.push(pack('=B', (stringLen & 1)))
   requestParts.push(pack('=2xI', font))
-  _string.forEach(member => requestParts.push(pack('=BB', ...[member.byte1, member.byte2])))
+  _string.forEach(({ byte1, byte2 }) => {
+    requestParts.push(pack('=BB', byte1, byte2))
+
+  })
 
   return sendRequest<QueryTextExtentsReply>(requestParts, 48, false, true, unmarshallQueryTextExtentsReply)
 }
@@ -3192,61 +3200,78 @@ export function QueryTextExtentsUnchecked(font: FONTABLE, stringLen: number, _st
   requestParts.push(pack('=x'))
   requestParts.push(pack('=B', (stringLen & 1)))
   requestParts.push(pack('=2xI', font))
-  _string.forEach(member => requestParts.push(pack('=BB', ...[member.byte1, member.byte2])))
+  _string.forEach(({ byte1, byte2 }) => {
+    requestParts.push(pack('=BB', byte1, byte2))
+
+  })
 
   return sendRequest<QueryTextExtentsReply>(requestParts, 48, false, false, unmarshallQueryTextExtentsReply)
 }
 
-export function ListFonts(maxNames: number, patternLen: number, pattern: number[] | string): ListFontsCookie {
+export function ListFonts(maxNames: number, pattern: Int8Array): ListFontsCookie {
+  const patternLen = pattern.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xHH', maxNames, patternLen))
-  requestParts.push(pack(`=${'b'.repeat(pattern.length)}`, ...(typeof pattern === 'string' ? (pattern as string).split('').map(char => char.charCodeAt(0)) : pattern)))
+  requestParts.push(pattern.buffer)
 
   return sendRequest<ListFontsReply>(requestParts, 49, false, true, unmarshallListFontsReply)
 }
 
-export function ListFontsUnchecked(maxNames: number, patternLen: number, pattern: number[] | string): ListFontsCookie {
+export function ListFontsUnchecked(maxNames: number, pattern: Int8Array): ListFontsCookie {
+  const patternLen = pattern.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xHH', maxNames, patternLen))
-  requestParts.push(pack(`=${'b'.repeat(pattern.length)}`, ...(typeof pattern === 'string' ? (pattern as string).split('').map(char => char.charCodeAt(0)) : pattern)))
+  requestParts.push(pattern.buffer)
 
   return sendRequest<ListFontsReply>(requestParts, 49, false, false, unmarshallListFontsReply)
 }
 
-export function ListFontsWithInfo(maxNames: number, patternLen: number, pattern: number[] | string): ListFontsWithInfoCookie {
+export function ListFontsWithInfo(maxNames: number, pattern: Int8Array): ListFontsWithInfoCookie {
+  const patternLen = pattern.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xHH', maxNames, patternLen))
-  requestParts.push(pack(`=${'b'.repeat(pattern.length)}`, ...(typeof pattern === 'string' ? (pattern as string).split('').map(char => char.charCodeAt(0)) : pattern)))
+  requestParts.push(pattern.buffer)
 
   return sendRequest<ListFontsWithInfoReply>(requestParts, 50, false, true, unmarshallListFontsWithInfoReply)
 }
 
-export function ListFontsWithInfoUnchecked(maxNames: number, patternLen: number, pattern: number[] | string): ListFontsWithInfoCookie {
+export function ListFontsWithInfoUnchecked(maxNames: number, pattern: Int8Array): ListFontsWithInfoCookie {
+  const patternLen = pattern.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xHH', maxNames, patternLen))
-  requestParts.push(pack(`=${'b'.repeat(pattern.length)}`, ...(typeof pattern === 'string' ? (pattern as string).split('').map(char => char.charCodeAt(0)) : pattern)))
+  requestParts.push(pattern.buffer)
 
   return sendRequest<ListFontsWithInfoReply>(requestParts, 50, false, false, unmarshallListFontsWithInfoReply)
 }
 
-export function SetFontPathChecked(fontQty: number, font: STR[]): Promise<void> {
+export function SetFontPathChecked(font: STR[]): Promise<void> {
+  const fontQty = font.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xH2x', fontQty))
-  font.forEach(member => requestParts.push(pack('=None', ...[member.nameLen, member.name])))
+  font.forEach(({ nameLen, name }) => {
+    requestParts.push(pack('=B', nameLen))
+    requestParts.push(name.buffer)
+
+  })
 
   return sendRequest<void>(requestParts, 51, true, true)
 }
 
-export function SetFontPath(fontQty: number, font: STR[]): Promise<void> {
+export function SetFontPath(font: STR[]): Promise<void> {
+  const fontQty = font.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xH2x', fontQty))
-  font.forEach(member => requestParts.push(pack('=None', ...[member.nameLen, member.name])))
+  font.forEach(({ nameLen, name }) => {
+    requestParts.push(pack('=B', nameLen))
+    requestParts.push(name.buffer)
+
+  })
 
   return sendRequest<void>(requestParts, 51, true, false)
 }
@@ -3479,20 +3504,22 @@ export function CopyGC(srcGc: GCONTEXT, dstGc: GCONTEXT, valueMask: number): Pro
   return sendRequest<void>(requestParts, 57, true, false)
 }
 
-export function SetDashesChecked(gc: GCONTEXT, dashOffset: number, dashesLen: number, dashes: number[]): Promise<void> {
+export function SetDashesChecked(gc: GCONTEXT, dashOffset: number, dashes: Uint8Array): Promise<void> {
+  const dashesLen = dashes.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHH', gc, dashOffset, dashesLen))
-  requestParts.push(pack(`=${'B'.repeat(dashes.length)}`, ...(typeof dashes === 'string' ? (dashes as string).split('').map(char => char.charCodeAt(0)) : dashes)))
+  requestParts.push(dashes.buffer)
 
   return sendRequest<void>(requestParts, 58, true, true)
 }
 
-export function SetDashes(gc: GCONTEXT, dashOffset: number, dashesLen: number, dashes: number[]): Promise<void> {
+export function SetDashes(gc: GCONTEXT, dashOffset: number, dashes: Uint8Array): Promise<void> {
+  const dashesLen = dashes.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHH', gc, dashOffset, dashesLen))
-  requestParts.push(pack(`=${'B'.repeat(dashes.length)}`, ...(typeof dashes === 'string' ? (dashes as string).split('').map(char => char.charCodeAt(0)) : dashes)))
+  requestParts.push(dashes.buffer)
 
   return sendRequest<void>(requestParts, 58, true, false)
 }
@@ -3501,7 +3528,10 @@ export function SetClipRectanglesChecked(ordering: ClipOrdering, gc: GCONTEXT, c
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIhh', ordering, gc, clipXOrigin, clipYOrigin))
-  rectangles.forEach(member => requestParts.push(pack('=hhHH', ...[member.x, member.y, member.width, member.height])))
+  rectangles.forEach(({ x, y, width, height }) => {
+    requestParts.push(pack('=hhHH', x, y, width, height))
+
+  })
 
   return sendRequest<void>(requestParts, 59, true, true)
 }
@@ -3510,7 +3540,10 @@ export function SetClipRectangles(ordering: ClipOrdering, gc: GCONTEXT, clipXOri
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIhh', ordering, gc, clipXOrigin, clipYOrigin))
-  rectangles.forEach(member => requestParts.push(pack('=hhHH', ...[member.x, member.y, member.width, member.height])))
+  rectangles.forEach(({ x, y, width, height }) => {
+    requestParts.push(pack('=hhHH', x, y, width, height))
+
+  })
 
   return sendRequest<void>(requestParts, 59, true, false)
 }
@@ -3583,7 +3616,10 @@ export function PolyPointChecked(coordinateMode: CoordMode, drawable: DRAWABLE, 
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', coordinateMode, drawable, gc))
-  points.forEach(member => requestParts.push(pack('=hh', ...[member.x, member.y])))
+  points.forEach(({ x, y }) => {
+    requestParts.push(pack('=hh', x, y))
+
+  })
 
   return sendRequest<void>(requestParts, 64, true, true)
 }
@@ -3592,7 +3628,10 @@ export function PolyPoint(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCO
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', coordinateMode, drawable, gc))
-  points.forEach(member => requestParts.push(pack('=hh', ...[member.x, member.y])))
+  points.forEach(({ x, y }) => {
+    requestParts.push(pack('=hh', x, y))
+
+  })
 
   return sendRequest<void>(requestParts, 64, true, false)
 }
@@ -3601,7 +3640,10 @@ export function PolyLineChecked(coordinateMode: CoordMode, drawable: DRAWABLE, g
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', coordinateMode, drawable, gc))
-  points.forEach(member => requestParts.push(pack('=hh', ...[member.x, member.y])))
+  points.forEach(({ x, y }) => {
+    requestParts.push(pack('=hh', x, y))
+
+  })
 
   return sendRequest<void>(requestParts, 65, true, true)
 }
@@ -3610,7 +3652,10 @@ export function PolyLine(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCON
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', coordinateMode, drawable, gc))
-  points.forEach(member => requestParts.push(pack('=hh', ...[member.x, member.y])))
+  points.forEach(({ x, y }) => {
+    requestParts.push(pack('=hh', x, y))
+
+  })
 
   return sendRequest<void>(requestParts, 65, true, false)
 }
@@ -3619,7 +3664,10 @@ export function PolySegmentChecked(drawable: DRAWABLE, gc: GCONTEXT, segmentsLen
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
-  segments.forEach(member => requestParts.push(pack('=hhhh', ...[member.x1, member.y1, member.x2, member.y2])))
+  segments.forEach(({ x1, y1, x2, y2 }) => {
+    requestParts.push(pack('=hhhh', x1, y1, x2, y2))
+
+  })
 
   return sendRequest<void>(requestParts, 66, true, true)
 }
@@ -3628,7 +3676,10 @@ export function PolySegment(drawable: DRAWABLE, gc: GCONTEXT, segmentsLen: numbe
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
-  segments.forEach(member => requestParts.push(pack('=hhhh', ...[member.x1, member.y1, member.x2, member.y2])))
+  segments.forEach(({ x1, y1, x2, y2 }) => {
+    requestParts.push(pack('=hhhh', x1, y1, x2, y2))
+
+  })
 
   return sendRequest<void>(requestParts, 66, true, false)
 }
@@ -3637,7 +3688,10 @@ export function PolyRectangleChecked(drawable: DRAWABLE, gc: GCONTEXT, rectangle
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
-  rectangles.forEach(member => requestParts.push(pack('=hhHH', ...[member.x, member.y, member.width, member.height])))
+  rectangles.forEach(({ x, y, width, height }) => {
+    requestParts.push(pack('=hhHH', x, y, width, height))
+
+  })
 
   return sendRequest<void>(requestParts, 67, true, true)
 }
@@ -3646,7 +3700,10 @@ export function PolyRectangle(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: n
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
-  rectangles.forEach(member => requestParts.push(pack('=hhHH', ...[member.x, member.y, member.width, member.height])))
+  rectangles.forEach(({ x, y, width, height }) => {
+    requestParts.push(pack('=hhHH', x, y, width, height))
+
+  })
 
   return sendRequest<void>(requestParts, 67, true, false)
 }
@@ -3655,7 +3712,10 @@ export function PolyArcChecked(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
-  arcs.forEach(member => requestParts.push(pack('=hhHHhh', ...[member.x, member.y, member.width, member.height, member.angle1, member.angle2])))
+  arcs.forEach(({ x, y, width, height, angle1, angle2 }) => {
+    requestParts.push(pack('=hhHHhh', x, y, width, height, angle1, angle2))
+
+  })
 
   return sendRequest<void>(requestParts, 68, true, true)
 }
@@ -3664,7 +3724,10 @@ export function PolyArc(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs:
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
-  arcs.forEach(member => requestParts.push(pack('=hhHHhh', ...[member.x, member.y, member.width, member.height, member.angle1, member.angle2])))
+  arcs.forEach(({ x, y, width, height, angle1, angle2 }) => {
+    requestParts.push(pack('=hhHHhh', x, y, width, height, angle1, angle2))
+
+  })
 
   return sendRequest<void>(requestParts, 68, true, false)
 }
@@ -3673,7 +3736,10 @@ export function FillPolyChecked(drawable: DRAWABLE, gc: GCONTEXT, shape: PolySha
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIBB2x', drawable, gc, shape, coordinateMode))
-  points.forEach(member => requestParts.push(pack('=hh', ...[member.x, member.y])))
+  points.forEach(({ x, y }) => {
+    requestParts.push(pack('=hh', x, y))
+
+  })
 
   return sendRequest<void>(requestParts, 69, true, true)
 }
@@ -3682,7 +3748,10 @@ export function FillPoly(drawable: DRAWABLE, gc: GCONTEXT, shape: PolyShape, coo
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIBB2x', drawable, gc, shape, coordinateMode))
-  points.forEach(member => requestParts.push(pack('=hh', ...[member.x, member.y])))
+  points.forEach(({ x, y }) => {
+    requestParts.push(pack('=hh', x, y))
+
+  })
 
   return sendRequest<void>(requestParts, 69, true, false)
 }
@@ -3691,7 +3760,10 @@ export function PolyFillRectangleChecked(drawable: DRAWABLE, gc: GCONTEXT, recta
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
-  rectangles.forEach(member => requestParts.push(pack('=hhHH', ...[member.x, member.y, member.width, member.height])))
+  rectangles.forEach(({ x, y, width, height }) => {
+    requestParts.push(pack('=hhHH', x, y, width, height))
+
+  })
 
   return sendRequest<void>(requestParts, 70, true, true)
 }
@@ -3700,7 +3772,10 @@ export function PolyFillRectangle(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLe
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
-  rectangles.forEach(member => requestParts.push(pack('=hhHH', ...[member.x, member.y, member.width, member.height])))
+  rectangles.forEach(({ x, y, width, height }) => {
+    requestParts.push(pack('=hhHH', x, y, width, height))
+
+  })
 
   return sendRequest<void>(requestParts, 70, true, false)
 }
@@ -3709,7 +3784,10 @@ export function PolyFillArcChecked(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: nu
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
-  arcs.forEach(member => requestParts.push(pack('=hhHHhh', ...[member.x, member.y, member.width, member.height, member.angle1, member.angle2])))
+  arcs.forEach(({ x, y, width, height, angle1, angle2 }) => {
+    requestParts.push(pack('=hhHHhh', x, y, width, height, angle1, angle2))
+
+  })
 
   return sendRequest<void>(requestParts, 71, true, true)
 }
@@ -3718,25 +3796,28 @@ export function PolyFillArc(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, a
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
-  arcs.forEach(member => requestParts.push(pack('=hhHHhh', ...[member.x, member.y, member.width, member.height, member.angle1, member.angle2])))
+  arcs.forEach(({ x, y, width, height, angle1, angle2 }) => {
+    requestParts.push(pack('=hhHHhh', x, y, width, height, angle1, angle2))
+
+  })
 
   return sendRequest<void>(requestParts, 71, true, false)
 }
 
-export function PutImageChecked(format: ImageFormat, drawable: DRAWABLE, gc: GCONTEXT, width: number, height: number, dstX: number, dstY: number, leftPad: number, depth: number, dataLen: number, data: number[]): Promise<void> {
+export function PutImageChecked(format: ImageFormat, drawable: DRAWABLE, gc: GCONTEXT, width: number, height: number, dstX: number, dstY: number, leftPad: number, depth: number, dataLen: number, data: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIHHhhBB2x', format, drawable, gc, width, height, dstX, dstY, leftPad, depth))
-  requestParts.push(pack(`=${'B'.repeat(data.length)}`, ...(typeof data === 'string' ? (data as string).split('').map(char => char.charCodeAt(0)) : data)))
+  requestParts.push(data.buffer)
 
   return sendRequest<void>(requestParts, 72, true, true)
 }
 
-export function PutImage(format: ImageFormat, drawable: DRAWABLE, gc: GCONTEXT, width: number, height: number, dstX: number, dstY: number, leftPad: number, depth: number, dataLen: number, data: number[]): Promise<void> {
+export function PutImage(format: ImageFormat, drawable: DRAWABLE, gc: GCONTEXT, width: number, height: number, dstX: number, dstY: number, leftPad: number, depth: number, dataLen: number, data: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIHHhhBB2x', format, drawable, gc, width, height, dstX, dstY, leftPad, depth))
-  requestParts.push(pack(`=${'B'.repeat(data.length)}`, ...(typeof data === 'string' ? (data as string).split('').map(char => char.charCodeAt(0)) : data)))
+  requestParts.push(data.buffer)
 
   return sendRequest<void>(requestParts, 72, true, false)
 }
@@ -3757,74 +3838,84 @@ export function GetImageUnchecked(format: ImageFormat, drawable: DRAWABLE, x: nu
   return sendRequest<GetImageReply>(requestParts, 73, false, false, unmarshallGetImageReply)
 }
 
-export function PolyText8Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: number[]): Promise<void> {
+export function PolyText8Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', drawable, gc, x, y))
-  requestParts.push(pack(`=${'B'.repeat(items.length)}`, ...(typeof items === 'string' ? (items as string).split('').map(char => char.charCodeAt(0)) : items)))
+  requestParts.push(items.buffer)
 
   return sendRequest<void>(requestParts, 74, true, true)
 }
 
-export function PolyText8(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: number[]): Promise<void> {
+export function PolyText8(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', drawable, gc, x, y))
-  requestParts.push(pack(`=${'B'.repeat(items.length)}`, ...(typeof items === 'string' ? (items as string).split('').map(char => char.charCodeAt(0)) : items)))
+  requestParts.push(items.buffer)
 
   return sendRequest<void>(requestParts, 74, true, false)
 }
 
-export function PolyText16Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: number[]): Promise<void> {
+export function PolyText16Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', drawable, gc, x, y))
-  requestParts.push(pack(`=${'B'.repeat(items.length)}`, ...(typeof items === 'string' ? (items as string).split('').map(char => char.charCodeAt(0)) : items)))
+  requestParts.push(items.buffer)
 
   return sendRequest<void>(requestParts, 75, true, true)
 }
 
-export function PolyText16(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: number[]): Promise<void> {
+export function PolyText16(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', drawable, gc, x, y))
-  requestParts.push(pack(`=${'B'.repeat(items.length)}`, ...(typeof items === 'string' ? (items as string).split('').map(char => char.charCodeAt(0)) : items)))
+  requestParts.push(items.buffer)
 
   return sendRequest<void>(requestParts, 75, true, false)
 }
 
-export function ImageText8Checked(stringLen: number, drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: number[] | string): Promise<void> {
+export function ImageText8Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: Int8Array): Promise<void> {
+  const stringLen = _string.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIhh', stringLen, drawable, gc, x, y))
-  requestParts.push(pack(`=${'b'.repeat(_string.length)}`, ...(typeof _string === 'string' ? (_string as string).split('').map(char => char.charCodeAt(0)) : _string)))
+  requestParts.push(_string.buffer)
 
   return sendRequest<void>(requestParts, 76, true, true)
 }
 
-export function ImageText8(stringLen: number, drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: number[] | string): Promise<void> {
+export function ImageText8(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: Int8Array): Promise<void> {
+  const stringLen = _string.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIhh', stringLen, drawable, gc, x, y))
-  requestParts.push(pack(`=${'b'.repeat(_string.length)}`, ...(typeof _string === 'string' ? (_string as string).split('').map(char => char.charCodeAt(0)) : _string)))
+  requestParts.push(_string.buffer)
 
   return sendRequest<void>(requestParts, 76, true, false)
 }
 
-export function ImageText16Checked(stringLen: number, drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): Promise<void> {
+export function ImageText16Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): Promise<void> {
+  const stringLen = _string.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIhh', stringLen, drawable, gc, x, y))
-  _string.forEach(member => requestParts.push(pack('=BB', ...[member.byte1, member.byte2])))
+  _string.forEach(({ byte1, byte2 }) => {
+    requestParts.push(pack('=BB', byte1, byte2))
+
+  })
 
   return sendRequest<void>(requestParts, 77, true, true)
 }
 
-export function ImageText16(stringLen: number, drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): Promise<void> {
+export function ImageText16(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): Promise<void> {
+  const stringLen = _string.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIhh', stringLen, drawable, gc, x, y))
-  _string.forEach(member => requestParts.push(pack('=BB', ...[member.byte1, member.byte2])))
+  _string.forEach(({ byte1, byte2 }) => {
+    requestParts.push(pack('=BB', byte1, byte2))
+
+  })
 
   return sendRequest<void>(requestParts, 77, true, false)
 }
@@ -3941,20 +4032,22 @@ export function AllocColorUnchecked(cmap: COLORMAP, red: number, green: number, 
   return sendRequest<AllocColorReply>(requestParts, 84, false, false, unmarshallAllocColorReply)
 }
 
-export function AllocNamedColor(cmap: COLORMAP, nameLen: number, name: number[] | string): AllocNamedColorCookie {
+export function AllocNamedColor(cmap: COLORMAP, name: Int8Array): AllocNamedColorCookie {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', cmap, nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<AllocNamedColorReply>(requestParts, 85, false, true, unmarshallAllocNamedColorReply)
 }
 
-export function AllocNamedColorUnchecked(cmap: COLORMAP, nameLen: number, name: number[] | string): AllocNamedColorCookie {
+export function AllocNamedColorUnchecked(cmap: COLORMAP, name: Int8Array): AllocNamedColorCookie {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', cmap, nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<AllocNamedColorReply>(requestParts, 85, false, false, unmarshallAllocNamedColorReply)
 }
@@ -3991,20 +4084,20 @@ export function AllocColorPlanesUnchecked(contiguous: number, cmap: COLORMAP, co
   return sendRequest<AllocColorPlanesReply>(requestParts, 87, false, false, unmarshallAllocColorPlanesReply)
 }
 
-export function FreeColorsChecked(cmap: COLORMAP, planeMask: number, pixelsLen: number, pixels: number[]): Promise<void> {
+export function FreeColorsChecked(cmap: COLORMAP, planeMask: number, pixelsLen: number, pixels: Uint32Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', cmap, planeMask))
-  requestParts.push(pack(`=${'I'.repeat(pixels.length)}`, ...(typeof pixels === 'string' ? (pixels as string).split('').map(char => char.charCodeAt(0)) : pixels)))
+  requestParts.push(pixels.buffer)
 
   return sendRequest<void>(requestParts, 88, true, true)
 }
 
-export function FreeColors(cmap: COLORMAP, planeMask: number, pixelsLen: number, pixels: number[]): Promise<void> {
+export function FreeColors(cmap: COLORMAP, planeMask: number, pixelsLen: number, pixels: Uint32Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', cmap, planeMask))
-  requestParts.push(pack(`=${'I'.repeat(pixels.length)}`, ...(typeof pixels === 'string' ? (pixels as string).split('').map(char => char.charCodeAt(0)) : pixels)))
+  requestParts.push(pixels.buffer)
 
   return sendRequest<void>(requestParts, 88, true, false)
 }
@@ -4013,7 +4106,10 @@ export function StoreColorsChecked(cmap: COLORMAP, itemsLen: number, items: COLO
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
-  items.forEach(member => requestParts.push(pack('=IHHHBx', ...[member.pixel, member.red, member.green, member.blue, member.flags, member.pad0])))
+  items.forEach(({ pixel, red, green, blue, flags }) => {
+    requestParts.push(pack('=IHHHBx', pixel, red, green, blue, flags))
+
+  })
 
   return sendRequest<void>(requestParts, 89, true, true)
 }
@@ -4022,61 +4118,67 @@ export function StoreColors(cmap: COLORMAP, itemsLen: number, items: COLORITEM[]
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
-  items.forEach(member => requestParts.push(pack('=IHHHBx', ...[member.pixel, member.red, member.green, member.blue, member.flags, member.pad0])))
+  items.forEach(({ pixel, red, green, blue, flags }) => {
+    requestParts.push(pack('=IHHHBx', pixel, red, green, blue, flags))
+  })
 
   return sendRequest<void>(requestParts, 89, true, false)
 }
 
-export function StoreNamedColorChecked(flags: number, cmap: COLORMAP, pixel: number, nameLen: number, name: number[] | string): Promise<void> {
+export function StoreNamedColorChecked(flags: number, cmap: COLORMAP, pixel: number, name: Int8Array): Promise<void> {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIH2x', flags, cmap, pixel, nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<void>(requestParts, 90, true, true)
 }
 
-export function StoreNamedColor(flags: number, cmap: COLORMAP, pixel: number, nameLen: number, name: number[] | string): Promise<void> {
+export function StoreNamedColor(flags: number, cmap: COLORMAP, pixel: number, name: Int8Array): Promise<void> {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIH2x', flags, cmap, pixel, nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<void>(requestParts, 90, true, false)
 }
 
-export function QueryColors(cmap: COLORMAP, pixelsLen: number, pixels: number[]): QueryColorsCookie {
+export function QueryColors(cmap: COLORMAP, pixelsLen: number, pixels: Uint32Array): QueryColorsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
-  requestParts.push(pack(`=${'I'.repeat(pixels.length)}`, ...(typeof pixels === 'string' ? (pixels as string).split('').map(char => char.charCodeAt(0)) : pixels)))
+  requestParts.push(pixels.buffer)
 
   return sendRequest<QueryColorsReply>(requestParts, 91, false, true, unmarshallQueryColorsReply)
 }
 
-export function QueryColorsUnchecked(cmap: COLORMAP, pixelsLen: number, pixels: number[]): QueryColorsCookie {
+export function QueryColorsUnchecked(cmap: COLORMAP, pixelsLen: number, pixels: Uint32Array): QueryColorsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
-  requestParts.push(pack(`=${'I'.repeat(pixels.length)}`, ...(typeof pixels === 'string' ? (pixels as string).split('').map(char => char.charCodeAt(0)) : pixels)))
+  requestParts.push(pixels.buffer)
 
   return sendRequest<QueryColorsReply>(requestParts, 91, false, false, unmarshallQueryColorsReply)
 }
 
-export function LookupColor(cmap: COLORMAP, nameLen: number, name: number[] | string): LookupColorCookie {
+export function LookupColor(cmap: COLORMAP, name: Int8Array): LookupColorCookie {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', cmap, nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<LookupColorReply>(requestParts, 92, false, true, unmarshallLookupColorReply)
 }
 
-export function LookupColorUnchecked(cmap: COLORMAP, nameLen: number, name: number[] | string): LookupColorCookie {
+export function LookupColorUnchecked(cmap: COLORMAP, name: Int8Array): LookupColorCookie {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', cmap, nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<LookupColorReply>(requestParts, 92, false, false, unmarshallLookupColorReply)
 }
@@ -4161,20 +4263,22 @@ export function QueryBestSizeUnchecked(_class: QueryShapeOf, drawable: DRAWABLE,
   return sendRequest<QueryBestSizeReply>(requestParts, 97, false, false, unmarshallQueryBestSizeReply)
 }
 
-export function QueryExtension(nameLen: number, name: number[] | string): QueryExtensionCookie {
+export function QueryExtension(name: Int8Array): QueryExtensionCookie {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xH2x', nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<QueryExtensionReply>(requestParts, 98, false, true, unmarshallQueryExtensionReply)
 }
 
-export function QueryExtensionUnchecked(nameLen: number, name: number[] | string): QueryExtensionCookie {
+export function QueryExtensionUnchecked(name: Int8Array): QueryExtensionCookie {
+  const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xH2x', nameLen))
-  requestParts.push(pack(`=${'b'.repeat(name.length)}`, ...(typeof name === 'string' ? (name as string).split('').map(char => char.charCodeAt(0)) : name)))
+  requestParts.push(name.buffer)
 
   return sendRequest<QueryExtensionReply>(requestParts, 98, false, false, unmarshallQueryExtensionReply)
 }
@@ -4195,20 +4299,22 @@ export function ListExtensionsUnchecked(): ListExtensionsCookie {
   return sendRequest<ListExtensionsReply>(requestParts, 99, false, false, unmarshallListExtensionsReply)
 }
 
-export function ChangeKeyboardMappingChecked(keycodeCount: number, firstKeycode: KEYCODE, keysymsPerKeycode: number, keysyms: KEYSYM[]): Promise<void> {
+export function ChangeKeyboardMappingChecked(firstKeycode: KEYCODE, keysymsPerKeycode: number, keysyms: Uint32Array): Promise<void> {
+  const keycodeCount = keysyms.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xBB2x', keycodeCount, firstKeycode, keysymsPerKeycode))
-  requestParts.push(pack(`=${'I'.repeat(keysyms.length)}`, ...(typeof keysyms === 'string' ? (keysyms as string).split('').map(char => char.charCodeAt(0)) : keysyms)))
+  requestParts.push(keysyms.buffer)
 
   return sendRequest<void>(requestParts, 100, true, true)
 }
 
-export function ChangeKeyboardMapping(keycodeCount: number, firstKeycode: KEYCODE, keysymsPerKeycode: number, keysyms: KEYSYM[]): Promise<void> {
+export function ChangeKeyboardMapping(firstKeycode: KEYCODE, keysymsPerKeycode: number, keysyms: Uint32Array): Promise<void> {
+  const keycodeCount = keysyms.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xBB2x', keycodeCount, firstKeycode, keysymsPerKeycode))
-  requestParts.push(pack(`=${'I'.repeat(keysyms.length)}`, ...(typeof keysyms === 'string' ? (keysyms as string).split('').map(char => char.charCodeAt(0)) : keysyms)))
+  requestParts.push(keysyms.buffer)
 
   return sendRequest<void>(requestParts, 100, true, false)
 }
@@ -4377,20 +4483,22 @@ export function GetScreenSaverUnchecked(): GetScreenSaverCookie {
   return sendRequest<GetScreenSaverReply>(requestParts, 108, false, false, unmarshallGetScreenSaverReply)
 }
 
-export function ChangeHostsChecked(mode: HostMode, family: Family, addressLen: number, address: number[]): Promise<void> {
+export function ChangeHostsChecked(mode: HostMode, family: Family, address: Uint8Array): Promise<void> {
+  const addressLen = address.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xBxH', mode, family, addressLen))
-  requestParts.push(pack(`=${'B'.repeat(address.length)}`, ...(typeof address === 'string' ? (address as string).split('').map(char => char.charCodeAt(0)) : address)))
+  requestParts.push(address.buffer)
 
   return sendRequest<void>(requestParts, 109, true, true)
 }
 
-export function ChangeHosts(mode: HostMode, family: Family, addressLen: number, address: number[]): Promise<void> {
+export function ChangeHosts(mode: HostMode, family: Family, address: Uint8Array): Promise<void> {
+  const addressLen = address.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xBxH', mode, family, addressLen))
-  requestParts.push(pack(`=${'B'.repeat(address.length)}`, ...(typeof address === 'string' ? (address as string).split('').map(char => char.charCodeAt(0)) : address)))
+  requestParts.push(address.buffer)
 
   return sendRequest<void>(requestParts, 109, true, false)
 }
@@ -4459,20 +4567,22 @@ export function KillClient(resource: number): Promise<void> {
   return sendRequest<void>(requestParts, 113, true, false)
 }
 
-export function RotatePropertiesChecked(window: WINDOW, atomsLen: number, delta: number, atoms: ATOM[]): Promise<void> {
+export function RotatePropertiesChecked(window: WINDOW, delta: number, atoms: Uint32Array): Promise<void> {
+  const atomsLen = atoms.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHh', window, atomsLen, delta))
-  requestParts.push(pack(`=${'I'.repeat(atoms.length)}`, ...(typeof atoms === 'string' ? (atoms as string).split('').map(char => char.charCodeAt(0)) : atoms)))
+  requestParts.push(atoms.buffer)
 
   return sendRequest<void>(requestParts, 114, true, true)
 }
 
-export function RotateProperties(window: WINDOW, atomsLen: number, delta: number, atoms: ATOM[]): Promise<void> {
+export function RotateProperties(window: WINDOW, delta: number, atoms: Uint32Array): Promise<void> {
+  const atomsLen = atoms.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHh', window, atomsLen, delta))
-  requestParts.push(pack(`=${'I'.repeat(atoms.length)}`, ...(typeof atoms === 'string' ? (atoms as string).split('').map(char => char.charCodeAt(0)) : atoms)))
+  requestParts.push(atoms.buffer)
 
   return sendRequest<void>(requestParts, 114, true, false)
 }
@@ -4493,20 +4603,22 @@ export function ForceScreenSaver(mode: ScreenSaver): Promise<void> {
   return sendRequest<void>(requestParts, 115, true, false)
 }
 
-export function SetPointerMapping(mapLen: number, map: number[]): SetPointerMappingCookie {
+export function SetPointerMapping(map: Uint8Array): SetPointerMappingCookie {
+  const mapLen = map.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', mapLen))
-  requestParts.push(pack(`=${'B'.repeat(map.length)}`, ...(typeof map === 'string' ? (map as string).split('').map(char => char.charCodeAt(0)) : map)))
+  requestParts.push(map.buffer)
 
   return sendRequest<SetPointerMappingReply>(requestParts, 116, false, true, unmarshallSetPointerMappingReply)
 }
 
-export function SetPointerMappingUnchecked(mapLen: number, map: number[]): SetPointerMappingCookie {
+export function SetPointerMappingUnchecked(map: Uint8Array): SetPointerMappingCookie {
+  const mapLen = map.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', mapLen))
-  requestParts.push(pack(`=${'B'.repeat(map.length)}`, ...(typeof map === 'string' ? (map as string).split('').map(char => char.charCodeAt(0)) : map)))
+  requestParts.push(map.buffer)
 
   return sendRequest<SetPointerMappingReply>(requestParts, 116, false, false, unmarshallSetPointerMappingReply)
 }
@@ -4527,20 +4639,22 @@ export function GetPointerMappingUnchecked(): GetPointerMappingCookie {
   return sendRequest<GetPointerMappingReply>(requestParts, 117, false, false, unmarshallGetPointerMappingReply)
 }
 
-export function SetModifierMapping(keycodesPerModifier: number, keycodes: KEYCODE[]): SetModifierMappingCookie {
+export function SetModifierMapping(keycodes: Uint8Array): SetModifierMappingCookie {
+  const keycodesPerModifier = keycodes.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', keycodesPerModifier))
-  requestParts.push(pack(`=${'B'.repeat(keycodes.length)}`, ...(typeof keycodes === 'string' ? (keycodes as string).split('').map(char => char.charCodeAt(0)) : keycodes)))
+  requestParts.push(keycodes.buffer)
 
   return sendRequest<SetModifierMappingReply>(requestParts, 118, false, true, unmarshallSetModifierMappingReply)
 }
 
-export function SetModifierMappingUnchecked(keycodesPerModifier: number, keycodes: KEYCODE[]): SetModifierMappingCookie {
+export function SetModifierMappingUnchecked(keycodes: Uint8Array): SetModifierMappingCookie {
+  const keycodesPerModifier = keycodes.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', keycodesPerModifier))
-  requestParts.push(pack(`=${'B'.repeat(keycodes.length)}`, ...(typeof keycodes === 'string' ? (keycodes as string).split('').map(char => char.charCodeAt(0)) : keycodes)))
+  requestParts.push(keycodes.buffer)
 
   return sendRequest<SetModifierMappingReply>(requestParts, 118, false, false, unmarshallSetModifierMappingReply)
 }

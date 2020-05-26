@@ -14,7 +14,8 @@ import sys
 _tsname_re = re.compile('^\d')
 _tsname_except_re = re.compile('^Bad')
 
-_ts_reserved_words = ['undefined', 'interface', 'type', 'enum', 'class', 'string', 'number', 'delete']
+_ts_reserved_words = ['undefined', 'interface', 'type', 'enum', 'class', 'string', 'number',
+                      'delete']
 _ts_types = {
   'CARD8': 'number', 'uint8_t': 'number',
   'CARD16': 'number', 'uint16_t': 'number',
@@ -29,18 +30,34 @@ _ts_types = {
   'float': 'number',
   'double': 'number'
 }
-_cardinal_types = {'CARD8': 'B', 'uint8_t': 'B',
-                   'CARD16': 'H', 'uint16_t': 'H',
-                   'CARD32': 'I', 'uint32_t': 'I',
-                   'INT8': 'b', 'int8_t': 'b',
-                   'INT16': 'h', 'int16_t': 'h',
-                   'INT32': 'i', 'int32_t': 'i',
-                   'BYTE': 'B',
-                   'BOOL': 'B',
-                   'char': 'b',
-                   'void': 'B',
-                   'float': 'f',
-                   'double': 'd'}
+
+_cardinal_types = {
+  'CARD8': 'B', 'uint8_t': 'B',
+  'CARD16': 'H', 'uint16_t': 'H',
+  'CARD32': 'I', 'uint32_t': 'I',
+  'INT8': 'b', 'int8_t': 'b',
+  'INT16': 'h', 'int16_t': 'h',
+  'INT32': 'i', 'int32_t': 'i',
+  'BYTE': 'B',
+  'BOOL': 'B',
+  'char': 'b',
+  'void': 'B',
+  'float': 'f',
+  'double': 'd'
+}
+
+_simple_list_types = {
+  "'B'": 'Uint8Array',
+  "'H'": 'Uint16Array',
+  "'I'": 'Uint32Array',
+  "'b'": 'Int8Array',
+  "'h'": 'Int16Array',
+  "'i'": 'Int32Array',
+  "'void'": 'TypedArray',
+  "'float'": 'Float32Array',
+  "'double'": 'Float64Array'
+}
+
 _tslines = []
 _tslevel = 0
 _ns = None
@@ -257,6 +274,7 @@ def _ts_type_alignsize(field):
 def _ts_field_type(field):
   postfix = '[]' if field.type.is_list else ''
 
+  element_type = None
   if field.enum:
     element_type = field.enum
   elif field.type.is_switch:
@@ -264,9 +282,9 @@ def _ts_field_type(field):
       [f'{_n(switch_field.field_name)}: {_ts_field_type(switch_field)}' for switch_field in
        field.type.fields])
     element_type = f'{{ {ts_switch_type} }}'
-  elif field.type.is_list and field.type.member.is_simple and field.type.member.ts_format_str == 'b':
-    postfix = '[]|string'
-    element_type = _ts_types.get(field.ts_type, field.ts_type)
+  elif field.type.is_list and field.type.member.is_simple:
+    postfix = ''
+    element_type = _simple_list_types[field.ts_listtype]
   else:
     element_type = _ts_types.get(field.ts_type, field.ts_type)
 
@@ -287,7 +305,13 @@ def _ts_fields(self):
     _ts(f'      {_n(field.field_name)},')
 
 
-def _ts_complex(self, name):
+def _ts_unmarshall_complex(self):
+  _ts(
+    'const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
+    self.ts_type,
+    self.ts_type
+  )
+
   need_alignment = False
 
   for field in self.fields:
@@ -317,7 +341,8 @@ def _ts_complex(self, name):
         _n(field.field_name),
         'Simple' if field.type.member.is_simple else 'Complex',
         _ts_get_expr(field.type.expr),
-        field.ts_listtype if field.type.member.is_simple else f'unmarshall{field.ts_listtype}',
+        _simple_list_types[
+          field.ts_listtype] if field.type.member.is_simple else f'unmarshall{field.ts_listtype}',
         f', {field.ts_listsize}' if field.type.member.is_simple else ''
       )
       _ts('  offset = %sWithOffset.offset', _n(field.field_name))
@@ -338,6 +363,30 @@ def _ts_complex(self, name):
   # if self.fixed_size() or self.is_reply:
   #     if self.fields and not all(field.auto or field.type.is_pad for field in self.fields):
   #         _ts_popline()
+  _ts('')
+  _ts('  return {')
+  _ts('    value: {')
+  _ts_fields(self)
+  _ts('    },')
+  _ts('    offset')
+  _ts('  }')
+  _ts('}')
+
+
+def _ts_marshall_complex(self):
+  _ts(
+    'const marshall%s: ArrayBuffer = (instance: %s) => {',
+    self.ts_type,
+    self.ts_type
+  )
+
+  _ts('}')
+
+
+def _ts_complex(self, name):
+  _ts_unmarshall_complex(self)
+  # _ts('')
+  # _ts_marshall_complex(self)
 
 
 def _ts_reply(self, name):
@@ -352,20 +401,7 @@ def _ts_reply(self, name):
   _ts_type_fields(self)
   _ts('}')
   _ts('')
-  _ts(
-    'const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
-    self.ts_reply_name,
-    self.ts_reply_name
-  )
-  _ts_complex(self, name)
-  _ts('')
-  _ts('  return {')
-  _ts('    value: {')
-  _ts_fields(self)
-  _ts('    },')
-  _ts('    offset')
-  _ts('  }')
-  _ts('}')
+  _ts_unmarshall_complex(self)
 
 
 def _ts_request_helper(self, name, void, regular):
@@ -408,9 +444,13 @@ def _ts_request_helper(self, name, void, regular):
 
   # exclude mask fields from appearing in the method signature, the mask will be created based on the values passed in.
   mask_fields = [field.type.fieldref for field in self.fields if field.type.is_switch]
+  length_fields = [field.type.expr.lenfield.field_name for field in self.fields if
+                   field.type.is_list and field.type.expr.lenfield]
 
   for field in self.fields:
-    if field.visible and field.field_name not in mask_fields:
+    if field.visible \
+      and field.field_name not in mask_fields \
+      and field.field_name not in length_fields:
       # The field should appear as a call parameter
       param_fields.append(field)
     if field.wire:
@@ -426,91 +466,89 @@ def _ts_request_helper(self, name, void, regular):
     ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
     func_cookie if not void else 'Promise<void>'
   )
+  for field in param_fields:
+    if field.type.is_list and field.type.expr.lenfield:
+      _ts('  const %s = %s.length', _n(field.type.expr.lenfield.field_name), _n(field.field_name))
+
   _ts('  const requestParts: ArrayBuffer[] = []')
   _ts('')
 
-  for field in wire_fields:
-    if field.auto:
-      _ts_push_pad(field.type.size)
-      continue
-    if field.type.is_simple:
-      _ts_push_format(field)
-      continue
-    if field.type.is_pad:
-      _ts_push_pad(field.type.nmemb)
-      continue
-    if field.type.is_switch:
-      if field.type.fieldref:
-        _ts('  const %sBitmasks: {[key: string]: number} = {', _n(field.field_name))
-        _ts('    %s', ',\n    '.join(
-          [
-            f'{_n(x.field_name)}: {x.parent.expr[-1].lenfield_type.name[-1]}.{x.parent.expr[-1].lenfield_name}'
-            for
-            x
-            in field.type.fields
-          ]
+  def write_request_part(fields):
+    for field in fields:
+      if field.auto:
+        _ts_push_pad(field.type.size)
+        continue
+      if field.type.is_simple:
+        _ts_push_format(field)
+        continue
+      if field.type.is_pad:
+        _ts_push_pad(field.type.nmemb)
+        continue
+      if field.type.is_switch:
+        if field.type.fieldref:
+          _ts('  const %sBitmasks: {[key: string]: number} = {', _n(field.field_name))
+          _ts('    %s', ',\n    '.join(
+            [
+              f'{_n(x.field_name)}: {x.parent.expr[-1].lenfield_type.name[-1]}.{x.parent.expr[-1].lenfield_name}'
+              for
+              x
+              in field.type.fields
+            ]
+          ))
+          _ts('  }')
+          _ts(
+            '  const %sSortedList = Object.keys(%s).sort((a, b) => %sBitmasks[a] - %sBitmasks[b])',
+            _n(field.type.fieldref),
+            _n(field.field_name),
+            _n(field.field_name),
+            _n(field.field_name)
+          )
+          _ts(
+            '  const %s = %sSortedList.map(value => %sBitmasks[value]).reduce((mask, bit)=> mask | bit)',
+            _n(field.type.fieldref),
+            _n(field.type.fieldref),
+            _n(field.field_name)
+          )
+          _ts('')
+          _ts('  const %sValues =', _n(field.field_name))
+          _ts('    Object.entries(%s)', _n(field.field_name))
+          _ts(
+            '      .sort(([key], [otherKey]) => %sSortedList.indexOf(key) - %sSortedList.indexOf(otherKey))',
+            _n(field.type.fieldref), _n(field.type.fieldref)
+          )
+          _ts('      .map(([_, value]) => value)')
+        else:
+          _ts('  const %sValues = Object.values(%s)', _n(field.field_name), _n(field.field_name))
+      (format, size, list) = _ts_flush_format()
+      if size > 0:
+        _ts('  requestParts.push(pack(\'=%s\', %s))', format, list)
+
+      if field.type.is_expr:
+        _ts('  requestParts.push(pack(\'=%s\', %s))', field.type.ts_format_str,
+            _ts_get_expr(field.type.expr))
+      elif field.type.is_pad:
+        _ts('  requestParts.push(pack(\'%sx\'))', field.type.nmemb)
+      elif field.type.is_switch:
+        _ts('  requestParts.push(pack(\'=%s\', ...%sValues))', field.type.ts_format_str,
+            _n(field.field_name))
+      elif field.type.is_list and field.type.member.is_simple:
+        _ts('  requestParts.push(%s.buffer)', _n(field.field_name))
+      elif field.type.is_list:
+        _ts('  %s.forEach(({%s}) => {', _n(field.field_name), ', '.join(
+          [f'{_n(x.field_name)}' for x in field.type.member.fields if not x.type.is_pad]
         ))
-        _ts('  }')
-        _ts(
-          '  const %sSortedList = Object.keys(%s).sort((a, b) => %sBitmasks[a] - %sBitmasks[b])',
-          _n(field.type.fieldref),
-          _n(field.field_name),
-          _n(field.field_name),
-          _n(field.field_name)
-        )
-        _ts(
-          '  const %s = %sSortedList.map(value => %sBitmasks[value]).reduce((mask, bit)=> mask | bit)',
-          _n(field.type.fieldref),
-          _n(field.type.fieldref),
-          _n(field.field_name)
-        )
-        _ts('')
-        _ts('  const %sValues =', _n(field.field_name))
-        _ts('    Object.entries(%s)', _n(field.field_name))
-        _ts(
-          '      .sort(([key], [otherKey]) => %sSortedList.indexOf(key) - %sSortedList.indexOf(otherKey))',
-          _n(field.type.fieldref), _n(field.type.fieldref)
-        )
-        _ts('      .map(([_, value]) => value)')
+        write_request_part(field.type.member.fields)
+        _ts('  })')
       else:
-        _ts('  const %sValues = Object.values(%s)', _n(field.field_name), _n(field.field_name))
+        _ts('  new Error(\'FIXME support sending this type: \')', field.field_type[-1])
+
     (format, size, list) = _ts_flush_format()
     if size > 0:
       _ts('  requestParts.push(pack(\'=%s\', %s))', format, list)
+    _ts('')
 
-    if field.type.is_expr:
-      _ts('  requestParts.push(pack(\'=%s\', %s))', field.type.ts_format_str,
-          _ts_get_expr(field.type.expr))
-    elif field.type.is_pad:
-      _ts('  requestParts.push(pack(\'%sx\'))', field.type.nmemb)
-    elif field.type.is_switch:
-      _ts('  requestParts.push(pack(\'=%s\', ...%sValues))', field.type.ts_format_str,
-          _n(field.field_name))
-    elif field.type.is_list and field.type.member.is_simple:
-      # FIXME add correct data length calculation (use TypedBuffers?)
-      _ts(
-        '  requestParts.push(pack(`=${\'%s\'.repeat(%s.length)}`, ...(typeof %s === \'string\' ? (%s as string).split(\'\').map(char => char.charCodeAt(0)) : %s )))',
-        field.type.member.ts_format_str,
-        _n(field.field_name),
-        _n(field.field_name),
-        _n(field.field_name),
-        _n(field.field_name)
-      )
-    elif field.type.is_list:
-      _ts(
-        '  %s.forEach(member => requestParts.push(pack(\'=%s\', ...[%s])))',
-        _n(field.field_name),
-        field.type.member.ts_format_str,
-        ', '.join([f'member.{_n(x.field_name)}' for x in field.type.member.fields])
-      )
-    else:
-      _ts('  new Error(\'FIXME support sending this type: \')', field.field_type[-1])
+  write_request_part(wire_fields)
 
-  (format, size, list) = _ts_flush_format()
-  if size > 0:
-    _ts('  requestParts.push(pack(\'=%s\', %s))', format, list)
-
-  _ts('')
   _ts(
     '  return sendRequest<%s>(requestParts, %s, %s, %s%s)',
     self.ts_reply_name if not void else 'void',
@@ -628,20 +666,7 @@ def ts_struct(self, name):
   _ts_type_fields(self)
   _ts('}')
   _ts('')
-  _ts(
-    'const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
-    self.ts_type,
-    self.ts_type
-  )
   _ts_complex(self, name)
-  _ts('')
-  _ts('  return {')
-  _ts('    value: {')
-  _ts_fields(self)
-  _ts('    },')
-  _ts('    offset')
-  _ts('  }')
-  _ts('}')
 
 
 def ts_union(self, name):
@@ -675,7 +700,8 @@ def ts_union(self, name):
         _n(field.field_name),
         'Simple' if field.type.member.is_simple else 'Complex',
         _ts_get_expr(field.type.expr),
-        field.ts_listtype if field.type.member.is_simple else f'unmarshall{field.ts_listtype}',
+        _simple_list_types[
+          field.ts_listtype] if field.type.member.is_simple else f'unmarshall{field.ts_listtype}',
         f', {field.ts_listsize}' if field.type.member.is_simple else ''
       )
       _ts('  const %s = %sWithOffset.value', _n(field.field_name), _n(field.field_name))

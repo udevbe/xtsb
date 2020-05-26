@@ -12,18 +12,18 @@ const tsp = (v: DataView, o: number, c: number, s: string) => {
 }
 const lut = (le: boolean) => ({
     x: (c: number) => [1, c, 0],
-    c: (c: number) => [c, 1, (o: number) => ({u: (v: DataView) => str(v, o, 1), p: (v, c) => rts(v, o, 1, c)})],
-    '?': (c: number) => [c, 1, (o: number) => ({u: (v: DataView) => Boolean(v.getUint8(o)), p: (v, B) => v.setUint8(o, B)})],
-    b: (c: number) => [c, 1, (o: number) => ({u: (v: DataView) => v.getInt8(o), p: (v, b) => v.setInt8(o, b)})],
-    B: (c: number) => [c, 1, (o: number) => ({u: (v: DataView) => v.getUint8(o), p: (v, B) => v.setUint8(o, B)})],
-    h: (c: number) => [c, 2, (o: number) => ({u: (v: DataView) => v.getInt16(o, le), p: (v, h) => v.setInt16(o, h, le)})],
-    H: (c: number) => [c, 2, (o: number) => ({u: (v: DataView) => v.getUint16(o, le), p: (v, H) => v.setUint16(o, H, le)})],
-    i: (c: number) => [c, 4, (o: number) => ({u: (v: DataView) => v.getInt32(o, le), p: (v, i) => v.setInt32(o, i, le)})],
-    I: (c: number) => [c, 4, (o: number) => ({u: (v: DataView) => v.getUint32(o, le), p: (v, I) => v.setUint32(o, I, le)})],
-    f: (c: number) => [c, 4, (o: number) => ({u: (v: DataView) => v.getFloat32(o, le), p: (v, f) => v.setFloat32(o, f, le)})],
-    d: (c: number) => [c, 8, (o: number) => ({u: (v: DataView) => v.getFloat64(o, le), p: (v, d) => v.setFloat64(o, d, le)})],
-    s: (c: number) => [1, c, (o: number) => ({u: (v: DataView) => str(v, o, c), p: (v, s: string) => rts(v, o, c, s.slice(0, c))})],
-    p: (c: number) => [1, c, (o: number) => ({u: (v: DataView) => pst(v, o, c), p: (v, s: string) => tsp(v, o, c, s.slice(0, c - 1))})]
+    c: (c: number) => [c, 1, (o: number) => ({u: (v: DataView) => str(v, o, 1), p: (v: DataView, c: string) => rts(v, o, 1, c)})],
+    '?': (c: number) => [c, 1, (o: number) => ({u: (v: DataView) => Boolean(v.getUint8(o)), p: (v: DataView, B: number) => v.setUint8(o, B)})],
+    b: (c: number) => [c, 1, (o: number) => ({u: (v: DataView) => v.getInt8(o), p: (v: DataView, b: number) => v.setInt8(o, b)})],
+    B: (c: number) => [c, 1, (o: number) => ({u: (v: DataView) => v.getUint8(o), p: (v: DataView, B: number) => v.setUint8(o, B)})],
+    h: (c: number) => [c, 2, (o: number) => ({u: (v: DataView) => v.getInt16(o, le), p: (v: DataView, h: number) => v.setInt16(o, h, le)})],
+    H: (c: number) => [c, 2, (o: number) => ({u: (v: DataView) => v.getUint16(o, le), p: (v: DataView, H: number) => v.setUint16(o, H, le)})],
+    i: (c: number) => [c, 4, (o: number) => ({u: (v: DataView) => v.getInt32(o, le), p: (v: DataView, i: number) => v.setInt32(o, i, le)})],
+    I: (c: number) => [c, 4, (o: number) => ({u: (v: DataView) => v.getUint32(o, le), p: (v: DataView, I: number) => v.setUint32(o, I, le)})],
+    f: (c: number) => [c, 4, (o: number) => ({u: (v: DataView) => v.getFloat32(o, le), p: (v: DataView, f: number) => v.setFloat32(o, f, le)})],
+    d: (c: number) => [c, 8, (o: number) => ({u: (v: DataView) => v.getFloat64(o, le), p: (v: DataView, d: number) => v.setFloat64(o, d, le)})],
+    s: (c: number) => [1, c, (o: number) => ({u: (v: DataView) => str(v, o, c), p: (v: DataView, s: string) => rts(v, o, c, s.slice(0, c))})],
+    p: (c: number) => [1, c, (o: number) => ({u: (v: DataView) => pst(v, o, c), p: (v: DataView, s: string) => tsp(v, o, c, s.slice(0, c - 1))})]
 })
 const errbuf = new RangeError("Structure larger than remaining buffer")
 const errval = new RangeError("Not enough values for structure")
@@ -35,7 +35,7 @@ const struct = (format: string) => {
         throw new RangeError("Invalid format string")
     }
     const t = lut('<' === m[1]);
-    const lu = (n: string, c: string) => t[c](n ? parseInt(n, 10) : 1);
+    const lu = (n: string, c: 'x'|'c'|'?'|'b'|'B'|'h'|'H'|'i'|'I'|'f'|'d'|'s'|'p') => t[c](n ? parseInt(n, 10) : 1);
     while ((m = refmt.exec(format))) {
         ((r: number, s: number, f) => {
             for (let i = 0; i < r; ++i, size += s) {
@@ -45,7 +45,7 @@ const struct = (format: string) => {
             }
         })(...lu(...m.slice(1)))
     }
-    const unpack_from = (arrb, offs) => {
+    const unpack_from = (arrb: ArrayBuffer, offs: number) => {
         if (arrb.byteLength < (offs | 0) + size) {
             throw errbuf
         }
