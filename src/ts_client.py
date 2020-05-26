@@ -459,9 +459,19 @@ def _ts_request_helper(self, name, void, regular):
 
   _ts_setlevel(1)
   _ts('')
-
+  _ts('declare module \'./connection\' {')
+  _ts('  interface XConnection {')
   _ts(
-    'export function %s (%s): %s {',
+    '    %s (%s): %s',
+    func_name,
+    ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
+    func_cookie if not void else 'Promise<void>'
+  )
+  _ts('  }')
+  _ts('}')
+  _ts('')
+  _ts(
+    'XConnection.prototype.%s = function(%s): %s {',
     func_name,
     ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
     func_cookie if not void else 'Promise<void>'
@@ -550,7 +560,7 @@ def _ts_request_helper(self, name, void, regular):
   write_request_part(wire_fields)
 
   _ts(
-    '  return sendRequest<%s>(requestParts, %s, %s, %s%s)',
+    '  return sendRequest<%s>(this.socket, requestParts, %s, %s, %s%s)',
     self.ts_reply_name if not void else 'void',
     self.opcode,
     _b(void),
@@ -574,8 +584,9 @@ def ts_open(self):
   _ts('// Edit at your peril.')
   _ts('//')
   _ts('')
+  _ts('import { XConnection } from \'./connection\'')
   _ts(
-    'import { xcbSimpleList, xcbComplexList, UnmarshallResult, Unmarshaller, typePad, sendRequest } from \'./xjsbInternals\'')
+    'import { xcbSimpleList, xcbComplexList, Unmarshaller, typePad, sendRequest } from \'./xjsbInternals\'')
   _ts('import { unpackFrom, pack } from \'./struct\'')
   _ts('')
 
@@ -815,7 +826,6 @@ def ts_error(self, name):
   _ts('    %s : [unmarshall%s, %s],', self.opcodes[name], self.ts_error_name, self.ts_except_name)
 
 
-
 # Main routine starts here
 
 # Must create an "output" dictionary before any xcbgen imports.
@@ -858,9 +868,6 @@ to extend the path.
 Refer to the README file in xcb/proto for more info.
 ''')
   raise
-
-# predefined datatype globals.
-tevent = SimpleType(('xcb_raw_generic_event_t',), 32)
 
 # Ensure the man subdirectory exists
 try:

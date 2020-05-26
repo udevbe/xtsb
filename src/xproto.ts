@@ -3,14 +3,8 @@
 // Edit at your peril.
 //
 
-import {
-  xcbSimpleList,
-  xcbComplexList,
-  UnmarshallResult,
-  Unmarshaller,
-  typePad,
-  sendRequest
-} from './xjsbInternals'
+import { XConnection } from './connection'
+import { xcbSimpleList, xcbComplexList, Unmarshaller, typePad, sendRequest } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 
@@ -3630,7 +3624,13 @@ const unmarshallGetModifierMappingReply: Unmarshaller<GetModifierMappingReply> =
 }
 
 
-export function CreateWindowChecked(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreateWindowChecked(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void>
+  }
+}
+
+XConnection.prototype.CreateWindowChecked = function(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -3660,10 +3660,16 @@ export function CreateWindowChecked(depth: number, wid: WINDOW, parent: WINDOW, 
   requestParts.push(pack('=xB2xIIhhHHHHII', depth, wid, parent, x, y, width, height, borderWidth, _class, visual, valueMask))
   requestParts.push(pack('=IIIIIIIIIIIIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 1, true, true)
+  return sendRequest<void>(this.socket, requestParts, 1, true, true)
 }
 
-export function CreateWindow(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreateWindow(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void>
+  }
+}
+
+XConnection.prototype.CreateWindow = function(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -3693,10 +3699,16 @@ export function CreateWindow(depth: number, wid: WINDOW, parent: WINDOW, x: numb
   requestParts.push(pack('=xB2xIIhhHHHHII', depth, wid, parent, x, y, width, height, borderWidth, _class, visual, valueMask))
   requestParts.push(pack('=IIIIIIIIIIIIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 1, true, false)
+  return sendRequest<void>(this.socket, requestParts, 1, true, false)
 }
 
-export function ChangeWindowAttributesChecked(window: WINDOW, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeWindowAttributesChecked(window: WINDOW, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeWindowAttributesChecked = function(window: WINDOW, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -3726,10 +3738,16 @@ export function ChangeWindowAttributesChecked(window: WINDOW, valueList: { backg
   requestParts.push(pack('=xx2xII', window, valueMask))
   requestParts.push(pack('=IIIIIIIIIIIIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 2, true, true)
+  return sendRequest<void>(this.socket, requestParts, 2, true, true)
 }
 
-export function ChangeWindowAttributes(window: WINDOW, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeWindowAttributes(window: WINDOW, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeWindowAttributes = function(window: WINDOW, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -3759,154 +3777,268 @@ export function ChangeWindowAttributes(window: WINDOW, valueList: { backgroundPi
   requestParts.push(pack('=xx2xII', window, valueMask))
   requestParts.push(pack('=IIIIIIIIIIIIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 2, true, false)
+  return sendRequest<void>(this.socket, requestParts, 2, true, false)
 }
 
-export function GetWindowAttributes(window: WINDOW): GetWindowAttributesCookie {
+declare module './connection' {
+  interface XConnection {
+    GetWindowAttributes(window: WINDOW): GetWindowAttributesCookie
+  }
+}
+
+XConnection.prototype.GetWindowAttributes = function(window: WINDOW): GetWindowAttributesCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<GetWindowAttributesReply>(requestParts, 3, false, true, unmarshallGetWindowAttributesReply)
+  return sendRequest<GetWindowAttributesReply>(this.socket, requestParts, 3, false, true, unmarshallGetWindowAttributesReply)
 }
 
-export function GetWindowAttributesUnchecked(window: WINDOW): GetWindowAttributesCookie {
+declare module './connection' {
+  interface XConnection {
+    GetWindowAttributesUnchecked(window: WINDOW): GetWindowAttributesCookie
+  }
+}
+
+XConnection.prototype.GetWindowAttributesUnchecked = function(window: WINDOW): GetWindowAttributesCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<GetWindowAttributesReply>(requestParts, 3, false, false, unmarshallGetWindowAttributesReply)
+  return sendRequest<GetWindowAttributesReply>(this.socket, requestParts, 3, false, false, unmarshallGetWindowAttributesReply)
 }
 
-export function DestroyWindowChecked(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    DestroyWindowChecked(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.DestroyWindowChecked = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 4, true, true)
+  return sendRequest<void>(this.socket, requestParts, 4, true, true)
 }
 
-export function DestroyWindow(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    DestroyWindow(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.DestroyWindow = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 4, true, false)
+  return sendRequest<void>(this.socket, requestParts, 4, true, false)
 }
 
-export function DestroySubwindowsChecked(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    DestroySubwindowsChecked(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.DestroySubwindowsChecked = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 5, true, true)
+  return sendRequest<void>(this.socket, requestParts, 5, true, true)
 }
 
-export function DestroySubwindows(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    DestroySubwindows(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.DestroySubwindows = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 5, true, false)
+  return sendRequest<void>(this.socket, requestParts, 5, true, false)
 }
 
-export function ChangeSaveSetChecked(mode: SetMode, window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeSaveSetChecked(mode: SetMode, window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeSaveSetChecked = function(mode: SetMode, window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xI', mode, window))
 
-  return sendRequest<void>(requestParts, 6, true, true)
+  return sendRequest<void>(this.socket, requestParts, 6, true, true)
 }
 
-export function ChangeSaveSet(mode: SetMode, window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeSaveSet(mode: SetMode, window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeSaveSet = function(mode: SetMode, window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xI', mode, window))
 
-  return sendRequest<void>(requestParts, 6, true, false)
+  return sendRequest<void>(this.socket, requestParts, 6, true, false)
 }
 
-export function ReparentWindowChecked(window: WINDOW, parent: WINDOW, x: number, y: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ReparentWindowChecked(window: WINDOW, parent: WINDOW, x: number, y: number): Promise<void>
+  }
+}
+
+XConnection.prototype.ReparentWindowChecked = function(window: WINDOW, parent: WINDOW, x: number, y: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', window, parent, x, y))
 
-  return sendRequest<void>(requestParts, 7, true, true)
+  return sendRequest<void>(this.socket, requestParts, 7, true, true)
 }
 
-export function ReparentWindow(window: WINDOW, parent: WINDOW, x: number, y: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ReparentWindow(window: WINDOW, parent: WINDOW, x: number, y: number): Promise<void>
+  }
+}
+
+XConnection.prototype.ReparentWindow = function(window: WINDOW, parent: WINDOW, x: number, y: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', window, parent, x, y))
 
-  return sendRequest<void>(requestParts, 7, true, false)
+  return sendRequest<void>(this.socket, requestParts, 7, true, false)
 }
 
-export function MapWindowChecked(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    MapWindowChecked(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.MapWindowChecked = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 8, true, true)
+  return sendRequest<void>(this.socket, requestParts, 8, true, true)
 }
 
-export function MapWindow(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    MapWindow(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.MapWindow = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 8, true, false)
+  return sendRequest<void>(this.socket, requestParts, 8, true, false)
 }
 
-export function MapSubwindowsChecked(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    MapSubwindowsChecked(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.MapSubwindowsChecked = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 9, true, true)
+  return sendRequest<void>(this.socket, requestParts, 9, true, true)
 }
 
-export function MapSubwindows(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    MapSubwindows(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.MapSubwindows = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 9, true, false)
+  return sendRequest<void>(this.socket, requestParts, 9, true, false)
 }
 
-export function UnmapWindowChecked(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UnmapWindowChecked(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.UnmapWindowChecked = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 10, true, true)
+  return sendRequest<void>(this.socket, requestParts, 10, true, true)
 }
 
-export function UnmapWindow(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UnmapWindow(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.UnmapWindow = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 10, true, false)
+  return sendRequest<void>(this.socket, requestParts, 10, true, false)
 }
 
-export function UnmapSubwindowsChecked(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UnmapSubwindowsChecked(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.UnmapSubwindowsChecked = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 11, true, true)
+  return sendRequest<void>(this.socket, requestParts, 11, true, true)
 }
 
-export function UnmapSubwindows(window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UnmapSubwindows(window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.UnmapSubwindows = function(window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<void>(requestParts, 11, true, false)
+  return sendRequest<void>(this.socket, requestParts, 11, true, false)
 }
 
-export function ConfigureWindowChecked(window: WINDOW, valueList: { x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ConfigureWindowChecked(window: WINDOW, valueList: { x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }): Promise<void>
+  }
+}
+
+XConnection.prototype.ConfigureWindowChecked = function(window: WINDOW, valueList: { x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -3928,10 +4060,16 @@ export function ConfigureWindowChecked(window: WINDOW, valueList: { x: number, y
   requestParts.push(pack('=xx2xIH2x', window, valueMask))
   requestParts.push(pack('=iiIIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 12, true, true)
+  return sendRequest<void>(this.socket, requestParts, 12, true, true)
 }
 
-export function ConfigureWindow(window: WINDOW, valueList: { x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ConfigureWindow(window: WINDOW, valueList: { x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }): Promise<void>
+  }
+}
+
+XConnection.prototype.ConfigureWindow = function(window: WINDOW, valueList: { x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -3953,584 +4091,1010 @@ export function ConfigureWindow(window: WINDOW, valueList: { x: number, y: numbe
   requestParts.push(pack('=xx2xIH2x', window, valueMask))
   requestParts.push(pack('=iiIIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 12, true, false)
+  return sendRequest<void>(this.socket, requestParts, 12, true, false)
 }
 
-export function CirculateWindowChecked(direction: Circulate, window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CirculateWindowChecked(direction: Circulate, window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.CirculateWindowChecked = function(direction: Circulate, window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xI', direction, window))
 
-  return sendRequest<void>(requestParts, 13, true, true)
+  return sendRequest<void>(this.socket, requestParts, 13, true, true)
 }
 
-export function CirculateWindow(direction: Circulate, window: WINDOW): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CirculateWindow(direction: Circulate, window: WINDOW): Promise<void>
+  }
+}
+
+XConnection.prototype.CirculateWindow = function(direction: Circulate, window: WINDOW): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xI', direction, window))
 
-  return sendRequest<void>(requestParts, 13, true, false)
+  return sendRequest<void>(this.socket, requestParts, 13, true, false)
 }
 
-export function GetGeometry(drawable: DRAWABLE): GetGeometryCookie {
+declare module './connection' {
+  interface XConnection {
+    GetGeometry(drawable: DRAWABLE): GetGeometryCookie
+  }
+}
+
+XConnection.prototype.GetGeometry = function(drawable: DRAWABLE): GetGeometryCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', drawable))
 
-  return sendRequest<GetGeometryReply>(requestParts, 14, false, true, unmarshallGetGeometryReply)
+  return sendRequest<GetGeometryReply>(this.socket, requestParts, 14, false, true, unmarshallGetGeometryReply)
 }
 
-export function GetGeometryUnchecked(drawable: DRAWABLE): GetGeometryCookie {
+declare module './connection' {
+  interface XConnection {
+    GetGeometryUnchecked(drawable: DRAWABLE): GetGeometryCookie
+  }
+}
+
+XConnection.prototype.GetGeometryUnchecked = function(drawable: DRAWABLE): GetGeometryCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', drawable))
 
-  return sendRequest<GetGeometryReply>(requestParts, 14, false, false, unmarshallGetGeometryReply)
+  return sendRequest<GetGeometryReply>(this.socket, requestParts, 14, false, false, unmarshallGetGeometryReply)
 }
 
-export function QueryTree(window: WINDOW): QueryTreeCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryTree(window: WINDOW): QueryTreeCookie
+  }
+}
+
+XConnection.prototype.QueryTree = function(window: WINDOW): QueryTreeCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<QueryTreeReply>(requestParts, 15, false, true, unmarshallQueryTreeReply)
+  return sendRequest<QueryTreeReply>(this.socket, requestParts, 15, false, true, unmarshallQueryTreeReply)
 }
 
-export function QueryTreeUnchecked(window: WINDOW): QueryTreeCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryTreeUnchecked(window: WINDOW): QueryTreeCookie
+  }
+}
+
+XConnection.prototype.QueryTreeUnchecked = function(window: WINDOW): QueryTreeCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<QueryTreeReply>(requestParts, 15, false, false, unmarshallQueryTreeReply)
+  return sendRequest<QueryTreeReply>(this.socket, requestParts, 15, false, false, unmarshallQueryTreeReply)
 }
 
-export function InternAtom(onlyIfExists: number, name: Int8Array): InternAtomCookie {
+declare module './connection' {
+  interface XConnection {
+    InternAtom(onlyIfExists: number, name: Int8Array): InternAtomCookie
+  }
+}
+
+XConnection.prototype.InternAtom = function(onlyIfExists: number, name: Int8Array): InternAtomCookie {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xH2x', onlyIfExists, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<InternAtomReply>(requestParts, 16, false, true, unmarshallInternAtomReply)
+  return sendRequest<InternAtomReply>(this.socket, requestParts, 16, false, true, unmarshallInternAtomReply)
 }
 
-export function InternAtomUnchecked(onlyIfExists: number, name: Int8Array): InternAtomCookie {
+declare module './connection' {
+  interface XConnection {
+    InternAtomUnchecked(onlyIfExists: number, name: Int8Array): InternAtomCookie
+  }
+}
+
+XConnection.prototype.InternAtomUnchecked = function(onlyIfExists: number, name: Int8Array): InternAtomCookie {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xH2x', onlyIfExists, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<InternAtomReply>(requestParts, 16, false, false, unmarshallInternAtomReply)
+  return sendRequest<InternAtomReply>(this.socket, requestParts, 16, false, false, unmarshallInternAtomReply)
 }
 
-export function GetAtomName(atom: ATOM): GetAtomNameCookie {
+declare module './connection' {
+  interface XConnection {
+    GetAtomName(atom: ATOM): GetAtomNameCookie
+  }
+}
+
+XConnection.prototype.GetAtomName = function(atom: ATOM): GetAtomNameCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', atom))
 
-  return sendRequest<GetAtomNameReply>(requestParts, 17, false, true, unmarshallGetAtomNameReply)
+  return sendRequest<GetAtomNameReply>(this.socket, requestParts, 17, false, true, unmarshallGetAtomNameReply)
 }
 
-export function GetAtomNameUnchecked(atom: ATOM): GetAtomNameCookie {
+declare module './connection' {
+  interface XConnection {
+    GetAtomNameUnchecked(atom: ATOM): GetAtomNameCookie
+  }
+}
+
+XConnection.prototype.GetAtomNameUnchecked = function(atom: ATOM): GetAtomNameCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', atom))
 
-  return sendRequest<GetAtomNameReply>(requestParts, 17, false, false, unmarshallGetAtomNameReply)
+  return sendRequest<GetAtomNameReply>(this.socket, requestParts, 17, false, false, unmarshallGetAtomNameReply)
 }
 
-export function ChangePropertyChecked(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangePropertyChecked(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangePropertyChecked = function(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: Uint8Array): Promise<void> {
   const dataLen = data.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIIB3xI', mode, window, property, _type, format, dataLen))
   requestParts.push(data.buffer)
 
-  return sendRequest<void>(requestParts, 18, true, true)
+  return sendRequest<void>(this.socket, requestParts, 18, true, true)
 }
 
-export function ChangeProperty(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeProperty(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeProperty = function(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: Uint8Array): Promise<void> {
   const dataLen = data.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIIB3xI', mode, window, property, _type, format, dataLen))
   requestParts.push(data.buffer)
 
-  return sendRequest<void>(requestParts, 18, true, false)
+  return sendRequest<void>(this.socket, requestParts, 18, true, false)
 }
 
-export function DeletePropertyChecked(window: WINDOW, property: ATOM): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    DeletePropertyChecked(window: WINDOW, property: ATOM): Promise<void>
+  }
+}
+
+XConnection.prototype.DeletePropertyChecked = function(window: WINDOW, property: ATOM): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', window, property))
 
-  return sendRequest<void>(requestParts, 19, true, true)
+  return sendRequest<void>(this.socket, requestParts, 19, true, true)
 }
 
-export function DeleteProperty(window: WINDOW, property: ATOM): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    DeleteProperty(window: WINDOW, property: ATOM): Promise<void>
+  }
+}
+
+XConnection.prototype.DeleteProperty = function(window: WINDOW, property: ATOM): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', window, property))
 
-  return sendRequest<void>(requestParts, 19, true, false)
+  return sendRequest<void>(this.socket, requestParts, 19, true, false)
 }
 
-export function GetProperty(_delete: number, window: WINDOW, property: ATOM, _type: ATOM, longOffset: number, longLength: number): GetPropertyCookie {
+declare module './connection' {
+  interface XConnection {
+    GetProperty(_delete: number, window: WINDOW, property: ATOM, _type: ATOM, longOffset: number, longLength: number): GetPropertyCookie
+  }
+}
+
+XConnection.prototype.GetProperty = function(_delete: number, window: WINDOW, property: ATOM, _type: ATOM, longOffset: number, longLength: number): GetPropertyCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIIII', _delete, window, property, _type, longOffset, longLength))
 
-  return sendRequest<GetPropertyReply>(requestParts, 20, false, true, unmarshallGetPropertyReply)
+  return sendRequest<GetPropertyReply>(this.socket, requestParts, 20, false, true, unmarshallGetPropertyReply)
 }
 
-export function GetPropertyUnchecked(_delete: number, window: WINDOW, property: ATOM, _type: ATOM, longOffset: number, longLength: number): GetPropertyCookie {
+declare module './connection' {
+  interface XConnection {
+    GetPropertyUnchecked(_delete: number, window: WINDOW, property: ATOM, _type: ATOM, longOffset: number, longLength: number): GetPropertyCookie
+  }
+}
+
+XConnection.prototype.GetPropertyUnchecked = function(_delete: number, window: WINDOW, property: ATOM, _type: ATOM, longOffset: number, longLength: number): GetPropertyCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIIII', _delete, window, property, _type, longOffset, longLength))
 
-  return sendRequest<GetPropertyReply>(requestParts, 20, false, false, unmarshallGetPropertyReply)
+  return sendRequest<GetPropertyReply>(this.socket, requestParts, 20, false, false, unmarshallGetPropertyReply)
 }
 
-export function ListProperties(window: WINDOW): ListPropertiesCookie {
+declare module './connection' {
+  interface XConnection {
+    ListProperties(window: WINDOW): ListPropertiesCookie
+  }
+}
+
+XConnection.prototype.ListProperties = function(window: WINDOW): ListPropertiesCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<ListPropertiesReply>(requestParts, 21, false, true, unmarshallListPropertiesReply)
+  return sendRequest<ListPropertiesReply>(this.socket, requestParts, 21, false, true, unmarshallListPropertiesReply)
 }
 
-export function ListPropertiesUnchecked(window: WINDOW): ListPropertiesCookie {
+declare module './connection' {
+  interface XConnection {
+    ListPropertiesUnchecked(window: WINDOW): ListPropertiesCookie
+  }
+}
+
+XConnection.prototype.ListPropertiesUnchecked = function(window: WINDOW): ListPropertiesCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<ListPropertiesReply>(requestParts, 21, false, false, unmarshallListPropertiesReply)
+  return sendRequest<ListPropertiesReply>(this.socket, requestParts, 21, false, false, unmarshallListPropertiesReply)
 }
 
-export function SetSelectionOwnerChecked(owner: WINDOW, selection: ATOM, time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetSelectionOwnerChecked(owner: WINDOW, selection: ATOM, time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.SetSelectionOwnerChecked = function(owner: WINDOW, selection: ATOM, time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIII', owner, selection, time))
 
-  return sendRequest<void>(requestParts, 22, true, true)
+  return sendRequest<void>(this.socket, requestParts, 22, true, true)
 }
 
-export function SetSelectionOwner(owner: WINDOW, selection: ATOM, time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetSelectionOwner(owner: WINDOW, selection: ATOM, time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.SetSelectionOwner = function(owner: WINDOW, selection: ATOM, time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIII', owner, selection, time))
 
-  return sendRequest<void>(requestParts, 22, true, false)
+  return sendRequest<void>(this.socket, requestParts, 22, true, false)
 }
 
-export function GetSelectionOwner(selection: ATOM): GetSelectionOwnerCookie {
+declare module './connection' {
+  interface XConnection {
+    GetSelectionOwner(selection: ATOM): GetSelectionOwnerCookie
+  }
+}
+
+XConnection.prototype.GetSelectionOwner = function(selection: ATOM): GetSelectionOwnerCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', selection))
 
-  return sendRequest<GetSelectionOwnerReply>(requestParts, 23, false, true, unmarshallGetSelectionOwnerReply)
+  return sendRequest<GetSelectionOwnerReply>(this.socket, requestParts, 23, false, true, unmarshallGetSelectionOwnerReply)
 }
 
-export function GetSelectionOwnerUnchecked(selection: ATOM): GetSelectionOwnerCookie {
+declare module './connection' {
+  interface XConnection {
+    GetSelectionOwnerUnchecked(selection: ATOM): GetSelectionOwnerCookie
+  }
+}
+
+XConnection.prototype.GetSelectionOwnerUnchecked = function(selection: ATOM): GetSelectionOwnerCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', selection))
 
-  return sendRequest<GetSelectionOwnerReply>(requestParts, 23, false, false, unmarshallGetSelectionOwnerReply)
+  return sendRequest<GetSelectionOwnerReply>(this.socket, requestParts, 23, false, false, unmarshallGetSelectionOwnerReply)
 }
 
-export function ConvertSelectionChecked(requestor: WINDOW, selection: ATOM, target: ATOM, property: ATOM, time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ConvertSelectionChecked(requestor: WINDOW, selection: ATOM, target: ATOM, property: ATOM, time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.ConvertSelectionChecked = function(requestor: WINDOW, selection: ATOM, target: ATOM, property: ATOM, time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIIII', requestor, selection, target, property, time))
 
-  return sendRequest<void>(requestParts, 24, true, true)
+  return sendRequest<void>(this.socket, requestParts, 24, true, true)
 }
 
-export function ConvertSelection(requestor: WINDOW, selection: ATOM, target: ATOM, property: ATOM, time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ConvertSelection(requestor: WINDOW, selection: ATOM, target: ATOM, property: ATOM, time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.ConvertSelection = function(requestor: WINDOW, selection: ATOM, target: ATOM, property: ATOM, time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIIII', requestor, selection, target, property, time))
 
-  return sendRequest<void>(requestParts, 24, true, false)
+  return sendRequest<void>(this.socket, requestParts, 24, true, false)
 }
 
-export function SendEventChecked(propagate: number, destination: WINDOW, eventMask: number, event: Int8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SendEventChecked(propagate: number, destination: WINDOW, eventMask: number, event: Int8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.SendEventChecked = function(propagate: number, destination: WINDOW, eventMask: number, event: Int8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', propagate, destination, eventMask))
   requestParts.push(event.buffer)
 
-  return sendRequest<void>(requestParts, 25, true, true)
+  return sendRequest<void>(this.socket, requestParts, 25, true, true)
 }
 
-export function SendEvent(propagate: number, destination: WINDOW, eventMask: number, event: Int8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SendEvent(propagate: number, destination: WINDOW, eventMask: number, event: Int8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.SendEvent = function(propagate: number, destination: WINDOW, eventMask: number, event: Int8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', propagate, destination, eventMask))
   requestParts.push(event.buffer)
 
-  return sendRequest<void>(requestParts, 25, true, false)
+  return sendRequest<void>(this.socket, requestParts, 25, true, false)
 }
 
-export function GrabPointer(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, time: TIMESTAMP): GrabPointerCookie {
+declare module './connection' {
+  interface XConnection {
+    GrabPointer(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, time: TIMESTAMP): GrabPointerCookie
+  }
+}
+
+XConnection.prototype.GrabPointer = function(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, time: TIMESTAMP): GrabPointerCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHBBIII', ownerEvents, grabWindow, eventMask, pointerMode, keyboardMode, confineTo, cursor, time))
 
-  return sendRequest<GrabPointerReply>(requestParts, 26, false, true, unmarshallGrabPointerReply)
+  return sendRequest<GrabPointerReply>(this.socket, requestParts, 26, false, true, unmarshallGrabPointerReply)
 }
 
-export function GrabPointerUnchecked(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, time: TIMESTAMP): GrabPointerCookie {
+declare module './connection' {
+  interface XConnection {
+    GrabPointerUnchecked(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, time: TIMESTAMP): GrabPointerCookie
+  }
+}
+
+XConnection.prototype.GrabPointerUnchecked = function(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, time: TIMESTAMP): GrabPointerCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHBBIII', ownerEvents, grabWindow, eventMask, pointerMode, keyboardMode, confineTo, cursor, time))
 
-  return sendRequest<GrabPointerReply>(requestParts, 26, false, false, unmarshallGrabPointerReply)
+  return sendRequest<GrabPointerReply>(this.socket, requestParts, 26, false, false, unmarshallGrabPointerReply)
 }
 
-export function UngrabPointerChecked(time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UngrabPointerChecked(time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.UngrabPointerChecked = function(time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', time))
 
-  return sendRequest<void>(requestParts, 27, true, true)
+  return sendRequest<void>(this.socket, requestParts, 27, true, true)
 }
 
-export function UngrabPointer(time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UngrabPointer(time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.UngrabPointer = function(time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', time))
 
-  return sendRequest<void>(requestParts, 27, true, false)
+  return sendRequest<void>(this.socket, requestParts, 27, true, false)
 }
 
-export function GrabButtonChecked(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, button: ButtonIndex, modifiers: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    GrabButtonChecked(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, button: ButtonIndex, modifiers: number): Promise<void>
+  }
+}
+
+XConnection.prototype.GrabButtonChecked = function(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, button: ButtonIndex, modifiers: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHBBIIBxH', ownerEvents, grabWindow, eventMask, pointerMode, keyboardMode, confineTo, cursor, button, modifiers))
 
-  return sendRequest<void>(requestParts, 28, true, true)
+  return sendRequest<void>(this.socket, requestParts, 28, true, true)
 }
 
-export function GrabButton(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, button: ButtonIndex, modifiers: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    GrabButton(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, button: ButtonIndex, modifiers: number): Promise<void>
+  }
+}
+
+XConnection.prototype.GrabButton = function(ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, button: ButtonIndex, modifiers: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHBBIIBxH', ownerEvents, grabWindow, eventMask, pointerMode, keyboardMode, confineTo, cursor, button, modifiers))
 
-  return sendRequest<void>(requestParts, 28, true, false)
+  return sendRequest<void>(this.socket, requestParts, 28, true, false)
 }
 
-export function UngrabButtonChecked(button: ButtonIndex, grabWindow: WINDOW, modifiers: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UngrabButtonChecked(button: ButtonIndex, grabWindow: WINDOW, modifiers: number): Promise<void>
+  }
+}
+
+XConnection.prototype.UngrabButtonChecked = function(button: ButtonIndex, grabWindow: WINDOW, modifiers: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIH2x', button, grabWindow, modifiers))
 
-  return sendRequest<void>(requestParts, 29, true, true)
+  return sendRequest<void>(this.socket, requestParts, 29, true, true)
 }
 
-export function UngrabButton(button: ButtonIndex, grabWindow: WINDOW, modifiers: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UngrabButton(button: ButtonIndex, grabWindow: WINDOW, modifiers: number): Promise<void>
+  }
+}
+
+XConnection.prototype.UngrabButton = function(button: ButtonIndex, grabWindow: WINDOW, modifiers: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIH2x', button, grabWindow, modifiers))
 
-  return sendRequest<void>(requestParts, 29, true, false)
+  return sendRequest<void>(this.socket, requestParts, 29, true, false)
 }
 
-export function ChangeActivePointerGrabChecked(cursor: CURSOR, time: TIMESTAMP, eventMask: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeActivePointerGrabChecked(cursor: CURSOR, time: TIMESTAMP, eventMask: number): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeActivePointerGrabChecked = function(cursor: CURSOR, time: TIMESTAMP, eventMask: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIH2x', cursor, time, eventMask))
 
-  return sendRequest<void>(requestParts, 30, true, true)
+  return sendRequest<void>(this.socket, requestParts, 30, true, true)
 }
 
-export function ChangeActivePointerGrab(cursor: CURSOR, time: TIMESTAMP, eventMask: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeActivePointerGrab(cursor: CURSOR, time: TIMESTAMP, eventMask: number): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeActivePointerGrab = function(cursor: CURSOR, time: TIMESTAMP, eventMask: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIH2x', cursor, time, eventMask))
 
-  return sendRequest<void>(requestParts, 30, true, false)
+  return sendRequest<void>(this.socket, requestParts, 30, true, false)
 }
 
-export function GrabKeyboard(ownerEvents: number, grabWindow: WINDOW, time: TIMESTAMP, pointerMode: GrabMode, keyboardMode: GrabMode): GrabKeyboardCookie {
+declare module './connection' {
+  interface XConnection {
+    GrabKeyboard(ownerEvents: number, grabWindow: WINDOW, time: TIMESTAMP, pointerMode: GrabMode, keyboardMode: GrabMode): GrabKeyboardCookie
+  }
+}
+
+XConnection.prototype.GrabKeyboard = function(ownerEvents: number, grabWindow: WINDOW, time: TIMESTAMP, pointerMode: GrabMode, keyboardMode: GrabMode): GrabKeyboardCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIBB2x', ownerEvents, grabWindow, time, pointerMode, keyboardMode))
 
-  return sendRequest<GrabKeyboardReply>(requestParts, 31, false, true, unmarshallGrabKeyboardReply)
+  return sendRequest<GrabKeyboardReply>(this.socket, requestParts, 31, false, true, unmarshallGrabKeyboardReply)
 }
 
-export function GrabKeyboardUnchecked(ownerEvents: number, grabWindow: WINDOW, time: TIMESTAMP, pointerMode: GrabMode, keyboardMode: GrabMode): GrabKeyboardCookie {
+declare module './connection' {
+  interface XConnection {
+    GrabKeyboardUnchecked(ownerEvents: number, grabWindow: WINDOW, time: TIMESTAMP, pointerMode: GrabMode, keyboardMode: GrabMode): GrabKeyboardCookie
+  }
+}
+
+XConnection.prototype.GrabKeyboardUnchecked = function(ownerEvents: number, grabWindow: WINDOW, time: TIMESTAMP, pointerMode: GrabMode, keyboardMode: GrabMode): GrabKeyboardCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIBB2x', ownerEvents, grabWindow, time, pointerMode, keyboardMode))
 
-  return sendRequest<GrabKeyboardReply>(requestParts, 31, false, false, unmarshallGrabKeyboardReply)
+  return sendRequest<GrabKeyboardReply>(this.socket, requestParts, 31, false, false, unmarshallGrabKeyboardReply)
 }
 
-export function UngrabKeyboardChecked(time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UngrabKeyboardChecked(time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.UngrabKeyboardChecked = function(time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', time))
 
-  return sendRequest<void>(requestParts, 32, true, true)
+  return sendRequest<void>(this.socket, requestParts, 32, true, true)
 }
 
-export function UngrabKeyboard(time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UngrabKeyboard(time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.UngrabKeyboard = function(time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', time))
 
-  return sendRequest<void>(requestParts, 32, true, false)
+  return sendRequest<void>(this.socket, requestParts, 32, true, false)
 }
 
-export function GrabKeyChecked(ownerEvents: number, grabWindow: WINDOW, modifiers: number, key: KEYCODE, pointerMode: GrabMode, keyboardMode: GrabMode): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    GrabKeyChecked(ownerEvents: number, grabWindow: WINDOW, modifiers: number, key: KEYCODE, pointerMode: GrabMode, keyboardMode: GrabMode): Promise<void>
+  }
+}
+
+XConnection.prototype.GrabKeyChecked = function(ownerEvents: number, grabWindow: WINDOW, modifiers: number, key: KEYCODE, pointerMode: GrabMode, keyboardMode: GrabMode): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHBBB3x', ownerEvents, grabWindow, modifiers, key, pointerMode, keyboardMode))
 
-  return sendRequest<void>(requestParts, 33, true, true)
+  return sendRequest<void>(this.socket, requestParts, 33, true, true)
 }
 
-export function GrabKey(ownerEvents: number, grabWindow: WINDOW, modifiers: number, key: KEYCODE, pointerMode: GrabMode, keyboardMode: GrabMode): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    GrabKey(ownerEvents: number, grabWindow: WINDOW, modifiers: number, key: KEYCODE, pointerMode: GrabMode, keyboardMode: GrabMode): Promise<void>
+  }
+}
+
+XConnection.prototype.GrabKey = function(ownerEvents: number, grabWindow: WINDOW, modifiers: number, key: KEYCODE, pointerMode: GrabMode, keyboardMode: GrabMode): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHBBB3x', ownerEvents, grabWindow, modifiers, key, pointerMode, keyboardMode))
 
-  return sendRequest<void>(requestParts, 33, true, false)
+  return sendRequest<void>(this.socket, requestParts, 33, true, false)
 }
 
-export function UngrabKeyChecked(key: KEYCODE, grabWindow: WINDOW, modifiers: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UngrabKeyChecked(key: KEYCODE, grabWindow: WINDOW, modifiers: number): Promise<void>
+  }
+}
+
+XConnection.prototype.UngrabKeyChecked = function(key: KEYCODE, grabWindow: WINDOW, modifiers: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIH2x', key, grabWindow, modifiers))
 
-  return sendRequest<void>(requestParts, 34, true, true)
+  return sendRequest<void>(this.socket, requestParts, 34, true, true)
 }
 
-export function UngrabKey(key: KEYCODE, grabWindow: WINDOW, modifiers: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UngrabKey(key: KEYCODE, grabWindow: WINDOW, modifiers: number): Promise<void>
+  }
+}
+
+XConnection.prototype.UngrabKey = function(key: KEYCODE, grabWindow: WINDOW, modifiers: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIH2x', key, grabWindow, modifiers))
 
-  return sendRequest<void>(requestParts, 34, true, false)
+  return sendRequest<void>(this.socket, requestParts, 34, true, false)
 }
 
-export function AllowEventsChecked(mode: Allow, time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    AllowEventsChecked(mode: Allow, time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.AllowEventsChecked = function(mode: Allow, time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xI', mode, time))
 
-  return sendRequest<void>(requestParts, 35, true, true)
+  return sendRequest<void>(this.socket, requestParts, 35, true, true)
 }
 
-export function AllowEvents(mode: Allow, time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    AllowEvents(mode: Allow, time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.AllowEvents = function(mode: Allow, time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xI', mode, time))
 
-  return sendRequest<void>(requestParts, 35, true, false)
+  return sendRequest<void>(this.socket, requestParts, 35, true, false)
 }
 
-export function GrabServerChecked(): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    GrabServerChecked(): Promise<void>
+  }
+}
+
+XConnection.prototype.GrabServerChecked = function(): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<void>(requestParts, 36, true, true)
+  return sendRequest<void>(this.socket, requestParts, 36, true, true)
 }
 
-export function GrabServer(): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    GrabServer(): Promise<void>
+  }
+}
+
+XConnection.prototype.GrabServer = function(): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<void>(requestParts, 36, true, false)
+  return sendRequest<void>(this.socket, requestParts, 36, true, false)
 }
 
-export function UngrabServerChecked(): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UngrabServerChecked(): Promise<void>
+  }
+}
+
+XConnection.prototype.UngrabServerChecked = function(): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<void>(requestParts, 37, true, true)
+  return sendRequest<void>(this.socket, requestParts, 37, true, true)
 }
 
-export function UngrabServer(): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UngrabServer(): Promise<void>
+  }
+}
+
+XConnection.prototype.UngrabServer = function(): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<void>(requestParts, 37, true, false)
+  return sendRequest<void>(this.socket, requestParts, 37, true, false)
 }
 
-export function QueryPointer(window: WINDOW): QueryPointerCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryPointer(window: WINDOW): QueryPointerCookie
+  }
+}
+
+XConnection.prototype.QueryPointer = function(window: WINDOW): QueryPointerCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<QueryPointerReply>(requestParts, 38, false, true, unmarshallQueryPointerReply)
+  return sendRequest<QueryPointerReply>(this.socket, requestParts, 38, false, true, unmarshallQueryPointerReply)
 }
 
-export function QueryPointerUnchecked(window: WINDOW): QueryPointerCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryPointerUnchecked(window: WINDOW): QueryPointerCookie
+  }
+}
+
+XConnection.prototype.QueryPointerUnchecked = function(window: WINDOW): QueryPointerCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<QueryPointerReply>(requestParts, 38, false, false, unmarshallQueryPointerReply)
+  return sendRequest<QueryPointerReply>(this.socket, requestParts, 38, false, false, unmarshallQueryPointerReply)
 }
 
-export function GetMotionEvents(window: WINDOW, start: TIMESTAMP, stop: TIMESTAMP): GetMotionEventsCookie {
+declare module './connection' {
+  interface XConnection {
+    GetMotionEvents(window: WINDOW, start: TIMESTAMP, stop: TIMESTAMP): GetMotionEventsCookie
+  }
+}
+
+XConnection.prototype.GetMotionEvents = function(window: WINDOW, start: TIMESTAMP, stop: TIMESTAMP): GetMotionEventsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIII', window, start, stop))
 
-  return sendRequest<GetMotionEventsReply>(requestParts, 39, false, true, unmarshallGetMotionEventsReply)
+  return sendRequest<GetMotionEventsReply>(this.socket, requestParts, 39, false, true, unmarshallGetMotionEventsReply)
 }
 
-export function GetMotionEventsUnchecked(window: WINDOW, start: TIMESTAMP, stop: TIMESTAMP): GetMotionEventsCookie {
+declare module './connection' {
+  interface XConnection {
+    GetMotionEventsUnchecked(window: WINDOW, start: TIMESTAMP, stop: TIMESTAMP): GetMotionEventsCookie
+  }
+}
+
+XConnection.prototype.GetMotionEventsUnchecked = function(window: WINDOW, start: TIMESTAMP, stop: TIMESTAMP): GetMotionEventsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIII', window, start, stop))
 
-  return sendRequest<GetMotionEventsReply>(requestParts, 39, false, false, unmarshallGetMotionEventsReply)
+  return sendRequest<GetMotionEventsReply>(this.socket, requestParts, 39, false, false, unmarshallGetMotionEventsReply)
 }
 
-export function TranslateCoordinates(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number): TranslateCoordinatesCookie {
+declare module './connection' {
+  interface XConnection {
+    TranslateCoordinates(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number): TranslateCoordinatesCookie
+  }
+}
+
+XConnection.prototype.TranslateCoordinates = function(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number): TranslateCoordinatesCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', srcWindow, dstWindow, srcX, srcY))
 
-  return sendRequest<TranslateCoordinatesReply>(requestParts, 40, false, true, unmarshallTranslateCoordinatesReply)
+  return sendRequest<TranslateCoordinatesReply>(this.socket, requestParts, 40, false, true, unmarshallTranslateCoordinatesReply)
 }
 
-export function TranslateCoordinatesUnchecked(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number): TranslateCoordinatesCookie {
+declare module './connection' {
+  interface XConnection {
+    TranslateCoordinatesUnchecked(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number): TranslateCoordinatesCookie
+  }
+}
+
+XConnection.prototype.TranslateCoordinatesUnchecked = function(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number): TranslateCoordinatesCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', srcWindow, dstWindow, srcX, srcY))
 
-  return sendRequest<TranslateCoordinatesReply>(requestParts, 40, false, false, unmarshallTranslateCoordinatesReply)
+  return sendRequest<TranslateCoordinatesReply>(this.socket, requestParts, 40, false, false, unmarshallTranslateCoordinatesReply)
 }
 
-export function WarpPointerChecked(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number, srcWidth: number, srcHeight: number, dstX: number, dstY: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    WarpPointerChecked(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number, srcWidth: number, srcHeight: number, dstX: number, dstY: number): Promise<void>
+  }
+}
+
+XConnection.prototype.WarpPointerChecked = function(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number, srcWidth: number, srcHeight: number, dstX: number, dstY: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhhHHhh', srcWindow, dstWindow, srcX, srcY, srcWidth, srcHeight, dstX, dstY))
 
-  return sendRequest<void>(requestParts, 41, true, true)
+  return sendRequest<void>(this.socket, requestParts, 41, true, true)
 }
 
-export function WarpPointer(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number, srcWidth: number, srcHeight: number, dstX: number, dstY: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    WarpPointer(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number, srcWidth: number, srcHeight: number, dstX: number, dstY: number): Promise<void>
+  }
+}
+
+XConnection.prototype.WarpPointer = function(srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number, srcWidth: number, srcHeight: number, dstX: number, dstY: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhhHHhh', srcWindow, dstWindow, srcX, srcY, srcWidth, srcHeight, dstX, dstY))
 
-  return sendRequest<void>(requestParts, 41, true, false)
+  return sendRequest<void>(this.socket, requestParts, 41, true, false)
 }
 
-export function SetInputFocusChecked(revertTo: InputFocus, focus: WINDOW, time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetInputFocusChecked(revertTo: InputFocus, focus: WINDOW, time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.SetInputFocusChecked = function(revertTo: InputFocus, focus: WINDOW, time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', revertTo, focus, time))
 
-  return sendRequest<void>(requestParts, 42, true, true)
+  return sendRequest<void>(this.socket, requestParts, 42, true, true)
 }
 
-export function SetInputFocus(revertTo: InputFocus, focus: WINDOW, time: TIMESTAMP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetInputFocus(revertTo: InputFocus, focus: WINDOW, time: TIMESTAMP): Promise<void>
+  }
+}
+
+XConnection.prototype.SetInputFocus = function(revertTo: InputFocus, focus: WINDOW, time: TIMESTAMP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', revertTo, focus, time))
 
-  return sendRequest<void>(requestParts, 42, true, false)
+  return sendRequest<void>(this.socket, requestParts, 42, true, false)
 }
 
-export function GetInputFocus(): GetInputFocusCookie {
+declare module './connection' {
+  interface XConnection {
+    GetInputFocus(): GetInputFocusCookie
+  }
+}
+
+XConnection.prototype.GetInputFocus = function(): GetInputFocusCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetInputFocusReply>(requestParts, 43, false, true, unmarshallGetInputFocusReply)
+  return sendRequest<GetInputFocusReply>(this.socket, requestParts, 43, false, true, unmarshallGetInputFocusReply)
 }
 
-export function GetInputFocusUnchecked(): GetInputFocusCookie {
+declare module './connection' {
+  interface XConnection {
+    GetInputFocusUnchecked(): GetInputFocusCookie
+  }
+}
+
+XConnection.prototype.GetInputFocusUnchecked = function(): GetInputFocusCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetInputFocusReply>(requestParts, 43, false, false, unmarshallGetInputFocusReply)
+  return sendRequest<GetInputFocusReply>(this.socket, requestParts, 43, false, false, unmarshallGetInputFocusReply)
 }
 
-export function QueryKeymap(): QueryKeymapCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryKeymap(): QueryKeymapCookie
+  }
+}
+
+XConnection.prototype.QueryKeymap = function(): QueryKeymapCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<QueryKeymapReply>(requestParts, 44, false, true, unmarshallQueryKeymapReply)
+  return sendRequest<QueryKeymapReply>(this.socket, requestParts, 44, false, true, unmarshallQueryKeymapReply)
 }
 
-export function QueryKeymapUnchecked(): QueryKeymapCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryKeymapUnchecked(): QueryKeymapCookie
+  }
+}
+
+XConnection.prototype.QueryKeymapUnchecked = function(): QueryKeymapCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<QueryKeymapReply>(requestParts, 44, false, false, unmarshallQueryKeymapReply)
+  return sendRequest<QueryKeymapReply>(this.socket, requestParts, 44, false, false, unmarshallQueryKeymapReply)
 }
 
-export function OpenFontChecked(fid: FONT, name: Int8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    OpenFontChecked(fid: FONT, name: Int8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.OpenFontChecked = function(fid: FONT, name: Int8Array): Promise<void> {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', fid, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<void>(requestParts, 45, true, true)
+  return sendRequest<void>(this.socket, requestParts, 45, true, true)
 }
 
-export function OpenFont(fid: FONT, name: Int8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    OpenFont(fid: FONT, name: Int8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.OpenFont = function(fid: FONT, name: Int8Array): Promise<void> {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', fid, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<void>(requestParts, 45, true, false)
+  return sendRequest<void>(this.socket, requestParts, 45, true, false)
 }
 
-export function CloseFontChecked(font: FONT): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CloseFontChecked(font: FONT): Promise<void>
+  }
+}
+
+XConnection.prototype.CloseFontChecked = function(font: FONT): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', font))
 
-  return sendRequest<void>(requestParts, 46, true, true)
+  return sendRequest<void>(this.socket, requestParts, 46, true, true)
 }
 
-export function CloseFont(font: FONT): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CloseFont(font: FONT): Promise<void>
+  }
+}
+
+XConnection.prototype.CloseFont = function(font: FONT): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', font))
 
-  return sendRequest<void>(requestParts, 46, true, false)
+  return sendRequest<void>(this.socket, requestParts, 46, true, false)
 }
 
-export function QueryFont(font: FONTABLE): QueryFontCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryFont(font: FONTABLE): QueryFontCookie
+  }
+}
+
+XConnection.prototype.QueryFont = function(font: FONTABLE): QueryFontCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', font))
 
-  return sendRequest<QueryFontReply>(requestParts, 47, false, true, unmarshallQueryFontReply)
+  return sendRequest<QueryFontReply>(this.socket, requestParts, 47, false, true, unmarshallQueryFontReply)
 }
 
-export function QueryFontUnchecked(font: FONTABLE): QueryFontCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryFontUnchecked(font: FONTABLE): QueryFontCookie
+  }
+}
+
+XConnection.prototype.QueryFontUnchecked = function(font: FONTABLE): QueryFontCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', font))
 
-  return sendRequest<QueryFontReply>(requestParts, 47, false, false, unmarshallQueryFontReply)
+  return sendRequest<QueryFontReply>(this.socket, requestParts, 47, false, false, unmarshallQueryFontReply)
 }
 
-export function QueryTextExtents(font: FONTABLE, stringLen: number, _string: CHAR2B[]): QueryTextExtentsCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryTextExtents(font: FONTABLE, stringLen: number, _string: CHAR2B[]): QueryTextExtentsCookie
+  }
+}
+
+XConnection.prototype.QueryTextExtents = function(font: FONTABLE, stringLen: number, _string: CHAR2B[]): QueryTextExtentsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=x'))
@@ -4541,10 +5105,16 @@ export function QueryTextExtents(font: FONTABLE, stringLen: number, _string: CHA
 
   })
 
-  return sendRequest<QueryTextExtentsReply>(requestParts, 48, false, true, unmarshallQueryTextExtentsReply)
+  return sendRequest<QueryTextExtentsReply>(this.socket, requestParts, 48, false, true, unmarshallQueryTextExtentsReply)
 }
 
-export function QueryTextExtentsUnchecked(font: FONTABLE, stringLen: number, _string: CHAR2B[]): QueryTextExtentsCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryTextExtentsUnchecked(font: FONTABLE, stringLen: number, _string: CHAR2B[]): QueryTextExtentsCookie
+  }
+}
+
+XConnection.prototype.QueryTextExtentsUnchecked = function(font: FONTABLE, stringLen: number, _string: CHAR2B[]): QueryTextExtentsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=x'))
@@ -4555,50 +5125,80 @@ export function QueryTextExtentsUnchecked(font: FONTABLE, stringLen: number, _st
 
   })
 
-  return sendRequest<QueryTextExtentsReply>(requestParts, 48, false, false, unmarshallQueryTextExtentsReply)
+  return sendRequest<QueryTextExtentsReply>(this.socket, requestParts, 48, false, false, unmarshallQueryTextExtentsReply)
 }
 
-export function ListFonts(maxNames: number, pattern: Int8Array): ListFontsCookie {
+declare module './connection' {
+  interface XConnection {
+    ListFonts(maxNames: number, pattern: Int8Array): ListFontsCookie
+  }
+}
+
+XConnection.prototype.ListFonts = function(maxNames: number, pattern: Int8Array): ListFontsCookie {
   const patternLen = pattern.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xHH', maxNames, patternLen))
   requestParts.push(pattern.buffer)
 
-  return sendRequest<ListFontsReply>(requestParts, 49, false, true, unmarshallListFontsReply)
+  return sendRequest<ListFontsReply>(this.socket, requestParts, 49, false, true, unmarshallListFontsReply)
 }
 
-export function ListFontsUnchecked(maxNames: number, pattern: Int8Array): ListFontsCookie {
+declare module './connection' {
+  interface XConnection {
+    ListFontsUnchecked(maxNames: number, pattern: Int8Array): ListFontsCookie
+  }
+}
+
+XConnection.prototype.ListFontsUnchecked = function(maxNames: number, pattern: Int8Array): ListFontsCookie {
   const patternLen = pattern.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xHH', maxNames, patternLen))
   requestParts.push(pattern.buffer)
 
-  return sendRequest<ListFontsReply>(requestParts, 49, false, false, unmarshallListFontsReply)
+  return sendRequest<ListFontsReply>(this.socket, requestParts, 49, false, false, unmarshallListFontsReply)
 }
 
-export function ListFontsWithInfo(maxNames: number, pattern: Int8Array): ListFontsWithInfoCookie {
+declare module './connection' {
+  interface XConnection {
+    ListFontsWithInfo(maxNames: number, pattern: Int8Array): ListFontsWithInfoCookie
+  }
+}
+
+XConnection.prototype.ListFontsWithInfo = function(maxNames: number, pattern: Int8Array): ListFontsWithInfoCookie {
   const patternLen = pattern.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xHH', maxNames, patternLen))
   requestParts.push(pattern.buffer)
 
-  return sendRequest<ListFontsWithInfoReply>(requestParts, 50, false, true, unmarshallListFontsWithInfoReply)
+  return sendRequest<ListFontsWithInfoReply>(this.socket, requestParts, 50, false, true, unmarshallListFontsWithInfoReply)
 }
 
-export function ListFontsWithInfoUnchecked(maxNames: number, pattern: Int8Array): ListFontsWithInfoCookie {
+declare module './connection' {
+  interface XConnection {
+    ListFontsWithInfoUnchecked(maxNames: number, pattern: Int8Array): ListFontsWithInfoCookie
+  }
+}
+
+XConnection.prototype.ListFontsWithInfoUnchecked = function(maxNames: number, pattern: Int8Array): ListFontsWithInfoCookie {
   const patternLen = pattern.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xHH', maxNames, patternLen))
   requestParts.push(pattern.buffer)
 
-  return sendRequest<ListFontsWithInfoReply>(requestParts, 50, false, false, unmarshallListFontsWithInfoReply)
+  return sendRequest<ListFontsWithInfoReply>(this.socket, requestParts, 50, false, false, unmarshallListFontsWithInfoReply)
 }
 
-export function SetFontPathChecked(font: STR[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetFontPathChecked(font: STR[]): Promise<void>
+  }
+}
+
+XConnection.prototype.SetFontPathChecked = function(font: STR[]): Promise<void> {
   const fontQty = font.length
   const requestParts: ArrayBuffer[] = []
 
@@ -4609,10 +5209,16 @@ export function SetFontPathChecked(font: STR[]): Promise<void> {
 
   })
 
-  return sendRequest<void>(requestParts, 51, true, true)
+  return sendRequest<void>(this.socket, requestParts, 51, true, true)
 }
 
-export function SetFontPath(font: STR[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetFontPath(font: STR[]): Promise<void>
+  }
+}
+
+XConnection.prototype.SetFontPath = function(font: STR[]): Promise<void> {
   const fontQty = font.length
   const requestParts: ArrayBuffer[] = []
 
@@ -4623,58 +5229,100 @@ export function SetFontPath(font: STR[]): Promise<void> {
 
   })
 
-  return sendRequest<void>(requestParts, 51, true, false)
+  return sendRequest<void>(this.socket, requestParts, 51, true, false)
 }
 
-export function GetFontPath(): GetFontPathCookie {
+declare module './connection' {
+  interface XConnection {
+    GetFontPath(): GetFontPathCookie
+  }
+}
+
+XConnection.prototype.GetFontPath = function(): GetFontPathCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetFontPathReply>(requestParts, 52, false, true, unmarshallGetFontPathReply)
+  return sendRequest<GetFontPathReply>(this.socket, requestParts, 52, false, true, unmarshallGetFontPathReply)
 }
 
-export function GetFontPathUnchecked(): GetFontPathCookie {
+declare module './connection' {
+  interface XConnection {
+    GetFontPathUnchecked(): GetFontPathCookie
+  }
+}
+
+XConnection.prototype.GetFontPathUnchecked = function(): GetFontPathCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetFontPathReply>(requestParts, 52, false, false, unmarshallGetFontPathReply)
+  return sendRequest<GetFontPathReply>(this.socket, requestParts, 52, false, false, unmarshallGetFontPathReply)
 }
 
-export function CreatePixmapChecked(depth: number, pid: PIXMAP, drawable: DRAWABLE, width: number, height: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreatePixmapChecked(depth: number, pid: PIXMAP, drawable: DRAWABLE, width: number, height: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CreatePixmapChecked = function(depth: number, pid: PIXMAP, drawable: DRAWABLE, width: number, height: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIHH', depth, pid, drawable, width, height))
 
-  return sendRequest<void>(requestParts, 53, true, true)
+  return sendRequest<void>(this.socket, requestParts, 53, true, true)
 }
 
-export function CreatePixmap(depth: number, pid: PIXMAP, drawable: DRAWABLE, width: number, height: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreatePixmap(depth: number, pid: PIXMAP, drawable: DRAWABLE, width: number, height: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CreatePixmap = function(depth: number, pid: PIXMAP, drawable: DRAWABLE, width: number, height: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIHH', depth, pid, drawable, width, height))
 
-  return sendRequest<void>(requestParts, 53, true, false)
+  return sendRequest<void>(this.socket, requestParts, 53, true, false)
 }
 
-export function FreePixmapChecked(pixmap: PIXMAP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FreePixmapChecked(pixmap: PIXMAP): Promise<void>
+  }
+}
+
+XConnection.prototype.FreePixmapChecked = function(pixmap: PIXMAP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', pixmap))
 
-  return sendRequest<void>(requestParts, 54, true, true)
+  return sendRequest<void>(this.socket, requestParts, 54, true, true)
 }
 
-export function FreePixmap(pixmap: PIXMAP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FreePixmap(pixmap: PIXMAP): Promise<void>
+  }
+}
+
+XConnection.prototype.FreePixmap = function(pixmap: PIXMAP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', pixmap))
 
-  return sendRequest<void>(requestParts, 54, true, false)
+  return sendRequest<void>(this.socket, requestParts, 54, true, false)
 }
 
-export function CreateGCChecked(cid: GCONTEXT, drawable: DRAWABLE, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreateGCChecked(cid: GCONTEXT, drawable: DRAWABLE, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void>
+  }
+}
+
+XConnection.prototype.CreateGCChecked = function(cid: GCONTEXT, drawable: DRAWABLE, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -4712,10 +5360,16 @@ export function CreateGCChecked(cid: GCONTEXT, drawable: DRAWABLE, valueList: { 
   requestParts.push(pack('=xx2xIII', cid, drawable, valueMask))
   requestParts.push(pack('=IIIIIIIIIIIIiiIIIiiIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 55, true, true)
+  return sendRequest<void>(this.socket, requestParts, 55, true, true)
 }
 
-export function CreateGC(cid: GCONTEXT, drawable: DRAWABLE, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreateGC(cid: GCONTEXT, drawable: DRAWABLE, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void>
+  }
+}
+
+XConnection.prototype.CreateGC = function(cid: GCONTEXT, drawable: DRAWABLE, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -4753,10 +5407,16 @@ export function CreateGC(cid: GCONTEXT, drawable: DRAWABLE, valueList: { functio
   requestParts.push(pack('=xx2xIII', cid, drawable, valueMask))
   requestParts.push(pack('=IIIIIIIIIIIIiiIIIiiIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 55, true, false)
+  return sendRequest<void>(this.socket, requestParts, 55, true, false)
 }
 
-export function ChangeGCChecked(gc: GCONTEXT, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeGCChecked(gc: GCONTEXT, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeGCChecked = function(gc: GCONTEXT, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -4794,10 +5454,16 @@ export function ChangeGCChecked(gc: GCONTEXT, valueList: { function: GX, planeMa
   requestParts.push(pack('=xx2xII', gc, valueMask))
   requestParts.push(pack('=IIIIIIIIIIIIiiIIIiiIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 56, true, true)
+  return sendRequest<void>(this.socket, requestParts, 56, true, true)
 }
 
-export function ChangeGC(gc: GCONTEXT, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeGC(gc: GCONTEXT, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeGC = function(gc: GCONTEXT, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -4835,46 +5501,76 @@ export function ChangeGC(gc: GCONTEXT, valueList: { function: GX, planeMask: num
   requestParts.push(pack('=xx2xII', gc, valueMask))
   requestParts.push(pack('=IIIIIIIIIIIIiiIIIiiIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 56, true, false)
+  return sendRequest<void>(this.socket, requestParts, 56, true, false)
 }
 
-export function CopyGCChecked(srcGc: GCONTEXT, dstGc: GCONTEXT, valueMask: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CopyGCChecked(srcGc: GCONTEXT, dstGc: GCONTEXT, valueMask: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CopyGCChecked = function(srcGc: GCONTEXT, dstGc: GCONTEXT, valueMask: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIII', srcGc, dstGc, valueMask))
 
-  return sendRequest<void>(requestParts, 57, true, true)
+  return sendRequest<void>(this.socket, requestParts, 57, true, true)
 }
 
-export function CopyGC(srcGc: GCONTEXT, dstGc: GCONTEXT, valueMask: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CopyGC(srcGc: GCONTEXT, dstGc: GCONTEXT, valueMask: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CopyGC = function(srcGc: GCONTEXT, dstGc: GCONTEXT, valueMask: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIII', srcGc, dstGc, valueMask))
 
-  return sendRequest<void>(requestParts, 57, true, false)
+  return sendRequest<void>(this.socket, requestParts, 57, true, false)
 }
 
-export function SetDashesChecked(gc: GCONTEXT, dashOffset: number, dashes: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetDashesChecked(gc: GCONTEXT, dashOffset: number, dashes: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.SetDashesChecked = function(gc: GCONTEXT, dashOffset: number, dashes: Uint8Array): Promise<void> {
   const dashesLen = dashes.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHH', gc, dashOffset, dashesLen))
   requestParts.push(dashes.buffer)
 
-  return sendRequest<void>(requestParts, 58, true, true)
+  return sendRequest<void>(this.socket, requestParts, 58, true, true)
 }
 
-export function SetDashes(gc: GCONTEXT, dashOffset: number, dashes: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetDashes(gc: GCONTEXT, dashOffset: number, dashes: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.SetDashes = function(gc: GCONTEXT, dashOffset: number, dashes: Uint8Array): Promise<void> {
   const dashesLen = dashes.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHH', gc, dashOffset, dashesLen))
   requestParts.push(dashes.buffer)
 
-  return sendRequest<void>(requestParts, 58, true, false)
+  return sendRequest<void>(this.socket, requestParts, 58, true, false)
 }
 
-export function SetClipRectanglesChecked(ordering: ClipOrdering, gc: GCONTEXT, clipXOrigin: number, clipYOrigin: number, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetClipRectanglesChecked(ordering: ClipOrdering, gc: GCONTEXT, clipXOrigin: number, clipYOrigin: number, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void>
+  }
+}
+
+XConnection.prototype.SetClipRectanglesChecked = function(ordering: ClipOrdering, gc: GCONTEXT, clipXOrigin: number, clipYOrigin: number, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIhh', ordering, gc, clipXOrigin, clipYOrigin))
@@ -4883,10 +5579,16 @@ export function SetClipRectanglesChecked(ordering: ClipOrdering, gc: GCONTEXT, c
 
   })
 
-  return sendRequest<void>(requestParts, 59, true, true)
+  return sendRequest<void>(this.socket, requestParts, 59, true, true)
 }
 
-export function SetClipRectangles(ordering: ClipOrdering, gc: GCONTEXT, clipXOrigin: number, clipYOrigin: number, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetClipRectangles(ordering: ClipOrdering, gc: GCONTEXT, clipXOrigin: number, clipYOrigin: number, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void>
+  }
+}
+
+XConnection.prototype.SetClipRectangles = function(ordering: ClipOrdering, gc: GCONTEXT, clipXOrigin: number, clipYOrigin: number, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIhh', ordering, gc, clipXOrigin, clipYOrigin))
@@ -4895,74 +5597,128 @@ export function SetClipRectangles(ordering: ClipOrdering, gc: GCONTEXT, clipXOri
 
   })
 
-  return sendRequest<void>(requestParts, 59, true, false)
+  return sendRequest<void>(this.socket, requestParts, 59, true, false)
 }
 
-export function FreeGCChecked(gc: GCONTEXT): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FreeGCChecked(gc: GCONTEXT): Promise<void>
+  }
+}
+
+XConnection.prototype.FreeGCChecked = function(gc: GCONTEXT): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', gc))
 
-  return sendRequest<void>(requestParts, 60, true, true)
+  return sendRequest<void>(this.socket, requestParts, 60, true, true)
 }
 
-export function FreeGC(gc: GCONTEXT): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FreeGC(gc: GCONTEXT): Promise<void>
+  }
+}
+
+XConnection.prototype.FreeGC = function(gc: GCONTEXT): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', gc))
 
-  return sendRequest<void>(requestParts, 60, true, false)
+  return sendRequest<void>(this.socket, requestParts, 60, true, false)
 }
 
-export function ClearAreaChecked(exposures: number, window: WINDOW, x: number, y: number, width: number, height: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ClearAreaChecked(exposures: number, window: WINDOW, x: number, y: number, width: number, height: number): Promise<void>
+  }
+}
+
+XConnection.prototype.ClearAreaChecked = function(exposures: number, window: WINDOW, x: number, y: number, width: number, height: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIhhHH', exposures, window, x, y, width, height))
 
-  return sendRequest<void>(requestParts, 61, true, true)
+  return sendRequest<void>(this.socket, requestParts, 61, true, true)
 }
 
-export function ClearArea(exposures: number, window: WINDOW, x: number, y: number, width: number, height: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ClearArea(exposures: number, window: WINDOW, x: number, y: number, width: number, height: number): Promise<void>
+  }
+}
+
+XConnection.prototype.ClearArea = function(exposures: number, window: WINDOW, x: number, y: number, width: number, height: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIhhHH', exposures, window, x, y, width, height))
 
-  return sendRequest<void>(requestParts, 61, true, false)
+  return sendRequest<void>(this.socket, requestParts, 61, true, false)
 }
 
-export function CopyAreaChecked(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CopyAreaChecked(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CopyAreaChecked = function(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIIhhhhHH', srcDrawable, dstDrawable, gc, srcX, srcY, dstX, dstY, width, height))
 
-  return sendRequest<void>(requestParts, 62, true, true)
+  return sendRequest<void>(this.socket, requestParts, 62, true, true)
 }
 
-export function CopyArea(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CopyArea(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CopyArea = function(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIIhhhhHH', srcDrawable, dstDrawable, gc, srcX, srcY, dstX, dstY, width, height))
 
-  return sendRequest<void>(requestParts, 62, true, false)
+  return sendRequest<void>(this.socket, requestParts, 62, true, false)
 }
 
-export function CopyPlaneChecked(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number, bitPlane: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CopyPlaneChecked(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number, bitPlane: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CopyPlaneChecked = function(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number, bitPlane: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIIhhhhHHI', srcDrawable, dstDrawable, gc, srcX, srcY, dstX, dstY, width, height, bitPlane))
 
-  return sendRequest<void>(requestParts, 63, true, true)
+  return sendRequest<void>(this.socket, requestParts, 63, true, true)
 }
 
-export function CopyPlane(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number, bitPlane: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CopyPlane(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number, bitPlane: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CopyPlane = function(srcDrawable: DRAWABLE, dstDrawable: DRAWABLE, gc: GCONTEXT, srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number, bitPlane: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIIhhhhHHI', srcDrawable, dstDrawable, gc, srcX, srcY, dstX, dstY, width, height, bitPlane))
 
-  return sendRequest<void>(requestParts, 63, true, false)
+  return sendRequest<void>(this.socket, requestParts, 63, true, false)
 }
 
-export function PolyPointChecked(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyPointChecked(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyPointChecked = function(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', coordinateMode, drawable, gc))
@@ -4971,10 +5727,16 @@ export function PolyPointChecked(coordinateMode: CoordMode, drawable: DRAWABLE, 
 
   })
 
-  return sendRequest<void>(requestParts, 64, true, true)
+  return sendRequest<void>(this.socket, requestParts, 64, true, true)
 }
 
-export function PolyPoint(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyPoint(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyPoint = function(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', coordinateMode, drawable, gc))
@@ -4983,10 +5745,16 @@ export function PolyPoint(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCO
 
   })
 
-  return sendRequest<void>(requestParts, 64, true, false)
+  return sendRequest<void>(this.socket, requestParts, 64, true, false)
 }
 
-export function PolyLineChecked(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyLineChecked(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyLineChecked = function(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', coordinateMode, drawable, gc))
@@ -4995,10 +5763,16 @@ export function PolyLineChecked(coordinateMode: CoordMode, drawable: DRAWABLE, g
 
   })
 
-  return sendRequest<void>(requestParts, 65, true, true)
+  return sendRequest<void>(this.socket, requestParts, 65, true, true)
 }
 
-export function PolyLine(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyLine(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyLine = function(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xII', coordinateMode, drawable, gc))
@@ -5007,10 +5781,16 @@ export function PolyLine(coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCON
 
   })
 
-  return sendRequest<void>(requestParts, 65, true, false)
+  return sendRequest<void>(this.socket, requestParts, 65, true, false)
 }
 
-export function PolySegmentChecked(drawable: DRAWABLE, gc: GCONTEXT, segmentsLen: number, segments: SEGMENT[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolySegmentChecked(drawable: DRAWABLE, gc: GCONTEXT, segmentsLen: number, segments: SEGMENT[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolySegmentChecked = function(drawable: DRAWABLE, gc: GCONTEXT, segmentsLen: number, segments: SEGMENT[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
@@ -5019,10 +5799,16 @@ export function PolySegmentChecked(drawable: DRAWABLE, gc: GCONTEXT, segmentsLen
 
   })
 
-  return sendRequest<void>(requestParts, 66, true, true)
+  return sendRequest<void>(this.socket, requestParts, 66, true, true)
 }
 
-export function PolySegment(drawable: DRAWABLE, gc: GCONTEXT, segmentsLen: number, segments: SEGMENT[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolySegment(drawable: DRAWABLE, gc: GCONTEXT, segmentsLen: number, segments: SEGMENT[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolySegment = function(drawable: DRAWABLE, gc: GCONTEXT, segmentsLen: number, segments: SEGMENT[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
@@ -5031,10 +5817,16 @@ export function PolySegment(drawable: DRAWABLE, gc: GCONTEXT, segmentsLen: numbe
 
   })
 
-  return sendRequest<void>(requestParts, 66, true, false)
+  return sendRequest<void>(this.socket, requestParts, 66, true, false)
 }
 
-export function PolyRectangleChecked(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyRectangleChecked(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyRectangleChecked = function(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
@@ -5043,10 +5835,16 @@ export function PolyRectangleChecked(drawable: DRAWABLE, gc: GCONTEXT, rectangle
 
   })
 
-  return sendRequest<void>(requestParts, 67, true, true)
+  return sendRequest<void>(this.socket, requestParts, 67, true, true)
 }
 
-export function PolyRectangle(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyRectangle(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyRectangle = function(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
@@ -5055,10 +5853,16 @@ export function PolyRectangle(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: n
 
   })
 
-  return sendRequest<void>(requestParts, 67, true, false)
+  return sendRequest<void>(this.socket, requestParts, 67, true, false)
 }
 
-export function PolyArcChecked(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyArcChecked(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyArcChecked = function(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
@@ -5067,10 +5871,16 @@ export function PolyArcChecked(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number
 
   })
 
-  return sendRequest<void>(requestParts, 68, true, true)
+  return sendRequest<void>(this.socket, requestParts, 68, true, true)
 }
 
-export function PolyArc(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyArc(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyArc = function(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
@@ -5079,10 +5889,16 @@ export function PolyArc(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs:
 
   })
 
-  return sendRequest<void>(requestParts, 68, true, false)
+  return sendRequest<void>(this.socket, requestParts, 68, true, false)
 }
 
-export function FillPolyChecked(drawable: DRAWABLE, gc: GCONTEXT, shape: PolyShape, coordinateMode: CoordMode, pointsLen: number, points: POINT[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FillPolyChecked(drawable: DRAWABLE, gc: GCONTEXT, shape: PolyShape, coordinateMode: CoordMode, pointsLen: number, points: POINT[]): Promise<void>
+  }
+}
+
+XConnection.prototype.FillPolyChecked = function(drawable: DRAWABLE, gc: GCONTEXT, shape: PolyShape, coordinateMode: CoordMode, pointsLen: number, points: POINT[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIBB2x', drawable, gc, shape, coordinateMode))
@@ -5091,10 +5907,16 @@ export function FillPolyChecked(drawable: DRAWABLE, gc: GCONTEXT, shape: PolySha
 
   })
 
-  return sendRequest<void>(requestParts, 69, true, true)
+  return sendRequest<void>(this.socket, requestParts, 69, true, true)
 }
 
-export function FillPoly(drawable: DRAWABLE, gc: GCONTEXT, shape: PolyShape, coordinateMode: CoordMode, pointsLen: number, points: POINT[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FillPoly(drawable: DRAWABLE, gc: GCONTEXT, shape: PolyShape, coordinateMode: CoordMode, pointsLen: number, points: POINT[]): Promise<void>
+  }
+}
+
+XConnection.prototype.FillPoly = function(drawable: DRAWABLE, gc: GCONTEXT, shape: PolyShape, coordinateMode: CoordMode, pointsLen: number, points: POINT[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIBB2x', drawable, gc, shape, coordinateMode))
@@ -5103,10 +5925,16 @@ export function FillPoly(drawable: DRAWABLE, gc: GCONTEXT, shape: PolyShape, coo
 
   })
 
-  return sendRequest<void>(requestParts, 69, true, false)
+  return sendRequest<void>(this.socket, requestParts, 69, true, false)
 }
 
-export function PolyFillRectangleChecked(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyFillRectangleChecked(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyFillRectangleChecked = function(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
@@ -5115,10 +5943,16 @@ export function PolyFillRectangleChecked(drawable: DRAWABLE, gc: GCONTEXT, recta
 
   })
 
-  return sendRequest<void>(requestParts, 70, true, true)
+  return sendRequest<void>(this.socket, requestParts, 70, true, true)
 }
 
-export function PolyFillRectangle(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyFillRectangle(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyFillRectangle = function(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLen: number, rectangles: RECTANGLE[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
@@ -5127,10 +5961,16 @@ export function PolyFillRectangle(drawable: DRAWABLE, gc: GCONTEXT, rectanglesLe
 
   })
 
-  return sendRequest<void>(requestParts, 70, true, false)
+  return sendRequest<void>(this.socket, requestParts, 70, true, false)
 }
 
-export function PolyFillArcChecked(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyFillArcChecked(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyFillArcChecked = function(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
@@ -5139,10 +5979,16 @@ export function PolyFillArcChecked(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: nu
 
   })
 
-  return sendRequest<void>(requestParts, 71, true, true)
+  return sendRequest<void>(this.socket, requestParts, 71, true, true)
 }
 
-export function PolyFillArc(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyFillArc(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyFillArc = function(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, arcs: ARC[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', drawable, gc))
@@ -5151,100 +5997,166 @@ export function PolyFillArc(drawable: DRAWABLE, gc: GCONTEXT, arcsLen: number, a
 
   })
 
-  return sendRequest<void>(requestParts, 71, true, false)
+  return sendRequest<void>(this.socket, requestParts, 71, true, false)
 }
 
-export function PutImageChecked(format: ImageFormat, drawable: DRAWABLE, gc: GCONTEXT, width: number, height: number, dstX: number, dstY: number, leftPad: number, depth: number, dataLen: number, data: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PutImageChecked(format: ImageFormat, drawable: DRAWABLE, gc: GCONTEXT, width: number, height: number, dstX: number, dstY: number, leftPad: number, depth: number, dataLen: number, data: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.PutImageChecked = function(format: ImageFormat, drawable: DRAWABLE, gc: GCONTEXT, width: number, height: number, dstX: number, dstY: number, leftPad: number, depth: number, dataLen: number, data: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIHHhhBB2x', format, drawable, gc, width, height, dstX, dstY, leftPad, depth))
   requestParts.push(data.buffer)
 
-  return sendRequest<void>(requestParts, 72, true, true)
+  return sendRequest<void>(this.socket, requestParts, 72, true, true)
 }
 
-export function PutImage(format: ImageFormat, drawable: DRAWABLE, gc: GCONTEXT, width: number, height: number, dstX: number, dstY: number, leftPad: number, depth: number, dataLen: number, data: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PutImage(format: ImageFormat, drawable: DRAWABLE, gc: GCONTEXT, width: number, height: number, dstX: number, dstY: number, leftPad: number, depth: number, dataLen: number, data: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.PutImage = function(format: ImageFormat, drawable: DRAWABLE, gc: GCONTEXT, width: number, height: number, dstX: number, dstY: number, leftPad: number, depth: number, dataLen: number, data: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIHHhhBB2x', format, drawable, gc, width, height, dstX, dstY, leftPad, depth))
   requestParts.push(data.buffer)
 
-  return sendRequest<void>(requestParts, 72, true, false)
+  return sendRequest<void>(this.socket, requestParts, 72, true, false)
 }
 
-export function GetImage(format: ImageFormat, drawable: DRAWABLE, x: number, y: number, width: number, height: number, planeMask: number): GetImageCookie {
+declare module './connection' {
+  interface XConnection {
+    GetImage(format: ImageFormat, drawable: DRAWABLE, x: number, y: number, width: number, height: number, planeMask: number): GetImageCookie
+  }
+}
+
+XConnection.prototype.GetImage = function(format: ImageFormat, drawable: DRAWABLE, x: number, y: number, width: number, height: number, planeMask: number): GetImageCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIhhHHI', format, drawable, x, y, width, height, planeMask))
 
-  return sendRequest<GetImageReply>(requestParts, 73, false, true, unmarshallGetImageReply)
+  return sendRequest<GetImageReply>(this.socket, requestParts, 73, false, true, unmarshallGetImageReply)
 }
 
-export function GetImageUnchecked(format: ImageFormat, drawable: DRAWABLE, x: number, y: number, width: number, height: number, planeMask: number): GetImageCookie {
+declare module './connection' {
+  interface XConnection {
+    GetImageUnchecked(format: ImageFormat, drawable: DRAWABLE, x: number, y: number, width: number, height: number, planeMask: number): GetImageCookie
+  }
+}
+
+XConnection.prototype.GetImageUnchecked = function(format: ImageFormat, drawable: DRAWABLE, x: number, y: number, width: number, height: number, planeMask: number): GetImageCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIhhHHI', format, drawable, x, y, width, height, planeMask))
 
-  return sendRequest<GetImageReply>(requestParts, 73, false, false, unmarshallGetImageReply)
+  return sendRequest<GetImageReply>(this.socket, requestParts, 73, false, false, unmarshallGetImageReply)
 }
 
-export function PolyText8Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyText8Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyText8Checked = function(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', drawable, gc, x, y))
   requestParts.push(items.buffer)
 
-  return sendRequest<void>(requestParts, 74, true, true)
+  return sendRequest<void>(this.socket, requestParts, 74, true, true)
 }
 
-export function PolyText8(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyText8(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyText8 = function(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', drawable, gc, x, y))
   requestParts.push(items.buffer)
 
-  return sendRequest<void>(requestParts, 74, true, false)
+  return sendRequest<void>(this.socket, requestParts, 74, true, false)
 }
 
-export function PolyText16Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyText16Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyText16Checked = function(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', drawable, gc, x, y))
   requestParts.push(items.buffer)
 
-  return sendRequest<void>(requestParts, 75, true, true)
+  return sendRequest<void>(this.socket, requestParts, 75, true, true)
 }
 
-export function PolyText16(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    PolyText16(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.PolyText16 = function(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, itemsLen: number, items: Uint8Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIhh', drawable, gc, x, y))
   requestParts.push(items.buffer)
 
-  return sendRequest<void>(requestParts, 75, true, false)
+  return sendRequest<void>(this.socket, requestParts, 75, true, false)
 }
 
-export function ImageText8Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: Int8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ImageText8Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: Int8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.ImageText8Checked = function(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: Int8Array): Promise<void> {
   const stringLen = _string.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIhh', stringLen, drawable, gc, x, y))
   requestParts.push(_string.buffer)
 
-  return sendRequest<void>(requestParts, 76, true, true)
+  return sendRequest<void>(this.socket, requestParts, 76, true, true)
 }
 
-export function ImageText8(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: Int8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ImageText8(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: Int8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.ImageText8 = function(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: Int8Array): Promise<void> {
   const stringLen = _string.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIhh', stringLen, drawable, gc, x, y))
   requestParts.push(_string.buffer)
 
-  return sendRequest<void>(requestParts, 76, true, false)
+  return sendRequest<void>(this.socket, requestParts, 76, true, false)
 }
 
-export function ImageText16Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ImageText16Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): Promise<void>
+  }
+}
+
+XConnection.prototype.ImageText16Checked = function(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): Promise<void> {
   const stringLen = _string.length
   const requestParts: ArrayBuffer[] = []
 
@@ -5254,10 +6166,16 @@ export function ImageText16Checked(drawable: DRAWABLE, gc: GCONTEXT, x: number, 
 
   })
 
-  return sendRequest<void>(requestParts, 77, true, true)
+  return sendRequest<void>(this.socket, requestParts, 77, true, true)
 }
 
-export function ImageText16(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ImageText16(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): Promise<void>
+  }
+}
+
+XConnection.prototype.ImageText16 = function(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): Promise<void> {
   const stringLen = _string.length
   const requestParts: ArrayBuffer[] = []
 
@@ -5267,192 +6185,330 @@ export function ImageText16(drawable: DRAWABLE, gc: GCONTEXT, x: number, y: numb
 
   })
 
-  return sendRequest<void>(requestParts, 77, true, false)
+  return sendRequest<void>(this.socket, requestParts, 77, true, false)
 }
 
-export function CreateColormapChecked(alloc: ColormapAlloc, mid: COLORMAP, window: WINDOW, visual: VISUALID): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreateColormapChecked(alloc: ColormapAlloc, mid: COLORMAP, window: WINDOW, visual: VISUALID): Promise<void>
+  }
+}
+
+XConnection.prototype.CreateColormapChecked = function(alloc: ColormapAlloc, mid: COLORMAP, window: WINDOW, visual: VISUALID): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIII', alloc, mid, window, visual))
 
-  return sendRequest<void>(requestParts, 78, true, true)
+  return sendRequest<void>(this.socket, requestParts, 78, true, true)
 }
 
-export function CreateColormap(alloc: ColormapAlloc, mid: COLORMAP, window: WINDOW, visual: VISUALID): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreateColormap(alloc: ColormapAlloc, mid: COLORMAP, window: WINDOW, visual: VISUALID): Promise<void>
+  }
+}
+
+XConnection.prototype.CreateColormap = function(alloc: ColormapAlloc, mid: COLORMAP, window: WINDOW, visual: VISUALID): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIII', alloc, mid, window, visual))
 
-  return sendRequest<void>(requestParts, 78, true, false)
+  return sendRequest<void>(this.socket, requestParts, 78, true, false)
 }
 
-export function FreeColormapChecked(cmap: COLORMAP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FreeColormapChecked(cmap: COLORMAP): Promise<void>
+  }
+}
+
+XConnection.prototype.FreeColormapChecked = function(cmap: COLORMAP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
 
-  return sendRequest<void>(requestParts, 79, true, true)
+  return sendRequest<void>(this.socket, requestParts, 79, true, true)
 }
 
-export function FreeColormap(cmap: COLORMAP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FreeColormap(cmap: COLORMAP): Promise<void>
+  }
+}
+
+XConnection.prototype.FreeColormap = function(cmap: COLORMAP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
 
-  return sendRequest<void>(requestParts, 79, true, false)
+  return sendRequest<void>(this.socket, requestParts, 79, true, false)
 }
 
-export function CopyColormapAndFreeChecked(mid: COLORMAP, srcCmap: COLORMAP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CopyColormapAndFreeChecked(mid: COLORMAP, srcCmap: COLORMAP): Promise<void>
+  }
+}
+
+XConnection.prototype.CopyColormapAndFreeChecked = function(mid: COLORMAP, srcCmap: COLORMAP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', mid, srcCmap))
 
-  return sendRequest<void>(requestParts, 80, true, true)
+  return sendRequest<void>(this.socket, requestParts, 80, true, true)
 }
 
-export function CopyColormapAndFree(mid: COLORMAP, srcCmap: COLORMAP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CopyColormapAndFree(mid: COLORMAP, srcCmap: COLORMAP): Promise<void>
+  }
+}
+
+XConnection.prototype.CopyColormapAndFree = function(mid: COLORMAP, srcCmap: COLORMAP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', mid, srcCmap))
 
-  return sendRequest<void>(requestParts, 80, true, false)
+  return sendRequest<void>(this.socket, requestParts, 80, true, false)
 }
 
-export function InstallColormapChecked(cmap: COLORMAP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    InstallColormapChecked(cmap: COLORMAP): Promise<void>
+  }
+}
+
+XConnection.prototype.InstallColormapChecked = function(cmap: COLORMAP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
 
-  return sendRequest<void>(requestParts, 81, true, true)
+  return sendRequest<void>(this.socket, requestParts, 81, true, true)
 }
 
-export function InstallColormap(cmap: COLORMAP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    InstallColormap(cmap: COLORMAP): Promise<void>
+  }
+}
+
+XConnection.prototype.InstallColormap = function(cmap: COLORMAP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
 
-  return sendRequest<void>(requestParts, 81, true, false)
+  return sendRequest<void>(this.socket, requestParts, 81, true, false)
 }
 
-export function UninstallColormapChecked(cmap: COLORMAP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UninstallColormapChecked(cmap: COLORMAP): Promise<void>
+  }
+}
+
+XConnection.prototype.UninstallColormapChecked = function(cmap: COLORMAP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
 
-  return sendRequest<void>(requestParts, 82, true, true)
+  return sendRequest<void>(this.socket, requestParts, 82, true, true)
 }
 
-export function UninstallColormap(cmap: COLORMAP): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    UninstallColormap(cmap: COLORMAP): Promise<void>
+  }
+}
+
+XConnection.prototype.UninstallColormap = function(cmap: COLORMAP): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
 
-  return sendRequest<void>(requestParts, 82, true, false)
+  return sendRequest<void>(this.socket, requestParts, 82, true, false)
 }
 
-export function ListInstalledColormaps(window: WINDOW): ListInstalledColormapsCookie {
+declare module './connection' {
+  interface XConnection {
+    ListInstalledColormaps(window: WINDOW): ListInstalledColormapsCookie
+  }
+}
+
+XConnection.prototype.ListInstalledColormaps = function(window: WINDOW): ListInstalledColormapsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<ListInstalledColormapsReply>(requestParts, 83, false, true, unmarshallListInstalledColormapsReply)
+  return sendRequest<ListInstalledColormapsReply>(this.socket, requestParts, 83, false, true, unmarshallListInstalledColormapsReply)
 }
 
-export function ListInstalledColormapsUnchecked(window: WINDOW): ListInstalledColormapsCookie {
+declare module './connection' {
+  interface XConnection {
+    ListInstalledColormapsUnchecked(window: WINDOW): ListInstalledColormapsCookie
+  }
+}
+
+XConnection.prototype.ListInstalledColormapsUnchecked = function(window: WINDOW): ListInstalledColormapsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', window))
 
-  return sendRequest<ListInstalledColormapsReply>(requestParts, 83, false, false, unmarshallListInstalledColormapsReply)
+  return sendRequest<ListInstalledColormapsReply>(this.socket, requestParts, 83, false, false, unmarshallListInstalledColormapsReply)
 }
 
-export function AllocColor(cmap: COLORMAP, red: number, green: number, blue: number): AllocColorCookie {
+declare module './connection' {
+  interface XConnection {
+    AllocColor(cmap: COLORMAP, red: number, green: number, blue: number): AllocColorCookie
+  }
+}
+
+XConnection.prototype.AllocColor = function(cmap: COLORMAP, red: number, green: number, blue: number): AllocColorCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHHH2x', cmap, red, green, blue))
 
-  return sendRequest<AllocColorReply>(requestParts, 84, false, true, unmarshallAllocColorReply)
+  return sendRequest<AllocColorReply>(this.socket, requestParts, 84, false, true, unmarshallAllocColorReply)
 }
 
-export function AllocColorUnchecked(cmap: COLORMAP, red: number, green: number, blue: number): AllocColorCookie {
+declare module './connection' {
+  interface XConnection {
+    AllocColorUnchecked(cmap: COLORMAP, red: number, green: number, blue: number): AllocColorCookie
+  }
+}
+
+XConnection.prototype.AllocColorUnchecked = function(cmap: COLORMAP, red: number, green: number, blue: number): AllocColorCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHHH2x', cmap, red, green, blue))
 
-  return sendRequest<AllocColorReply>(requestParts, 84, false, false, unmarshallAllocColorReply)
+  return sendRequest<AllocColorReply>(this.socket, requestParts, 84, false, false, unmarshallAllocColorReply)
 }
 
-export function AllocNamedColor(cmap: COLORMAP, name: Int8Array): AllocNamedColorCookie {
+declare module './connection' {
+  interface XConnection {
+    AllocNamedColor(cmap: COLORMAP, name: Int8Array): AllocNamedColorCookie
+  }
+}
+
+XConnection.prototype.AllocNamedColor = function(cmap: COLORMAP, name: Int8Array): AllocNamedColorCookie {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', cmap, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<AllocNamedColorReply>(requestParts, 85, false, true, unmarshallAllocNamedColorReply)
+  return sendRequest<AllocNamedColorReply>(this.socket, requestParts, 85, false, true, unmarshallAllocNamedColorReply)
 }
 
-export function AllocNamedColorUnchecked(cmap: COLORMAP, name: Int8Array): AllocNamedColorCookie {
+declare module './connection' {
+  interface XConnection {
+    AllocNamedColorUnchecked(cmap: COLORMAP, name: Int8Array): AllocNamedColorCookie
+  }
+}
+
+XConnection.prototype.AllocNamedColorUnchecked = function(cmap: COLORMAP, name: Int8Array): AllocNamedColorCookie {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', cmap, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<AllocNamedColorReply>(requestParts, 85, false, false, unmarshallAllocNamedColorReply)
+  return sendRequest<AllocNamedColorReply>(this.socket, requestParts, 85, false, false, unmarshallAllocNamedColorReply)
 }
 
-export function AllocColorCells(contiguous: number, cmap: COLORMAP, colors: number, planes: number): AllocColorCellsCookie {
+declare module './connection' {
+  interface XConnection {
+    AllocColorCells(contiguous: number, cmap: COLORMAP, colors: number, planes: number): AllocColorCellsCookie
+  }
+}
+
+XConnection.prototype.AllocColorCells = function(contiguous: number, cmap: COLORMAP, colors: number, planes: number): AllocColorCellsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHH', contiguous, cmap, colors, planes))
 
-  return sendRequest<AllocColorCellsReply>(requestParts, 86, false, true, unmarshallAllocColorCellsReply)
+  return sendRequest<AllocColorCellsReply>(this.socket, requestParts, 86, false, true, unmarshallAllocColorCellsReply)
 }
 
-export function AllocColorCellsUnchecked(contiguous: number, cmap: COLORMAP, colors: number, planes: number): AllocColorCellsCookie {
+declare module './connection' {
+  interface XConnection {
+    AllocColorCellsUnchecked(contiguous: number, cmap: COLORMAP, colors: number, planes: number): AllocColorCellsCookie
+  }
+}
+
+XConnection.prototype.AllocColorCellsUnchecked = function(contiguous: number, cmap: COLORMAP, colors: number, planes: number): AllocColorCellsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHH', contiguous, cmap, colors, planes))
 
-  return sendRequest<AllocColorCellsReply>(requestParts, 86, false, false, unmarshallAllocColorCellsReply)
+  return sendRequest<AllocColorCellsReply>(this.socket, requestParts, 86, false, false, unmarshallAllocColorCellsReply)
 }
 
-export function AllocColorPlanes(contiguous: number, cmap: COLORMAP, colors: number, reds: number, greens: number, blues: number): AllocColorPlanesCookie {
+declare module './connection' {
+  interface XConnection {
+    AllocColorPlanes(contiguous: number, cmap: COLORMAP, colors: number, reds: number, greens: number, blues: number): AllocColorPlanesCookie
+  }
+}
+
+XConnection.prototype.AllocColorPlanes = function(contiguous: number, cmap: COLORMAP, colors: number, reds: number, greens: number, blues: number): AllocColorPlanesCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHHHH', contiguous, cmap, colors, reds, greens, blues))
 
-  return sendRequest<AllocColorPlanesReply>(requestParts, 87, false, true, unmarshallAllocColorPlanesReply)
+  return sendRequest<AllocColorPlanesReply>(this.socket, requestParts, 87, false, true, unmarshallAllocColorPlanesReply)
 }
 
-export function AllocColorPlanesUnchecked(contiguous: number, cmap: COLORMAP, colors: number, reds: number, greens: number, blues: number): AllocColorPlanesCookie {
+declare module './connection' {
+  interface XConnection {
+    AllocColorPlanesUnchecked(contiguous: number, cmap: COLORMAP, colors: number, reds: number, greens: number, blues: number): AllocColorPlanesCookie
+  }
+}
+
+XConnection.prototype.AllocColorPlanesUnchecked = function(contiguous: number, cmap: COLORMAP, colors: number, reds: number, greens: number, blues: number): AllocColorPlanesCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHHHH', contiguous, cmap, colors, reds, greens, blues))
 
-  return sendRequest<AllocColorPlanesReply>(requestParts, 87, false, false, unmarshallAllocColorPlanesReply)
+  return sendRequest<AllocColorPlanesReply>(this.socket, requestParts, 87, false, false, unmarshallAllocColorPlanesReply)
 }
 
-export function FreeColorsChecked(cmap: COLORMAP, planeMask: number, pixelsLen: number, pixels: Uint32Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FreeColorsChecked(cmap: COLORMAP, planeMask: number, pixelsLen: number, pixels: Uint32Array): Promise<void>
+  }
+}
+
+XConnection.prototype.FreeColorsChecked = function(cmap: COLORMAP, planeMask: number, pixelsLen: number, pixels: Uint32Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', cmap, planeMask))
   requestParts.push(pixels.buffer)
 
-  return sendRequest<void>(requestParts, 88, true, true)
+  return sendRequest<void>(this.socket, requestParts, 88, true, true)
 }
 
-export function FreeColors(cmap: COLORMAP, planeMask: number, pixelsLen: number, pixels: Uint32Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FreeColors(cmap: COLORMAP, planeMask: number, pixelsLen: number, pixels: Uint32Array): Promise<void>
+  }
+}
+
+XConnection.prototype.FreeColors = function(cmap: COLORMAP, planeMask: number, pixelsLen: number, pixels: Uint32Array): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xII', cmap, planeMask))
   requestParts.push(pixels.buffer)
 
-  return sendRequest<void>(requestParts, 88, true, false)
+  return sendRequest<void>(this.socket, requestParts, 88, true, false)
 }
 
-export function StoreColorsChecked(cmap: COLORMAP, itemsLen: number, items: COLORITEM[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    StoreColorsChecked(cmap: COLORMAP, itemsLen: number, items: COLORITEM[]): Promise<void>
+  }
+}
+
+XConnection.prototype.StoreColorsChecked = function(cmap: COLORMAP, itemsLen: number, items: COLORITEM[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
@@ -5461,10 +6517,16 @@ export function StoreColorsChecked(cmap: COLORMAP, itemsLen: number, items: COLO
 
   })
 
-  return sendRequest<void>(requestParts, 89, true, true)
+  return sendRequest<void>(this.socket, requestParts, 89, true, true)
 }
 
-export function StoreColors(cmap: COLORMAP, itemsLen: number, items: COLORITEM[]): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    StoreColors(cmap: COLORMAP, itemsLen: number, items: COLORITEM[]): Promise<void>
+  }
+}
+
+XConnection.prototype.StoreColors = function(cmap: COLORMAP, itemsLen: number, items: COLORITEM[]): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
@@ -5473,220 +6535,370 @@ export function StoreColors(cmap: COLORMAP, itemsLen: number, items: COLORITEM[]
 
   })
 
-  return sendRequest<void>(requestParts, 89, true, false)
+  return sendRequest<void>(this.socket, requestParts, 89, true, false)
 }
 
-export function StoreNamedColorChecked(flags: number, cmap: COLORMAP, pixel: number, name: Int8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    StoreNamedColorChecked(flags: number, cmap: COLORMAP, pixel: number, name: Int8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.StoreNamedColorChecked = function(flags: number, cmap: COLORMAP, pixel: number, name: Int8Array): Promise<void> {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIH2x', flags, cmap, pixel, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<void>(requestParts, 90, true, true)
+  return sendRequest<void>(this.socket, requestParts, 90, true, true)
 }
 
-export function StoreNamedColor(flags: number, cmap: COLORMAP, pixel: number, name: Int8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    StoreNamedColor(flags: number, cmap: COLORMAP, pixel: number, name: Int8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.StoreNamedColor = function(flags: number, cmap: COLORMAP, pixel: number, name: Int8Array): Promise<void> {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIIH2x', flags, cmap, pixel, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<void>(requestParts, 90, true, false)
+  return sendRequest<void>(this.socket, requestParts, 90, true, false)
 }
 
-export function QueryColors(cmap: COLORMAP, pixelsLen: number, pixels: Uint32Array): QueryColorsCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryColors(cmap: COLORMAP, pixelsLen: number, pixels: Uint32Array): QueryColorsCookie
+  }
+}
+
+XConnection.prototype.QueryColors = function(cmap: COLORMAP, pixelsLen: number, pixels: Uint32Array): QueryColorsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
   requestParts.push(pixels.buffer)
 
-  return sendRequest<QueryColorsReply>(requestParts, 91, false, true, unmarshallQueryColorsReply)
+  return sendRequest<QueryColorsReply>(this.socket, requestParts, 91, false, true, unmarshallQueryColorsReply)
 }
 
-export function QueryColorsUnchecked(cmap: COLORMAP, pixelsLen: number, pixels: Uint32Array): QueryColorsCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryColorsUnchecked(cmap: COLORMAP, pixelsLen: number, pixels: Uint32Array): QueryColorsCookie
+  }
+}
+
+XConnection.prototype.QueryColorsUnchecked = function(cmap: COLORMAP, pixelsLen: number, pixels: Uint32Array): QueryColorsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cmap))
   requestParts.push(pixels.buffer)
 
-  return sendRequest<QueryColorsReply>(requestParts, 91, false, false, unmarshallQueryColorsReply)
+  return sendRequest<QueryColorsReply>(this.socket, requestParts, 91, false, false, unmarshallQueryColorsReply)
 }
 
-export function LookupColor(cmap: COLORMAP, name: Int8Array): LookupColorCookie {
+declare module './connection' {
+  interface XConnection {
+    LookupColor(cmap: COLORMAP, name: Int8Array): LookupColorCookie
+  }
+}
+
+XConnection.prototype.LookupColor = function(cmap: COLORMAP, name: Int8Array): LookupColorCookie {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', cmap, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<LookupColorReply>(requestParts, 92, false, true, unmarshallLookupColorReply)
+  return sendRequest<LookupColorReply>(this.socket, requestParts, 92, false, true, unmarshallLookupColorReply)
 }
 
-export function LookupColorUnchecked(cmap: COLORMAP, name: Int8Array): LookupColorCookie {
+declare module './connection' {
+  interface XConnection {
+    LookupColorUnchecked(cmap: COLORMAP, name: Int8Array): LookupColorCookie
+  }
+}
+
+XConnection.prototype.LookupColorUnchecked = function(cmap: COLORMAP, name: Int8Array): LookupColorCookie {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIH2x', cmap, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<LookupColorReply>(requestParts, 92, false, false, unmarshallLookupColorReply)
+  return sendRequest<LookupColorReply>(this.socket, requestParts, 92, false, false, unmarshallLookupColorReply)
 }
 
-export function CreateCursorChecked(cid: CURSOR, source: PIXMAP, mask: PIXMAP, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number, x: number, y: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreateCursorChecked(cid: CURSOR, source: PIXMAP, mask: PIXMAP, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number, x: number, y: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CreateCursorChecked = function(cid: CURSOR, source: PIXMAP, mask: PIXMAP, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number, x: number, y: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIIHHHHHHHH', cid, source, mask, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue, x, y))
 
-  return sendRequest<void>(requestParts, 93, true, true)
+  return sendRequest<void>(this.socket, requestParts, 93, true, true)
 }
 
-export function CreateCursor(cid: CURSOR, source: PIXMAP, mask: PIXMAP, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number, x: number, y: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreateCursor(cid: CURSOR, source: PIXMAP, mask: PIXMAP, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number, x: number, y: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CreateCursor = function(cid: CURSOR, source: PIXMAP, mask: PIXMAP, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number, x: number, y: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIIHHHHHHHH', cid, source, mask, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue, x, y))
 
-  return sendRequest<void>(requestParts, 93, true, false)
+  return sendRequest<void>(this.socket, requestParts, 93, true, false)
 }
 
-export function CreateGlyphCursorChecked(cid: CURSOR, sourceFont: FONT, maskFont: FONT, sourceChar: number, maskChar: number, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreateGlyphCursorChecked(cid: CURSOR, sourceFont: FONT, maskFont: FONT, sourceChar: number, maskChar: number, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CreateGlyphCursorChecked = function(cid: CURSOR, sourceFont: FONT, maskFont: FONT, sourceChar: number, maskChar: number, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIIHHHHHHHH', cid, sourceFont, maskFont, sourceChar, maskChar, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue))
 
-  return sendRequest<void>(requestParts, 94, true, true)
+  return sendRequest<void>(this.socket, requestParts, 94, true, true)
 }
 
-export function CreateGlyphCursor(cid: CURSOR, sourceFont: FONT, maskFont: FONT, sourceChar: number, maskChar: number, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    CreateGlyphCursor(cid: CURSOR, sourceFont: FONT, maskFont: FONT, sourceChar: number, maskChar: number, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void>
+  }
+}
+
+XConnection.prototype.CreateGlyphCursor = function(cid: CURSOR, sourceFont: FONT, maskFont: FONT, sourceChar: number, maskChar: number, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIIIHHHHHHHH', cid, sourceFont, maskFont, sourceChar, maskChar, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue))
 
-  return sendRequest<void>(requestParts, 94, true, false)
+  return sendRequest<void>(this.socket, requestParts, 94, true, false)
 }
 
-export function FreeCursorChecked(cursor: CURSOR): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FreeCursorChecked(cursor: CURSOR): Promise<void>
+  }
+}
+
+XConnection.prototype.FreeCursorChecked = function(cursor: CURSOR): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cursor))
 
-  return sendRequest<void>(requestParts, 95, true, true)
+  return sendRequest<void>(this.socket, requestParts, 95, true, true)
 }
 
-export function FreeCursor(cursor: CURSOR): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    FreeCursor(cursor: CURSOR): Promise<void>
+  }
+}
+
+XConnection.prototype.FreeCursor = function(cursor: CURSOR): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', cursor))
 
-  return sendRequest<void>(requestParts, 95, true, false)
+  return sendRequest<void>(this.socket, requestParts, 95, true, false)
 }
 
-export function RecolorCursorChecked(cursor: CURSOR, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    RecolorCursorChecked(cursor: CURSOR, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void>
+  }
+}
+
+XConnection.prototype.RecolorCursorChecked = function(cursor: CURSOR, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHHHHHH', cursor, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue))
 
-  return sendRequest<void>(requestParts, 96, true, true)
+  return sendRequest<void>(this.socket, requestParts, 96, true, true)
 }
 
-export function RecolorCursor(cursor: CURSOR, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    RecolorCursor(cursor: CURSOR, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void>
+  }
+}
+
+XConnection.prototype.RecolorCursor = function(cursor: CURSOR, foreRed: number, foreGreen: number, foreBlue: number, backRed: number, backGreen: number, backBlue: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHHHHHH', cursor, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue))
 
-  return sendRequest<void>(requestParts, 96, true, false)
+  return sendRequest<void>(this.socket, requestParts, 96, true, false)
 }
 
-export function QueryBestSize(_class: QueryShapeOf, drawable: DRAWABLE, width: number, height: number): QueryBestSizeCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryBestSize(_class: QueryShapeOf, drawable: DRAWABLE, width: number, height: number): QueryBestSizeCookie
+  }
+}
+
+XConnection.prototype.QueryBestSize = function(_class: QueryShapeOf, drawable: DRAWABLE, width: number, height: number): QueryBestSizeCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHH', _class, drawable, width, height))
 
-  return sendRequest<QueryBestSizeReply>(requestParts, 97, false, true, unmarshallQueryBestSizeReply)
+  return sendRequest<QueryBestSizeReply>(this.socket, requestParts, 97, false, true, unmarshallQueryBestSizeReply)
 }
 
-export function QueryBestSizeUnchecked(_class: QueryShapeOf, drawable: DRAWABLE, width: number, height: number): QueryBestSizeCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryBestSizeUnchecked(_class: QueryShapeOf, drawable: DRAWABLE, width: number, height: number): QueryBestSizeCookie
+  }
+}
+
+XConnection.prototype.QueryBestSizeUnchecked = function(_class: QueryShapeOf, drawable: DRAWABLE, width: number, height: number): QueryBestSizeCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xIHH', _class, drawable, width, height))
 
-  return sendRequest<QueryBestSizeReply>(requestParts, 97, false, false, unmarshallQueryBestSizeReply)
+  return sendRequest<QueryBestSizeReply>(this.socket, requestParts, 97, false, false, unmarshallQueryBestSizeReply)
 }
 
-export function QueryExtension(name: Int8Array): QueryExtensionCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryExtension(name: Int8Array): QueryExtensionCookie
+  }
+}
+
+XConnection.prototype.QueryExtension = function(name: Int8Array): QueryExtensionCookie {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xH2x', nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<QueryExtensionReply>(requestParts, 98, false, true, unmarshallQueryExtensionReply)
+  return sendRequest<QueryExtensionReply>(this.socket, requestParts, 98, false, true, unmarshallQueryExtensionReply)
 }
 
-export function QueryExtensionUnchecked(name: Int8Array): QueryExtensionCookie {
+declare module './connection' {
+  interface XConnection {
+    QueryExtensionUnchecked(name: Int8Array): QueryExtensionCookie
+  }
+}
+
+XConnection.prototype.QueryExtensionUnchecked = function(name: Int8Array): QueryExtensionCookie {
   const nameLen = name.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xH2x', nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<QueryExtensionReply>(requestParts, 98, false, false, unmarshallQueryExtensionReply)
+  return sendRequest<QueryExtensionReply>(this.socket, requestParts, 98, false, false, unmarshallQueryExtensionReply)
 }
 
-export function ListExtensions(): ListExtensionsCookie {
+declare module './connection' {
+  interface XConnection {
+    ListExtensions(): ListExtensionsCookie
+  }
+}
+
+XConnection.prototype.ListExtensions = function(): ListExtensionsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<ListExtensionsReply>(requestParts, 99, false, true, unmarshallListExtensionsReply)
+  return sendRequest<ListExtensionsReply>(this.socket, requestParts, 99, false, true, unmarshallListExtensionsReply)
 }
 
-export function ListExtensionsUnchecked(): ListExtensionsCookie {
+declare module './connection' {
+  interface XConnection {
+    ListExtensionsUnchecked(): ListExtensionsCookie
+  }
+}
+
+XConnection.prototype.ListExtensionsUnchecked = function(): ListExtensionsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<ListExtensionsReply>(requestParts, 99, false, false, unmarshallListExtensionsReply)
+  return sendRequest<ListExtensionsReply>(this.socket, requestParts, 99, false, false, unmarshallListExtensionsReply)
 }
 
-export function ChangeKeyboardMappingChecked(firstKeycode: KEYCODE, keysymsPerKeycode: number, keysyms: Uint32Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeKeyboardMappingChecked(firstKeycode: KEYCODE, keysymsPerKeycode: number, keysyms: Uint32Array): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeKeyboardMappingChecked = function(firstKeycode: KEYCODE, keysymsPerKeycode: number, keysyms: Uint32Array): Promise<void> {
   const keycodeCount = keysyms.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xBB2x', keycodeCount, firstKeycode, keysymsPerKeycode))
   requestParts.push(keysyms.buffer)
 
-  return sendRequest<void>(requestParts, 100, true, true)
+  return sendRequest<void>(this.socket, requestParts, 100, true, true)
 }
 
-export function ChangeKeyboardMapping(firstKeycode: KEYCODE, keysymsPerKeycode: number, keysyms: Uint32Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeKeyboardMapping(firstKeycode: KEYCODE, keysymsPerKeycode: number, keysyms: Uint32Array): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeKeyboardMapping = function(firstKeycode: KEYCODE, keysymsPerKeycode: number, keysyms: Uint32Array): Promise<void> {
   const keycodeCount = keysyms.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xBB2x', keycodeCount, firstKeycode, keysymsPerKeycode))
   requestParts.push(keysyms.buffer)
 
-  return sendRequest<void>(requestParts, 100, true, false)
+  return sendRequest<void>(this.socket, requestParts, 100, true, false)
 }
 
-export function GetKeyboardMapping(firstKeycode: KEYCODE, count: number): GetKeyboardMappingCookie {
+declare module './connection' {
+  interface XConnection {
+    GetKeyboardMapping(firstKeycode: KEYCODE, count: number): GetKeyboardMappingCookie
+  }
+}
+
+XConnection.prototype.GetKeyboardMapping = function(firstKeycode: KEYCODE, count: number): GetKeyboardMappingCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xBB', firstKeycode, count))
 
-  return sendRequest<GetKeyboardMappingReply>(requestParts, 101, false, true, unmarshallGetKeyboardMappingReply)
+  return sendRequest<GetKeyboardMappingReply>(this.socket, requestParts, 101, false, true, unmarshallGetKeyboardMappingReply)
 }
 
-export function GetKeyboardMappingUnchecked(firstKeycode: KEYCODE, count: number): GetKeyboardMappingCookie {
+declare module './connection' {
+  interface XConnection {
+    GetKeyboardMappingUnchecked(firstKeycode: KEYCODE, count: number): GetKeyboardMappingCookie
+  }
+}
+
+XConnection.prototype.GetKeyboardMappingUnchecked = function(firstKeycode: KEYCODE, count: number): GetKeyboardMappingCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xBB', firstKeycode, count))
 
-  return sendRequest<GetKeyboardMappingReply>(requestParts, 101, false, false, unmarshallGetKeyboardMappingReply)
+  return sendRequest<GetKeyboardMappingReply>(this.socket, requestParts, 101, false, false, unmarshallGetKeyboardMappingReply)
 }
 
-export function ChangeKeyboardControlChecked(valueList: { keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeKeyboardControlChecked(valueList: { keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeKeyboardControlChecked = function(valueList: { keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -5709,10 +6921,16 @@ export function ChangeKeyboardControlChecked(valueList: { keyClickPercent: numbe
   requestParts.push(pack('=xx2xI', valueMask))
   requestParts.push(pack('=iiiiIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 102, true, true)
+  return sendRequest<void>(this.socket, requestParts, 102, true, true)
 }
 
-export function ChangeKeyboardControl(valueList: { keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeKeyboardControl(valueList: { keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeKeyboardControl = function(valueList: { keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   const valueListBitmasks: { [key: string]: number } = {
@@ -5735,313 +6953,528 @@ export function ChangeKeyboardControl(valueList: { keyClickPercent: number, bell
   requestParts.push(pack('=xx2xI', valueMask))
   requestParts.push(pack('=iiiiIIII', ...valueListValues))
 
-  return sendRequest<void>(requestParts, 102, true, false)
+  return sendRequest<void>(this.socket, requestParts, 102, true, false)
 }
 
-export function GetKeyboardControl(): GetKeyboardControlCookie {
+declare module './connection' {
+  interface XConnection {
+    GetKeyboardControl(): GetKeyboardControlCookie
+  }
+}
+
+XConnection.prototype.GetKeyboardControl = function(): GetKeyboardControlCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetKeyboardControlReply>(requestParts, 103, false, true, unmarshallGetKeyboardControlReply)
+  return sendRequest<GetKeyboardControlReply>(this.socket, requestParts, 103, false, true, unmarshallGetKeyboardControlReply)
 }
 
-export function GetKeyboardControlUnchecked(): GetKeyboardControlCookie {
+declare module './connection' {
+  interface XConnection {
+    GetKeyboardControlUnchecked(): GetKeyboardControlCookie
+  }
+}
+
+XConnection.prototype.GetKeyboardControlUnchecked = function(): GetKeyboardControlCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetKeyboardControlReply>(requestParts, 103, false, false, unmarshallGetKeyboardControlReply)
+  return sendRequest<GetKeyboardControlReply>(this.socket, requestParts, 103, false, false, unmarshallGetKeyboardControlReply)
 }
 
-export function BellChecked(percent: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    BellChecked(percent: number): Promise<void>
+  }
+}
+
+XConnection.prototype.BellChecked = function(percent: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xb2x', percent))
 
-  return sendRequest<void>(requestParts, 104, true, true)
+  return sendRequest<void>(this.socket, requestParts, 104, true, true)
 }
 
-export function Bell(percent: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    Bell(percent: number): Promise<void>
+  }
+}
+
+XConnection.prototype.Bell = function(percent: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xb2x', percent))
 
-  return sendRequest<void>(requestParts, 104, true, false)
+  return sendRequest<void>(this.socket, requestParts, 104, true, false)
 }
 
-export function ChangePointerControlChecked(accelerationNumerator: number, accelerationDenominator: number, threshold: number, doAcceleration: number, doThreshold: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangePointerControlChecked(accelerationNumerator: number, accelerationDenominator: number, threshold: number, doAcceleration: number, doThreshold: number): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangePointerControlChecked = function(accelerationNumerator: number, accelerationDenominator: number, threshold: number, doAcceleration: number, doThreshold: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xhhhBB', accelerationNumerator, accelerationDenominator, threshold, doAcceleration, doThreshold))
 
-  return sendRequest<void>(requestParts, 105, true, true)
+  return sendRequest<void>(this.socket, requestParts, 105, true, true)
 }
 
-export function ChangePointerControl(accelerationNumerator: number, accelerationDenominator: number, threshold: number, doAcceleration: number, doThreshold: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangePointerControl(accelerationNumerator: number, accelerationDenominator: number, threshold: number, doAcceleration: number, doThreshold: number): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangePointerControl = function(accelerationNumerator: number, accelerationDenominator: number, threshold: number, doAcceleration: number, doThreshold: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xhhhBB', accelerationNumerator, accelerationDenominator, threshold, doAcceleration, doThreshold))
 
-  return sendRequest<void>(requestParts, 105, true, false)
+  return sendRequest<void>(this.socket, requestParts, 105, true, false)
 }
 
-export function GetPointerControl(): GetPointerControlCookie {
+declare module './connection' {
+  interface XConnection {
+    GetPointerControl(): GetPointerControlCookie
+  }
+}
+
+XConnection.prototype.GetPointerControl = function(): GetPointerControlCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetPointerControlReply>(requestParts, 106, false, true, unmarshallGetPointerControlReply)
+  return sendRequest<GetPointerControlReply>(this.socket, requestParts, 106, false, true, unmarshallGetPointerControlReply)
 }
 
-export function GetPointerControlUnchecked(): GetPointerControlCookie {
+declare module './connection' {
+  interface XConnection {
+    GetPointerControlUnchecked(): GetPointerControlCookie
+  }
+}
+
+XConnection.prototype.GetPointerControlUnchecked = function(): GetPointerControlCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetPointerControlReply>(requestParts, 106, false, false, unmarshallGetPointerControlReply)
+  return sendRequest<GetPointerControlReply>(this.socket, requestParts, 106, false, false, unmarshallGetPointerControlReply)
 }
 
-export function SetScreenSaverChecked(timeout: number, interval: number, preferBlanking: Blanking, allowExposures: Exposures): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetScreenSaverChecked(timeout: number, interval: number, preferBlanking: Blanking, allowExposures: Exposures): Promise<void>
+  }
+}
+
+XConnection.prototype.SetScreenSaverChecked = function(timeout: number, interval: number, preferBlanking: Blanking, allowExposures: Exposures): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xhhBB', timeout, interval, preferBlanking, allowExposures))
 
-  return sendRequest<void>(requestParts, 107, true, true)
+  return sendRequest<void>(this.socket, requestParts, 107, true, true)
 }
 
-export function SetScreenSaver(timeout: number, interval: number, preferBlanking: Blanking, allowExposures: Exposures): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetScreenSaver(timeout: number, interval: number, preferBlanking: Blanking, allowExposures: Exposures): Promise<void>
+  }
+}
+
+XConnection.prototype.SetScreenSaver = function(timeout: number, interval: number, preferBlanking: Blanking, allowExposures: Exposures): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xhhBB', timeout, interval, preferBlanking, allowExposures))
 
-  return sendRequest<void>(requestParts, 107, true, false)
+  return sendRequest<void>(this.socket, requestParts, 107, true, false)
 }
 
-export function GetScreenSaver(): GetScreenSaverCookie {
+declare module './connection' {
+  interface XConnection {
+    GetScreenSaver(): GetScreenSaverCookie
+  }
+}
+
+XConnection.prototype.GetScreenSaver = function(): GetScreenSaverCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetScreenSaverReply>(requestParts, 108, false, true, unmarshallGetScreenSaverReply)
+  return sendRequest<GetScreenSaverReply>(this.socket, requestParts, 108, false, true, unmarshallGetScreenSaverReply)
 }
 
-export function GetScreenSaverUnchecked(): GetScreenSaverCookie {
+declare module './connection' {
+  interface XConnection {
+    GetScreenSaverUnchecked(): GetScreenSaverCookie
+  }
+}
+
+XConnection.prototype.GetScreenSaverUnchecked = function(): GetScreenSaverCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetScreenSaverReply>(requestParts, 108, false, false, unmarshallGetScreenSaverReply)
+  return sendRequest<GetScreenSaverReply>(this.socket, requestParts, 108, false, false, unmarshallGetScreenSaverReply)
 }
 
-export function ChangeHostsChecked(mode: HostMode, family: Family, address: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeHostsChecked(mode: HostMode, family: Family, address: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeHostsChecked = function(mode: HostMode, family: Family, address: Uint8Array): Promise<void> {
   const addressLen = address.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xBxH', mode, family, addressLen))
   requestParts.push(address.buffer)
 
-  return sendRequest<void>(requestParts, 109, true, true)
+  return sendRequest<void>(this.socket, requestParts, 109, true, true)
 }
 
-export function ChangeHosts(mode: HostMode, family: Family, address: Uint8Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ChangeHosts(mode: HostMode, family: Family, address: Uint8Array): Promise<void>
+  }
+}
+
+XConnection.prototype.ChangeHosts = function(mode: HostMode, family: Family, address: Uint8Array): Promise<void> {
   const addressLen = address.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2xBxH', mode, family, addressLen))
   requestParts.push(address.buffer)
 
-  return sendRequest<void>(requestParts, 109, true, false)
+  return sendRequest<void>(this.socket, requestParts, 109, true, false)
 }
 
-export function ListHosts(): ListHostsCookie {
+declare module './connection' {
+  interface XConnection {
+    ListHosts(): ListHostsCookie
+  }
+}
+
+XConnection.prototype.ListHosts = function(): ListHostsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<ListHostsReply>(requestParts, 110, false, true, unmarshallListHostsReply)
+  return sendRequest<ListHostsReply>(this.socket, requestParts, 110, false, true, unmarshallListHostsReply)
 }
 
-export function ListHostsUnchecked(): ListHostsCookie {
+declare module './connection' {
+  interface XConnection {
+    ListHostsUnchecked(): ListHostsCookie
+  }
+}
+
+XConnection.prototype.ListHostsUnchecked = function(): ListHostsCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<ListHostsReply>(requestParts, 110, false, false, unmarshallListHostsReply)
+  return sendRequest<ListHostsReply>(this.socket, requestParts, 110, false, false, unmarshallListHostsReply)
 }
 
-export function SetAccessControlChecked(mode: AccessControl): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetAccessControlChecked(mode: AccessControl): Promise<void>
+  }
+}
+
+XConnection.prototype.SetAccessControlChecked = function(mode: AccessControl): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', mode))
 
-  return sendRequest<void>(requestParts, 111, true, true)
+  return sendRequest<void>(this.socket, requestParts, 111, true, true)
 }
 
-export function SetAccessControl(mode: AccessControl): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetAccessControl(mode: AccessControl): Promise<void>
+  }
+}
+
+XConnection.prototype.SetAccessControl = function(mode: AccessControl): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', mode))
 
-  return sendRequest<void>(requestParts, 111, true, false)
+  return sendRequest<void>(this.socket, requestParts, 111, true, false)
 }
 
-export function SetCloseDownModeChecked(mode: CloseDown): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetCloseDownModeChecked(mode: CloseDown): Promise<void>
+  }
+}
+
+XConnection.prototype.SetCloseDownModeChecked = function(mode: CloseDown): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', mode))
 
-  return sendRequest<void>(requestParts, 112, true, true)
+  return sendRequest<void>(this.socket, requestParts, 112, true, true)
 }
 
-export function SetCloseDownMode(mode: CloseDown): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    SetCloseDownMode(mode: CloseDown): Promise<void>
+  }
+}
+
+XConnection.prototype.SetCloseDownMode = function(mode: CloseDown): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', mode))
 
-  return sendRequest<void>(requestParts, 112, true, false)
+  return sendRequest<void>(this.socket, requestParts, 112, true, false)
 }
 
-export function KillClientChecked(resource: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    KillClientChecked(resource: number): Promise<void>
+  }
+}
+
+XConnection.prototype.KillClientChecked = function(resource: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', resource))
 
-  return sendRequest<void>(requestParts, 113, true, true)
+  return sendRequest<void>(this.socket, requestParts, 113, true, true)
 }
 
-export function KillClient(resource: number): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    KillClient(resource: number): Promise<void>
+  }
+}
+
+XConnection.prototype.KillClient = function(resource: number): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xI', resource))
 
-  return sendRequest<void>(requestParts, 113, true, false)
+  return sendRequest<void>(this.socket, requestParts, 113, true, false)
 }
 
-export function RotatePropertiesChecked(window: WINDOW, delta: number, atoms: Uint32Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    RotatePropertiesChecked(window: WINDOW, delta: number, atoms: Uint32Array): Promise<void>
+  }
+}
+
+XConnection.prototype.RotatePropertiesChecked = function(window: WINDOW, delta: number, atoms: Uint32Array): Promise<void> {
   const atomsLen = atoms.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHh', window, atomsLen, delta))
   requestParts.push(atoms.buffer)
 
-  return sendRequest<void>(requestParts, 114, true, true)
+  return sendRequest<void>(this.socket, requestParts, 114, true, true)
 }
 
-export function RotateProperties(window: WINDOW, delta: number, atoms: Uint32Array): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    RotateProperties(window: WINDOW, delta: number, atoms: Uint32Array): Promise<void>
+  }
+}
+
+XConnection.prototype.RotateProperties = function(window: WINDOW, delta: number, atoms: Uint32Array): Promise<void> {
   const atomsLen = atoms.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2xIHh', window, atomsLen, delta))
   requestParts.push(atoms.buffer)
 
-  return sendRequest<void>(requestParts, 114, true, false)
+  return sendRequest<void>(this.socket, requestParts, 114, true, false)
 }
 
-export function ForceScreenSaverChecked(mode: ScreenSaver): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ForceScreenSaverChecked(mode: ScreenSaver): Promise<void>
+  }
+}
+
+XConnection.prototype.ForceScreenSaverChecked = function(mode: ScreenSaver): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', mode))
 
-  return sendRequest<void>(requestParts, 115, true, true)
+  return sendRequest<void>(this.socket, requestParts, 115, true, true)
 }
 
-export function ForceScreenSaver(mode: ScreenSaver): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    ForceScreenSaver(mode: ScreenSaver): Promise<void>
+  }
+}
+
+XConnection.prototype.ForceScreenSaver = function(mode: ScreenSaver): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', mode))
 
-  return sendRequest<void>(requestParts, 115, true, false)
+  return sendRequest<void>(this.socket, requestParts, 115, true, false)
 }
 
-export function SetPointerMapping(map: Uint8Array): SetPointerMappingCookie {
+declare module './connection' {
+  interface XConnection {
+    SetPointerMapping(map: Uint8Array): SetPointerMappingCookie
+  }
+}
+
+XConnection.prototype.SetPointerMapping = function(map: Uint8Array): SetPointerMappingCookie {
   const mapLen = map.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', mapLen))
   requestParts.push(map.buffer)
 
-  return sendRequest<SetPointerMappingReply>(requestParts, 116, false, true, unmarshallSetPointerMappingReply)
+  return sendRequest<SetPointerMappingReply>(this.socket, requestParts, 116, false, true, unmarshallSetPointerMappingReply)
 }
 
-export function SetPointerMappingUnchecked(map: Uint8Array): SetPointerMappingCookie {
+declare module './connection' {
+  interface XConnection {
+    SetPointerMappingUnchecked(map: Uint8Array): SetPointerMappingCookie
+  }
+}
+
+XConnection.prototype.SetPointerMappingUnchecked = function(map: Uint8Array): SetPointerMappingCookie {
   const mapLen = map.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', mapLen))
   requestParts.push(map.buffer)
 
-  return sendRequest<SetPointerMappingReply>(requestParts, 116, false, false, unmarshallSetPointerMappingReply)
+  return sendRequest<SetPointerMappingReply>(this.socket, requestParts, 116, false, false, unmarshallSetPointerMappingReply)
 }
 
-export function GetPointerMapping(): GetPointerMappingCookie {
+declare module './connection' {
+  interface XConnection {
+    GetPointerMapping(): GetPointerMappingCookie
+  }
+}
+
+XConnection.prototype.GetPointerMapping = function(): GetPointerMappingCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetPointerMappingReply>(requestParts, 117, false, true, unmarshallGetPointerMappingReply)
+  return sendRequest<GetPointerMappingReply>(this.socket, requestParts, 117, false, true, unmarshallGetPointerMappingReply)
 }
 
-export function GetPointerMappingUnchecked(): GetPointerMappingCookie {
+declare module './connection' {
+  interface XConnection {
+    GetPointerMappingUnchecked(): GetPointerMappingCookie
+  }
+}
+
+XConnection.prototype.GetPointerMappingUnchecked = function(): GetPointerMappingCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetPointerMappingReply>(requestParts, 117, false, false, unmarshallGetPointerMappingReply)
+  return sendRequest<GetPointerMappingReply>(this.socket, requestParts, 117, false, false, unmarshallGetPointerMappingReply)
 }
 
-export function SetModifierMapping(keycodes: Uint8Array): SetModifierMappingCookie {
+declare module './connection' {
+  interface XConnection {
+    SetModifierMapping(keycodes: Uint8Array): SetModifierMappingCookie
+  }
+}
+
+XConnection.prototype.SetModifierMapping = function(keycodes: Uint8Array): SetModifierMappingCookie {
   const keycodesPerModifier = keycodes.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', keycodesPerModifier))
   requestParts.push(keycodes.buffer)
 
-  return sendRequest<SetModifierMappingReply>(requestParts, 118, false, true, unmarshallSetModifierMappingReply)
+  return sendRequest<SetModifierMappingReply>(this.socket, requestParts, 118, false, true, unmarshallSetModifierMappingReply)
 }
 
-export function SetModifierMappingUnchecked(keycodes: Uint8Array): SetModifierMappingCookie {
+declare module './connection' {
+  interface XConnection {
+    SetModifierMappingUnchecked(keycodes: Uint8Array): SetModifierMappingCookie
+  }
+}
+
+XConnection.prototype.SetModifierMappingUnchecked = function(keycodes: Uint8Array): SetModifierMappingCookie {
   const keycodesPerModifier = keycodes.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xB2x', keycodesPerModifier))
   requestParts.push(keycodes.buffer)
 
-  return sendRequest<SetModifierMappingReply>(requestParts, 118, false, false, unmarshallSetModifierMappingReply)
+  return sendRequest<SetModifierMappingReply>(this.socket, requestParts, 118, false, false, unmarshallSetModifierMappingReply)
 }
 
-export function GetModifierMapping(): GetModifierMappingCookie {
+declare module './connection' {
+  interface XConnection {
+    GetModifierMapping(): GetModifierMappingCookie
+  }
+}
+
+XConnection.prototype.GetModifierMapping = function(): GetModifierMappingCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetModifierMappingReply>(requestParts, 119, false, true, unmarshallGetModifierMappingReply)
+  return sendRequest<GetModifierMappingReply>(this.socket, requestParts, 119, false, true, unmarshallGetModifierMappingReply)
 }
 
-export function GetModifierMappingUnchecked(): GetModifierMappingCookie {
+declare module './connection' {
+  interface XConnection {
+    GetModifierMappingUnchecked(): GetModifierMappingCookie
+  }
+}
+
+XConnection.prototype.GetModifierMappingUnchecked = function(): GetModifierMappingCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<GetModifierMappingReply>(requestParts, 119, false, false, unmarshallGetModifierMappingReply)
+  return sendRequest<GetModifierMappingReply>(this.socket, requestParts, 119, false, false, unmarshallGetModifierMappingReply)
 }
 
-export function NoOperationChecked(): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    NoOperationChecked(): Promise<void>
+  }
+}
+
+XConnection.prototype.NoOperationChecked = function(): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<void>(requestParts, 127, true, true)
+  return sendRequest<void>(this.socket, requestParts, 127, true, true)
 }
 
-export function NoOperation(): Promise<void> {
+declare module './connection' {
+  interface XConnection {
+    NoOperation(): Promise<void>
+  }
+}
+
+XConnection.prototype.NoOperation = function(): Promise<void> {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('=xx2x'))
 
-  return sendRequest<void>(requestParts, 127, true, false)
+  return sendRequest<void>(this.socket, requestParts, 127, true, false)
 }
-
 export const events = {
   2: unmarshallKeyPressEvent,
   3: unmarshallKeyReleaseEvent,
