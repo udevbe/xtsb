@@ -281,7 +281,7 @@ def _ts_field_type(field):
     ts_switch_type = ', '.join(
       [f'{_n(switch_field.field_name)}: {_ts_field_type(switch_field)}' for switch_field in
        field.type.fields])
-    element_type = f'{{ {ts_switch_type} }}'
+    element_type = f'Partial<{{ {ts_switch_type} }}>'
   elif field.type.is_list and field.type.member.is_simple:
     postfix = ''
     element_type = _simple_list_types[field.ts_listtype]
@@ -496,15 +496,28 @@ def _ts_request_helper(self, name, void, regular):
         continue
       if field.type.is_switch:
         if field.type.fieldref:
+          _ts('  const %sFormats: {[key: string]: string} = {', _n(field.field_name))
+          _ts(
+            '    %s', ',\n    '.join(
+              [
+                f'{_n(x.field_name)}: \'{x.type.ts_format_str}\''
+                for
+                x
+                in field.type.fields
+              ]
+            ))
+          _ts('  }')
+          _ts('')
           _ts('  const %sBitmasks: {[key: string]: number} = {', _n(field.field_name))
-          _ts('    %s', ',\n    '.join(
-            [
-              f'{_n(x.field_name)}: {x.parent.expr[-1].lenfield_type.name[-1]}.{x.parent.expr[-1].lenfield_name}'
-              for
-              x
-              in field.type.fields
-            ]
-          ))
+          _ts(
+            '    %s', ',\n    '.join(
+              [
+                f'{_n(x.field_name)}: {x.parent.expr[-1].lenfield_type.name[-1]}.{x.parent.expr[-1].lenfield_name}'
+                for
+                x
+                in field.type.fields
+              ]
+            ))
           _ts('  }')
           _ts(
             '  const %sSortedList = Object.keys(%s).sort((a, b) => %sBitmasks[a] - %sBitmasks[b])',
@@ -527,8 +540,10 @@ def _ts_request_helper(self, name, void, regular):
             _n(field.type.fieldref), _n(field.type.fieldref)
           )
           _ts('      .map(([_, value]) => value)')
+          _ts('      .filter(notUndefined)')
         else:
           _ts('  const %sValues = Object.values(%s)', _n(field.field_name), _n(field.field_name))
+
       (format, size, list) = _ts_flush_format()
       if size > 0:
         _ts('  requestParts.push(pack(\'=%s\', %s))', format, list)
@@ -539,7 +554,9 @@ def _ts_request_helper(self, name, void, regular):
       elif field.type.is_pad:
         _ts('  requestParts.push(pack(\'%sx\'))', field.type.nmemb)
       elif field.type.is_switch:
-        _ts('  requestParts.push(pack(\'=%s\', ...%sValues))', field.type.ts_format_str,
+        _ts('  requestParts.push(pack(\'=\'+%sSortedList.map(key=>%sFormats[key]).join(\'\'), ...%sValues))',
+            _n(field.type.fieldref),
+            _n(field.field_name),
             _n(field.field_name))
       elif field.type.is_list and field.type.member.is_simple:
         _ts('  requestParts.push(%s.buffer)', _n(field.field_name))
@@ -586,7 +603,7 @@ def ts_open(self):
   _ts('')
   _ts('import { XConnection } from \'./connection\'')
   _ts(
-    'import { xcbSimpleList, xcbComplexList, Unmarshaller, typePad, sendRequest } from \'./xjsbInternals\'')
+    'import { xcbSimpleList, xcbComplexList, Unmarshaller, typePad, sendRequest, notUndefined } from \'./xjsbInternals\'')
   _ts('import { unpackFrom, pack } from \'./struct\'')
   _ts('')
 

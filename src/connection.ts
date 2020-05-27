@@ -1,27 +1,28 @@
 import * as net from 'net'
 import * as os from 'os'
-import { pack } from './struct'
+import { readServerHello, writeClientHello } from './auth'
+import { Setup } from './xproto'
 
 export interface XConnectionOptions {
   display?: string
-  xAuthority?: string,
-  debug?: boolean,
-  disableBigRequests?: boolean
 }
 
 export class XConnection {
   readonly socket: net.Socket
   readonly displayNum: string
+  readonly setup: Setup
 
-  constructor(socket: net.Socket, displayNum: string) {
+  constructor(socket: net.Socket, displayNum: string, setup: Setup) {
     this.socket = socket
     this.displayNum = displayNum
+    this.setup = setup
   }
 
   close() {
     this.socket.end()
   }
 }
+
 
 async function connectSocket(host: string, displayNum: string, socketPath?: string): Promise<net.Socket> {
   return new Promise((resolve, reject) => {
@@ -42,46 +43,13 @@ async function connectSocket(host: string, displayNum: string, socketPath?: stri
   })
 }
 
-function writeClientHello(xConnection: XConnection, authHost: string, socketFamily: 'IPv4' | 'IPv6' | undefined): void {
-  // TODO handle cookie read error
-  const cookie = await getAuthString(xConnection.displayNum, authHost, socketFamily)
-
-  if (!cookie) {
-    throw new Error('No Cookie found :(')
-  }
-
-  const byteOrder = getByteOrder()
-  const protocolMajor = 11 // TODO: config? env?
-  const protocolMinor = 0
-  pack('BxHHHHxxss')
-  stream.pack(
-    'CxSSSSxxpp',
-    [
-      byteOrder,
-      protocolMajor,
-      protocolMinor,
-      cookie.authName.length,
-      cookie.authData.length,
-      cookie.authName,
-      cookie.authData
-    ]
-  )
-  stream.flush()
-}
-
-async function startHandshake(xConnection: XConnection, authHost: string, socketFamily: 'IPv4' | 'IPv6' | undefined): Promise<void> {
-  writeClientHello(xConnection, authHost, socketFamily)
-  await readServerHello(this.packStream, (err, display) => {
-    if (err) {
-      this.emit('error', err)
-      return
-    }
-    this.expectReplyHeader()
-    if (display) {
-      this.display = display
-      display.client = this
-      this.emit('connect', display)
-    }
+async function startHandshake(socket: net.Socket, displayNum: string, authHost: string, socketFamily: 'IPv4' | 'IPv6' | undefined): Promise<Setup> {
+  return new Promise<Setup>(resolve => {
+    socket.once('data', data => {
+      const setup = readServerHello(data)
+      resolve(setup)
+    })
+    writeClientHello(socket, displayNum, authHost, socketFamily)
   })
 }
 
@@ -93,9 +61,8 @@ async function createXConnection(socket: net.Socket, displayNum: string): Promis
     authFamily = undefined
   }
 
-  let xConnection = new XConnection(socket, displayNum)
-  await startHandshake(xConnection, authHost, authFamily)
-  return xConnection
+  const setup = await startHandshake(socket, displayNum, authHost, authFamily)
+  return new XConnection(socket, displayNum, setup)
 }
 
 export async function connect(options?: XConnectionOptions): Promise<XConnection> {
@@ -128,35 +95,4 @@ export async function connect(options?: XConnectionOptions): Promise<XConnection
   const socket = await connectSocket(host, displayNum, socketPath)
 
   return createXConnection(socket, displayNum)
-  //
-  // const client = new XConnection(socket)
-  //
-  //
-  // if (initCb) {
-  //   client.on('connect', display => {
-  //     // opt-in BigReq
-  //     if (!options.disableBigRequests) {
-  //       client.require<BigRequest>('big-requests', (err, BigReq) => {
-  //         if (err) {
-  //           return initCb(err)
-  //         }
-  //         if (BigReq) {
-  //           BigReq.Enable((err, maxLen) => {
-  //             if (err) {
-  //               initCb(err)
-  //               return
-  //             }
-  //             display.max_request_length = maxLen
-  //             cbCalled = true
-  //             initCb(null, display)
-  //           })
-  //         }
-  //       })
-  //     } else {
-  //       cbCalled = true
-  //       initCb(null, display)
-  //     }
-  //   })
-  // }
-  // return client
 }

@@ -4,7 +4,14 @@
 //
 
 import { XConnection } from './connection'
-import { xcbSimpleList, xcbComplexList, Unmarshaller, typePad, sendRequest } from './xjsbInternals'
+import {
+  xcbSimpleList,
+  xcbComplexList,
+  Unmarshaller,
+  typePad,
+  sendRequest,
+  notUndefined
+} from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 
@@ -317,7 +324,7 @@ export type SetupRequest = {
 }
 
 const unmarshallSetupRequest: Unmarshaller<SetupRequest> = (buffer, offset = 0) => {
-  const [byteOrder, protocolMajorVersion, protocolMinorVersion, authorizationProtocolNameLen, authorizationProtocolDataLen] = unpackFrom('BxHHHH2x', buffer, offset)
+  const [byteOrder, protocolMajorVersion, protocolMinorVersion, authorizationProtocolNameLen, authorizationProtocolDataLen] = unpackFrom('=BxHHHH2x', buffer, offset)
   offset += 12
   const authorizationProtocolNameWithOffset = xcbSimpleList(buffer, offset, authorizationProtocolNameLen, Int8Array, 1)
   offset = authorizationProtocolNameWithOffset.offset
@@ -3626,12 +3633,30 @@ const unmarshallGetModifierMappingReply: Unmarshaller<GetModifierMappingReply> =
 
 declare module './connection' {
   interface XConnection {
-    CreateWindowChecked(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void>
+    CreateWindowChecked(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: Partial<{ backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }>): Promise<void>
   }
 }
 
-XConnection.prototype.CreateWindowChecked = function(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
+XConnection.prototype.CreateWindowChecked = function(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: Partial<{ backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    backgroundPixmap: 'I',
+    backgroundPixel: 'I',
+    borderPixmap: 'I',
+    borderPixel: 'I',
+    bitGravity: 'I',
+    winGravity: 'I',
+    backingStore: 'I',
+    backingPlanes: 'I',
+    backingPixel: 'I',
+    overrideRedirect: 'I',
+    saveUnder: 'I',
+    eventMask: 'I',
+    doNotPropogateMask: 'I',
+    colormap: 'I',
+    cursor: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     backgroundPixmap: CW.BackPixmap,
@@ -3657,20 +3682,39 @@ XConnection.prototype.CreateWindowChecked = function(depth: number, wid: WINDOW,
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xB2xIIhhHHHHII', depth, wid, parent, x, y, width, height, borderWidth, _class, visual, valueMask))
-  requestParts.push(pack('=IIIIIIIIIIIIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 1, true, true)
 }
 
 declare module './connection' {
   interface XConnection {
-    CreateWindow(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void>
+    CreateWindow(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: Partial<{ backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }>): Promise<void>
   }
 }
 
-XConnection.prototype.CreateWindow = function(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
+XConnection.prototype.CreateWindow = function(depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: Partial<{ backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    backgroundPixmap: 'I',
+    backgroundPixel: 'I',
+    borderPixmap: 'I',
+    borderPixel: 'I',
+    bitGravity: 'I',
+    winGravity: 'I',
+    backingStore: 'I',
+    backingPlanes: 'I',
+    backingPixel: 'I',
+    overrideRedirect: 'I',
+    saveUnder: 'I',
+    eventMask: 'I',
+    doNotPropogateMask: 'I',
+    colormap: 'I',
+    cursor: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     backgroundPixmap: CW.BackPixmap,
@@ -3696,20 +3740,39 @@ XConnection.prototype.CreateWindow = function(depth: number, wid: WINDOW, parent
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xB2xIIhhHHHHII', depth, wid, parent, x, y, width, height, borderWidth, _class, visual, valueMask))
-  requestParts.push(pack('=IIIIIIIIIIIIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 1, true, false)
 }
 
 declare module './connection' {
   interface XConnection {
-    ChangeWindowAttributesChecked(window: WINDOW, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void>
+    ChangeWindowAttributesChecked(window: WINDOW, valueList: Partial<{ backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }>): Promise<void>
   }
 }
 
-XConnection.prototype.ChangeWindowAttributesChecked = function(window: WINDOW, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
+XConnection.prototype.ChangeWindowAttributesChecked = function(window: WINDOW, valueList: Partial<{ backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    backgroundPixmap: 'I',
+    backgroundPixel: 'I',
+    borderPixmap: 'I',
+    borderPixel: 'I',
+    bitGravity: 'I',
+    winGravity: 'I',
+    backingStore: 'I',
+    backingPlanes: 'I',
+    backingPixel: 'I',
+    overrideRedirect: 'I',
+    saveUnder: 'I',
+    eventMask: 'I',
+    doNotPropogateMask: 'I',
+    colormap: 'I',
+    cursor: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     backgroundPixmap: CW.BackPixmap,
@@ -3735,20 +3798,39 @@ XConnection.prototype.ChangeWindowAttributesChecked = function(window: WINDOW, v
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xx2xII', window, valueMask))
-  requestParts.push(pack('=IIIIIIIIIIIIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 2, true, true)
 }
 
 declare module './connection' {
   interface XConnection {
-    ChangeWindowAttributes(window: WINDOW, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void>
+    ChangeWindowAttributes(window: WINDOW, valueList: Partial<{ backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }>): Promise<void>
   }
 }
 
-XConnection.prototype.ChangeWindowAttributes = function(window: WINDOW, valueList: { backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }): Promise<void> {
+XConnection.prototype.ChangeWindowAttributes = function(window: WINDOW, valueList: Partial<{ backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    backgroundPixmap: 'I',
+    backgroundPixel: 'I',
+    borderPixmap: 'I',
+    borderPixel: 'I',
+    bitGravity: 'I',
+    winGravity: 'I',
+    backingStore: 'I',
+    backingPlanes: 'I',
+    backingPixel: 'I',
+    overrideRedirect: 'I',
+    saveUnder: 'I',
+    eventMask: 'I',
+    doNotPropogateMask: 'I',
+    colormap: 'I',
+    cursor: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     backgroundPixmap: CW.BackPixmap,
@@ -3774,8 +3856,9 @@ XConnection.prototype.ChangeWindowAttributes = function(window: WINDOW, valueLis
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xx2xII', window, valueMask))
-  requestParts.push(pack('=IIIIIIIIIIIIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 2, true, false)
 }
@@ -4034,12 +4117,22 @@ XConnection.prototype.UnmapSubwindows = function(window: WINDOW): Promise<void> 
 
 declare module './connection' {
   interface XConnection {
-    ConfigureWindowChecked(window: WINDOW, valueList: { x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }): Promise<void>
+    ConfigureWindowChecked(window: WINDOW, valueList: Partial<{ x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }>): Promise<void>
   }
 }
 
-XConnection.prototype.ConfigureWindowChecked = function(window: WINDOW, valueList: { x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }): Promise<void> {
+XConnection.prototype.ConfigureWindowChecked = function(window: WINDOW, valueList: Partial<{ x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    x: 'i',
+    y: 'i',
+    width: 'I',
+    height: 'I',
+    borderWidth: 'I',
+    sibling: 'I',
+    stackMode: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     x: ConfigWindow.X,
@@ -4057,20 +4150,31 @@ XConnection.prototype.ConfigureWindowChecked = function(window: WINDOW, valueLis
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xx2xIH2x', window, valueMask))
-  requestParts.push(pack('=iiIIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 12, true, true)
 }
 
 declare module './connection' {
   interface XConnection {
-    ConfigureWindow(window: WINDOW, valueList: { x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }): Promise<void>
+    ConfigureWindow(window: WINDOW, valueList: Partial<{ x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }>): Promise<void>
   }
 }
 
-XConnection.prototype.ConfigureWindow = function(window: WINDOW, valueList: { x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }): Promise<void> {
+XConnection.prototype.ConfigureWindow = function(window: WINDOW, valueList: Partial<{ x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    x: 'i',
+    y: 'i',
+    width: 'I',
+    height: 'I',
+    borderWidth: 'I',
+    sibling: 'I',
+    stackMode: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     x: ConfigWindow.X,
@@ -4088,8 +4192,9 @@ XConnection.prototype.ConfigureWindow = function(window: WINDOW, valueList: { x:
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xx2xIH2x', window, valueMask))
-  requestParts.push(pack('=iiIIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 12, true, false)
 }
@@ -5318,12 +5423,38 @@ XConnection.prototype.FreePixmap = function(pixmap: PIXMAP): Promise<void> {
 
 declare module './connection' {
   interface XConnection {
-    CreateGCChecked(cid: GCONTEXT, drawable: DRAWABLE, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void>
+    CreateGCChecked(cid: GCONTEXT, drawable: DRAWABLE, valueList: Partial<{ function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }>): Promise<void>
   }
 }
 
-XConnection.prototype.CreateGCChecked = function(cid: GCONTEXT, drawable: DRAWABLE, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
+XConnection.prototype.CreateGCChecked = function(cid: GCONTEXT, drawable: DRAWABLE, valueList: Partial<{ function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    function: 'I',
+    planeMask: 'I',
+    foreground: 'I',
+    background: 'I',
+    lineWidth: 'I',
+    lineStyle: 'I',
+    capStyle: 'I',
+    joinStyle: 'I',
+    fillStyle: 'I',
+    fillRule: 'I',
+    tile: 'I',
+    stipple: 'I',
+    tileStippleXOrigin: 'i',
+    tileStippleYOrigin: 'i',
+    font: 'I',
+    subwindowMode: 'I',
+    graphicsExposures: 'I',
+    clipXOrigin: 'i',
+    clipYOrigin: 'i',
+    clipMask: 'I',
+    dashOffset: 'I',
+    dashes: 'I',
+    arcMode: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     function: GC.Function,
@@ -5357,20 +5488,47 @@ XConnection.prototype.CreateGCChecked = function(cid: GCONTEXT, drawable: DRAWAB
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xx2xIII', cid, drawable, valueMask))
-  requestParts.push(pack('=IIIIIIIIIIIIiiIIIiiIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 55, true, true)
 }
 
 declare module './connection' {
   interface XConnection {
-    CreateGC(cid: GCONTEXT, drawable: DRAWABLE, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void>
+    CreateGC(cid: GCONTEXT, drawable: DRAWABLE, valueList: Partial<{ function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }>): Promise<void>
   }
 }
 
-XConnection.prototype.CreateGC = function(cid: GCONTEXT, drawable: DRAWABLE, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
+XConnection.prototype.CreateGC = function(cid: GCONTEXT, drawable: DRAWABLE, valueList: Partial<{ function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    function: 'I',
+    planeMask: 'I',
+    foreground: 'I',
+    background: 'I',
+    lineWidth: 'I',
+    lineStyle: 'I',
+    capStyle: 'I',
+    joinStyle: 'I',
+    fillStyle: 'I',
+    fillRule: 'I',
+    tile: 'I',
+    stipple: 'I',
+    tileStippleXOrigin: 'i',
+    tileStippleYOrigin: 'i',
+    font: 'I',
+    subwindowMode: 'I',
+    graphicsExposures: 'I',
+    clipXOrigin: 'i',
+    clipYOrigin: 'i',
+    clipMask: 'I',
+    dashOffset: 'I',
+    dashes: 'I',
+    arcMode: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     function: GC.Function,
@@ -5404,20 +5562,47 @@ XConnection.prototype.CreateGC = function(cid: GCONTEXT, drawable: DRAWABLE, val
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xx2xIII', cid, drawable, valueMask))
-  requestParts.push(pack('=IIIIIIIIIIIIiiIIIiiIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 55, true, false)
 }
 
 declare module './connection' {
   interface XConnection {
-    ChangeGCChecked(gc: GCONTEXT, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void>
+    ChangeGCChecked(gc: GCONTEXT, valueList: Partial<{ function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }>): Promise<void>
   }
 }
 
-XConnection.prototype.ChangeGCChecked = function(gc: GCONTEXT, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
+XConnection.prototype.ChangeGCChecked = function(gc: GCONTEXT, valueList: Partial<{ function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    function: 'I',
+    planeMask: 'I',
+    foreground: 'I',
+    background: 'I',
+    lineWidth: 'I',
+    lineStyle: 'I',
+    capStyle: 'I',
+    joinStyle: 'I',
+    fillStyle: 'I',
+    fillRule: 'I',
+    tile: 'I',
+    stipple: 'I',
+    tileStippleXOrigin: 'i',
+    tileStippleYOrigin: 'i',
+    font: 'I',
+    subwindowMode: 'I',
+    graphicsExposures: 'I',
+    clipXOrigin: 'i',
+    clipYOrigin: 'i',
+    clipMask: 'I',
+    dashOffset: 'I',
+    dashes: 'I',
+    arcMode: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     function: GC.Function,
@@ -5451,20 +5636,47 @@ XConnection.prototype.ChangeGCChecked = function(gc: GCONTEXT, valueList: { func
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xx2xII', gc, valueMask))
-  requestParts.push(pack('=IIIIIIIIIIIIiiIIIiiIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 56, true, true)
 }
 
 declare module './connection' {
   interface XConnection {
-    ChangeGC(gc: GCONTEXT, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void>
+    ChangeGC(gc: GCONTEXT, valueList: Partial<{ function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }>): Promise<void>
   }
 }
 
-XConnection.prototype.ChangeGC = function(gc: GCONTEXT, valueList: { function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }): Promise<void> {
+XConnection.prototype.ChangeGC = function(gc: GCONTEXT, valueList: Partial<{ function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    function: 'I',
+    planeMask: 'I',
+    foreground: 'I',
+    background: 'I',
+    lineWidth: 'I',
+    lineStyle: 'I',
+    capStyle: 'I',
+    joinStyle: 'I',
+    fillStyle: 'I',
+    fillRule: 'I',
+    tile: 'I',
+    stipple: 'I',
+    tileStippleXOrigin: 'i',
+    tileStippleYOrigin: 'i',
+    font: 'I',
+    subwindowMode: 'I',
+    graphicsExposures: 'I',
+    clipXOrigin: 'i',
+    clipYOrigin: 'i',
+    clipMask: 'I',
+    dashOffset: 'I',
+    dashes: 'I',
+    arcMode: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     function: GC.Function,
@@ -5498,8 +5710,9 @@ XConnection.prototype.ChangeGC = function(gc: GCONTEXT, valueList: { function: G
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xx2xII', gc, valueMask))
-  requestParts.push(pack('=IIIIIIIIIIIIiiIIIiiIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 56, true, false)
 }
@@ -6894,12 +7107,23 @@ XConnection.prototype.GetKeyboardMappingUnchecked = function(firstKeycode: KEYCO
 
 declare module './connection' {
   interface XConnection {
-    ChangeKeyboardControlChecked(valueList: { keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }): Promise<void>
+    ChangeKeyboardControlChecked(valueList: Partial<{ keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }>): Promise<void>
   }
 }
 
-XConnection.prototype.ChangeKeyboardControlChecked = function(valueList: { keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }): Promise<void> {
+XConnection.prototype.ChangeKeyboardControlChecked = function(valueList: Partial<{ keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    keyClickPercent: 'i',
+    bellPercent: 'i',
+    bellPitch: 'i',
+    bellDuration: 'i',
+    led: 'I',
+    ledMode: 'I',
+    key: 'I',
+    autoRepeatMode: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     keyClickPercent: KB.KeyClickPercent,
@@ -6918,20 +7142,32 @@ XConnection.prototype.ChangeKeyboardControlChecked = function(valueList: { keyCl
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xx2xI', valueMask))
-  requestParts.push(pack('=iiiiIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 102, true, true)
 }
 
 declare module './connection' {
   interface XConnection {
-    ChangeKeyboardControl(valueList: { keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }): Promise<void>
+    ChangeKeyboardControl(valueList: Partial<{ keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }>): Promise<void>
   }
 }
 
-XConnection.prototype.ChangeKeyboardControl = function(valueList: { keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }): Promise<void> {
+XConnection.prototype.ChangeKeyboardControl = function(valueList: Partial<{ keyClickPercent: number, bellPercent: number, bellPitch: number, bellDuration: number, led: number, ledMode: LedMode, key: KEYCODE32, autoRepeatMode: AutoRepeatMode }>): Promise<void> {
   const requestParts: ArrayBuffer[] = []
+
+  const valueListFormats: { [key: string]: string } = {
+    keyClickPercent: 'i',
+    bellPercent: 'i',
+    bellPitch: 'i',
+    bellDuration: 'i',
+    led: 'I',
+    ledMode: 'I',
+    key: 'I',
+    autoRepeatMode: 'I'
+  }
 
   const valueListBitmasks: { [key: string]: number } = {
     keyClickPercent: KB.KeyClickPercent,
@@ -6950,8 +7186,9 @@ XConnection.prototype.ChangeKeyboardControl = function(valueList: { keyClickPerc
     Object.entries(valueList)
       .sort(([key], [otherKey]) => valueMaskSortedList.indexOf(key) - valueMaskSortedList.indexOf(otherKey))
       .map(([_, value]) => value)
+      .filter(notUndefined)
   requestParts.push(pack('=xx2xI', valueMask))
-  requestParts.push(pack('=iiiiIIII', ...valueListValues))
+  requestParts.push(pack('=' + valueMaskSortedList.map(key => valueListFormats[key]).join(''), ...valueListValues))
 
   return sendRequest<void>(this.socket, requestParts, 102, true, false)
 }
