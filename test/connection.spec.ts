@@ -1,5 +1,5 @@
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import { connect } from '../src/connection'
+import { connect } from '../src'
 import { setupXvfb } from './setupXvfb'
 
 // Make sure to give each test file it's own unique display num to ensure they connect to to their own X server.

@@ -97,7 +97,7 @@ def _ts_setlevel(idx):
   _tslevel = idx
 
 
-def _t(str):
+def _t(str: list) -> str:
   '''
   Does Python-name conversion on a type tuple of strings.
   '''
@@ -169,9 +169,10 @@ def _ts_type_setup(self, name, postfix=''):
   # Do all the various names in advance
   self.ts_type = _t(name) + postfix
 
-  self.ts_request_name = _t(name)
-  self.ts_checked_name = _t(name) + 'Checked'
-  self.ts_unchecked_name = _t(name) + 'Unchecked'
+  self.ts_request_name = _t(name)[0].lower() + _t(name)[1:]
+  self.ts_checked_name = _t(name)[0].lower() + _t(name)[1:] + 'Checked'
+  self.ts_unchecked_name = _t(name)[0].lower() + _t(name)[1:] + 'Unchecked'
+
   self.ts_reply_name = _t(name) + 'Reply'
   self.ts_event_name = _t(name) + 'Event'
   self.ts_cookie_name = _t(name) + 'Cookie'
@@ -554,10 +555,11 @@ def _ts_request_helper(self, name, void, regular):
       elif field.type.is_pad:
         _ts('  requestParts.push(pack(\'%sx\'))', field.type.nmemb)
       elif field.type.is_switch:
-        _ts('  requestParts.push(pack(\'=\'+%sSortedList.map(key=>%sFormats[key]).join(\'\'), ...%sValues))',
-            _n(field.type.fieldref),
-            _n(field.field_name),
-            _n(field.field_name))
+        _ts(
+          '  requestParts.push(pack(`<${%sSortedList.map(key=>%sFormats[key]).join(\'\')}`, ...%sValues))',
+          _n(field.type.fieldref),
+          _n(field.field_name),
+          _n(field.field_name))
       elif field.type.is_list and field.type.member.is_simple:
         _ts('  requestParts.push(%s.buffer)', _n(field.field_name))
       elif field.type.is_list:
@@ -646,7 +648,7 @@ def ts_close(self):
   Exported function that handles module close.
   Writes out all the stored content lines, then closes the file.
   '''
-  tsfile = open('%s.ts' % _ns.header, 'w')
+  tsfile = open('./src/%s.ts' % _ns.header, 'w')
   for list in _tslines:
     for line in list:
       tsfile.write(line)
@@ -885,13 +887,6 @@ to extend the path.
 Refer to the README file in xcb/proto for more info.
 ''')
   raise
-
-# Ensure the man subdirectory exists
-try:
-  os.mkdir('man')
-except OSError as e:
-  if e.errno != errno.EEXIST:
-    raise
 
 # Parse the xml header
 module = Module(args[0], output)

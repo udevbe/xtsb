@@ -9,7 +9,7 @@
   "files": [
     "dist"
   ],
-  "author": "erik <bleh>",
+  "author": "Erik De Rijcke <derijcke.erik@gmail.com>",
   "repository": {
     "type": "git",
     "url": ""
@@ -21,6 +21,7 @@
   "scripts": {
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "rimraf dist",
+    "build:protocol": "PYTHONPATH='.' python3.7 xcbgen/ts_client.py ./protocol/xproto.xml",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
     "start": "rollup -c rollup.config.ts -w",
     "test": "jest --coverage",
