@@ -327,7 +327,7 @@ def _ts_unmarshall_complex(self):
 
     (format, size, list) = _ts_flush_format()
     if len(list) > 0:
-      _ts('  const [ %s ] = unpackFrom(\'%s\', buffer, offset)', list, format)
+      _ts('  const [ %s ] = unpackFrom(\'<%s\', buffer, offset)', list, format)
     if size > 0:
       _ts('  offset += %d', size)
 
@@ -357,7 +357,7 @@ def _ts_unmarshall_complex(self):
   if len(list) > 0:
     if need_alignment:
       _ts('    offset += typePad(4, offset)')
-    _ts('  const [ %s ] = unpackFrom(\'%s\', buffer, offset)', list, format)
+    _ts('  const [ %s ] = unpackFrom(\'<%s\', buffer, offset)', list, format)
     _ts('  offset += %d', size)
 
   # if self.fixed_size() or self.is_reply:
@@ -546,10 +546,10 @@ def _ts_request_helper(self, name, void, regular):
 
       (format, size, list) = _ts_flush_format()
       if size > 0:
-        _ts('  requestParts.push(pack(\'=%s\', %s))', format, list)
+        _ts('  requestParts.push(pack(\'<%s\', %s))', format, list)
 
       if field.type.is_expr:
-        _ts('  requestParts.push(pack(\'=%s\', %s))', field.type.ts_format_str,
+        _ts('  requestParts.push(pack(\'<%s\', %s))', field.type.ts_format_str,
             _ts_get_expr(field.type.expr))
       elif field.type.is_pad:
         _ts('  requestParts.push(pack(\'%sx\'))', field.type.nmemb)
@@ -571,7 +571,7 @@ def _ts_request_helper(self, name, void, regular):
 
     (format, size, list) = _ts_flush_format()
     if size > 0:
-      _ts('  requestParts.push(pack(\'=%s\', %s))', format, list)
+      _ts('  requestParts.push(pack(\'<%s\', %s))', format, list)
     _ts('')
 
   write_request_part(wire_fields)

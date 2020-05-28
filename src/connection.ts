@@ -5,6 +5,7 @@ import { Setup } from './xproto'
 
 export interface XConnectionOptions {
   display?: string
+  xAuthority?: string
 }
 
 export class XConnection {
@@ -27,7 +28,7 @@ export class XConnection {
 async function connectSocket(host: string, displayNum: string, socketPath?: string): Promise<net.Socket> {
   return new Promise((resolve, reject) => {
     const socket = socketPath ? net.createConnection(socketPath) : net.createConnection(6000 + parseInt(displayNum, 10), host)
-    socket.on('connect', () => {
+    socket.on('ready', () => {
       // client.init(stream)
       resolve(socket)
     })
@@ -43,17 +44,17 @@ async function connectSocket(host: string, displayNum: string, socketPath?: stri
   })
 }
 
-async function startHandshake(socket: net.Socket, displayNum: string, authHost: string, socketFamily: 'IPv4' | 'IPv6' | undefined): Promise<Setup> {
+async function startHandshake(socket: net.Socket, displayNum: string, authHost: string, socketFamily: 'IPv4' | 'IPv6' | undefined, xAuthority?: string): Promise<Setup> {
   return new Promise<Setup>(resolve => {
     socket.once('data', data => {
       const setup = readServerHello(data)
       resolve(setup)
     })
-    writeClientHello(socket, displayNum, authHost, socketFamily)
+    writeClientHello(socket, displayNum, authHost, socketFamily, xAuthority)
   })
 }
 
-async function createXConnection(socket: net.Socket, displayNum: string): Promise<XConnection> {
+async function createXConnection(socket: net.Socket, displayNum: string, xAuthority?: string): Promise<XConnection> {
   let authHost = socket.remoteAddress
   let authFamily = socket.remoteFamily as 'IPv4' | 'IPv6' | undefined
   if (!authHost || authHost === '127.0.0.1' || authHost === '::1') {
@@ -61,12 +62,13 @@ async function createXConnection(socket: net.Socket, displayNum: string): Promis
     authFamily = undefined
   }
 
-  const setup = await startHandshake(socket, displayNum, authHost, authFamily)
+  const setup = await startHandshake(socket, displayNum, authHost, authFamily, xAuthority)
   return new XConnection(socket, displayNum, setup)
 }
 
 export async function connect(options?: XConnectionOptions): Promise<XConnection> {
-  const display: string = options?.display ?? (process.env.DISPLAY) ?? ':0'
+  const display = options?.display ?? (process.env.DISPLAY) ?? ':0'
+  const xAuthority = options?.xAuthority
 
   const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
   if (!displayMatch) {
@@ -94,5 +96,5 @@ export async function connect(options?: XConnectionOptions): Promise<XConnection
 
   const socket = await connectSocket(host, displayNum, socketPath)
 
-  return createXConnection(socket, displayNum)
+  return createXConnection(socket, displayNum, xAuthority)
 }
