@@ -10,7 +10,7 @@ describe('Connection', () => {
   let xvfbProc: ChildProcessWithoutNullStreams
 
   beforeAll(async (done) => {
-    const { xProc, xAuthority} = await setupXvfb(display)
+    const { xProc, xAuthority } = await setupXvfb(display)
     xvfbProc = xProc
     testOptions = { display, xAuthority }
     done()
@@ -23,6 +23,7 @@ describe('Connection', () => {
 
   it('performs a setup handshake with the X server.', async done => {
     const connection = await connect(testOptions)
+
     expect.any(connection.setup.roots[0])
     expect.any(connection.setup.roots[0].root)
     expect.any(connection.setup.protocolMajorVersion)

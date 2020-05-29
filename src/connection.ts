@@ -1,6 +1,7 @@
 import * as net from 'net'
 import * as os from 'os'
 import { readServerHello, writeClientHello } from './auth'
+import { Unmarshaller } from './xjsbInternals'
 import { Setup } from './xproto'
 
 export interface XConnectionOptions {
@@ -13,15 +14,76 @@ export class XConnection {
   readonly displayNum: string
   readonly setup: Setup
 
-  constructor(socket: net.Socket, displayNum: string, setup: Setup) {
+  private readonly unusedIds: number[] = []
+  private nextResourceId: number
+  private readonly resourceIdShift: number
+  private readonly resourceIdBase: number
+
+  private sequenceNumber: number = 0
+  private readonly pendingReplies: Map<number, { resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void }> = new Map()
+
+  constructor(
+    socket: net.Socket,
+    displayNum: string,
+    setup: Setup,
+    nextResourceId: number,
+    resourceIdShift: number,
+    resourceIdBase: number
+  ) {
     this.socket = socket
     this.displayNum = displayNum
     this.setup = setup
+    this.nextResourceId = nextResourceId
+    this.resourceIdShift = resourceIdShift
+    this.resourceIdBase = resourceIdBase
+  }
+
+  allocateID() {
+    if (this.unusedIds.length > 0) {
+      return this.unusedIds.pop()
+    }
+    // TODO: handle overflow (XCMiscGetXIDRange from XC_MISC ext)
+    return (++this.nextResourceId << this.resourceIdShift) + this.resourceIdBase
+  }
+
+  releaseID(id: number) {
+    this.unusedIds.push(id)
   }
 
   close() {
     this.socket.end()
   }
+
+  sendRequest<T>(requestParts: ArrayBuffer[], opcode: number, isChecked: boolean, replyUnmarshaller?: Unmarshaller<T>): Promise<T> {
+    // TODO isChecked
+    const requestBuffer = createRequestBuffer(requestParts)
+
+    if (replyUnmarshaller) {
+      const promise = new Promise<Buffer>((resolve, reject) => {
+        this.pendingReplies.set(this.sequenceNumber++, { resolve, reject })
+      }).then(rawReply => replyUnmarshaller(rawReply, 0).value)
+      // TODO opcode
+      this.socket.write(requestBuffer)
+      return promise
+    } else {
+      // @ts-ignore
+      return Promise.resolve()
+    }
+  }
+}
+
+function createRequestBuffer(requestParts: ArrayBuffer[]): Uint8Array {
+  const requestSize = requestParts.reduce((previousValue, currentValue) => previousValue + currentValue.byteLength, 0)
+  return requestParts
+    .reduce<{ buffer: Uint8Array, offset: number }>(
+      ({ buffer, offset },
+       currentValue
+      ) => {
+        buffer.set(new Uint8Array(currentValue), offset)
+        return { buffer, offset: offset + currentValue.byteLength }
+      },
+      { buffer: new Uint8Array(requestSize), offset: 0 }
+    ).buffer
 }
 
 
@@ -63,7 +125,13 @@ async function createXConnection(socket: net.Socket, displayNum: string, xAuthor
   }
 
   const setup = await startHandshake(socket, displayNum, authHost, authFamily, xAuthority)
-  return new XConnection(socket, displayNum, setup)
+  const nextResourceId = 0
+  let resourceIdShift = 0
+  while (!((setup.resourceIdMask >> resourceIdShift) & 1)) {
+    resourceIdShift++
+  }
+
+  return new XConnection(socket, displayNum, setup, nextResourceId, resourceIdShift, setup.resourceIdBase)
 }
 
 export async function connect(options?: XConnectionOptions): Promise<XConnection> {

@@ -1,10 +1,7 @@
 import TypedArray = NodeJS.TypedArray
+import { rejects } from 'assert'
 import * as net from 'net'
-
-export interface XExtension {
-  events: { [key: string]: any }
-  errors: { [key: string]: any }
-}
+import { XConnection } from './connection'
 
 export type UnmarshallResult<T> = {
   value: T,
@@ -14,6 +11,17 @@ export type UnmarshallResult<T> = {
 export interface Unmarshaller<T> {
   (buffer: ArrayBuffer, offset: number): UnmarshallResult<T>
 }
+
+export interface EventHandler<T> {
+  (event: T): void
+}
+
+interface RawEventHandler {
+  (xConnection: XConnection, rawEvent: Buffer): void
+}
+
+export const events: { [key: number]: RawEventHandler } = {}
+export const errors: { [key: number]: [Unmarshaller<any>, new (errorBody: any) => Error] } = {}
 
 export function xcbComplexList<T>(buffer: ArrayBuffer, offset: number, listLength: number, unmarshall: Unmarshaller<T>): UnmarshallResult<T[]> {
   const value: T[] = []
@@ -35,28 +43,8 @@ export function typePad(alignSize: number, offset: number): number {
   return -offset & (alignSize > 4 ? 3 : alignSize - 1)
 }
 
-function createRequestBuffer(requestParts: ArrayBuffer[]): Uint8Array {
-  const requestSize = requestParts.reduce((previousValue, currentValue) => previousValue + currentValue.byteLength, 0)
-  return requestParts
-    .reduce<{ buffer: Uint8Array, offset: number }>(
-      ({ buffer, offset },
-       currentValue
-      ) => {
-        buffer.set(new Uint8Array(currentValue), offset)
-        return { buffer, offset: offset + currentValue.byteLength }
-      },
-      { buffer: new Uint8Array(requestSize), offset: 0 }
-    ).buffer
-}
 
-export function sendRequest<T>(socket: net.Socket, requestParts: ArrayBuffer[], opcode: number, isVoidReply: boolean, isChecked: boolean, replyUnmarshaller?: Unmarshaller<T>): Promise<T> {
-  const requestBuffer = createRequestBuffer(requestParts)
-  return new Promise<T>(resolve => {
-    socket.write(new Uint8Array(requestBuffer))
-    // TODO
-  })
-}
 
 export function notUndefined<T>(x: T | undefined): x is T {
-  return x !== undefined;
+  return x !== undefined
 }

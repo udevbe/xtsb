@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # from xml.etree.cElementTree import *
 # from os.path import basename
-import errno
 import getopt
-import os
 import re
 
 # Jump to the bottom of this file for the main routine
@@ -386,8 +384,6 @@ def _ts_marshall_complex(self):
 
 def _ts_complex(self, name):
   _ts_unmarshall_complex(self)
-  # _ts('')
-  # _ts_marshall_complex(self)
 
 
 def _ts_reply(self, name):
@@ -579,10 +575,9 @@ def _ts_request_helper(self, name, void, regular):
   write_request_part(wire_fields)
 
   _ts(
-    '  return sendRequest<%s>(this.socket, requestParts, %s, %s, %s%s)',
+    '  return this.sendRequest<%s>(requestParts, %s, %s%s)',
     self.ts_reply_name if not void else 'void',
     self.opcode,
-    _b(void),
     _b(func_flags),
     f', unmarshall{self.ts_reply_name}' if not void else ''
   )
@@ -605,7 +600,7 @@ def ts_open(self):
   _ts('')
   _ts('import { XConnection } from \'./connection\'')
   _ts(
-    'import { xcbSimpleList, xcbComplexList, Unmarshaller, typePad, sendRequest, notUndefined } from \'./xjsbInternals\'')
+    'import { xcbSimpleList, xcbComplexList, Unmarshaller, typePad, notUndefined, events, errors, EventHandler } from \'./xjsbInternals\'')
   _ts('import { unpackFrom, pack } from \'./struct\'')
   _ts('')
 
@@ -620,27 +615,7 @@ def ts_open(self):
     # _ts('key = xcb.ExtensionKey(\'%s\')', _ns.ext_xname)
 
   _ts_setlevel(1)
-  # _ts('import { XExtension } from \'./xtypes\'')
   _ts('')
-  # _ts('export class %sExtension implements XExtension {', _ns.header.title())
-
-  _ts_setlevel(2)
-  _ts('export const events = {')
-
-  _ts_setlevel(3)
-  _ts('}')
-  _ts('')
-  _ts('export const errors = {')
-
-  _ts_setlevel(4)
-  _ts('}')
-  # _ts('}')
-  _ts('')
-  # if _ns.is_ext:
-  #     _ts('xcb._add_ext(key, %sExtension, _events, _errors)', _ns.header)
-  # else:
-  #     _ts('xcb._add_core(%sExtension, Setup, _events, _errors)', _ns.header)
-  # pass
 
 
 def ts_close(self):
@@ -777,6 +752,8 @@ def ts_request(self, name):
     _ts_request_helper(self, name, True, False)
     _ts_request_helper(self, name, True, True)
 
+    _ts('')
+
 
 def ts_event(self, name):
   '''
@@ -792,10 +769,21 @@ def ts_event(self, name):
   _ts('}')
   _ts('')
   _ts_complex(self, name)
-
+  _ts('export interface %sHandler extends EventHandler<%s> {}', self.ts_event_name,
+      self.ts_event_name)
+  _ts('')
+  _ts('declare module \'./connection\' {')
+  _ts('  interface XConnection {')
+  _ts('    on%s?: %sHandler', self.ts_event_name, self.ts_event_name)
+  _ts('  }')
+  _ts('}')
+  _ts('')
   # Opcode define
   _ts_setlevel(2)
-  _ts('    %s : unmarshall%s,', self.opcodes[name], self.ts_event_name)
+  _ts('events[%s] = (xConnection: XConnection, rawEvent: Buffer) => {', self.opcodes[name])
+  _ts('  const event = unmarshall%s(rawEvent, 0).value', self.ts_event_name)
+  _ts('  xConnection.on%s?.(event)', self.ts_event_name)
+  _ts('}')
 
 
 def ts_eventstruct(self, name):
@@ -842,7 +830,8 @@ def ts_error(self, name):
 
   # Opcode define
   _ts_setlevel(3)
-  _ts('    %s : [unmarshall%s, %s],', self.opcodes[name], self.ts_error_name, self.ts_except_name)
+  _ts('errors[%s] = [unmarshall%s, %s]', self.opcodes[name], self.ts_error_name,
+      self.ts_except_name)
 
 
 # Main routine starts here

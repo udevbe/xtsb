@@ -4,7 +4,7 @@
 //
 
 import { XConnection } from './connection'
-import { xcbSimpleList, xcbComplexList, Unmarshaller, typePad, sendRequest, notUndefined } from './xjsbInternals'
+import { xcbSimpleList, xcbComplexList, Unmarshaller, typePad, notUndefined, events, errors, EventHandler } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 
@@ -534,6 +534,14 @@ const unmarshallKeyPressEvent: Unmarshaller<KeyPressEvent> = (buffer, offset=0) 
     offset
   }
 }
+export interface KeyPressEventHandler extends EventHandler<KeyPressEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onKeyPressEvent?: KeyPressEventHandler
+  }
+}
+
 
 export type KeyReleaseEvent = {
   detail: KEYCODE
@@ -570,6 +578,14 @@ const unmarshallKeyReleaseEvent: Unmarshaller<KeyReleaseEvent> = (buffer, offset
     offset
   }
 }
+export interface KeyReleaseEventHandler extends EventHandler<KeyReleaseEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onKeyReleaseEvent?: KeyReleaseEventHandler
+  }
+}
+
 
 export enum ButtonMask {
   _1= 256,
@@ -615,6 +631,14 @@ const unmarshallButtonPressEvent: Unmarshaller<ButtonPressEvent> = (buffer, offs
     offset
   }
 }
+export interface ButtonPressEventHandler extends EventHandler<ButtonPressEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onButtonPressEvent?: ButtonPressEventHandler
+  }
+}
+
 
 export type ButtonReleaseEvent = {
   detail: BUTTON
@@ -651,6 +675,14 @@ const unmarshallButtonReleaseEvent: Unmarshaller<ButtonReleaseEvent> = (buffer, 
     offset
   }
 }
+export interface ButtonReleaseEventHandler extends EventHandler<ButtonReleaseEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onButtonReleaseEvent?: ButtonReleaseEventHandler
+  }
+}
+
 
 export enum Motion {
   Normal= 0,
@@ -692,6 +724,14 @@ const unmarshallMotionNotifyEvent: Unmarshaller<MotionNotifyEvent> = (buffer, of
     offset
   }
 }
+export interface MotionNotifyEventHandler extends EventHandler<MotionNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onMotionNotifyEvent?: MotionNotifyEventHandler
+  }
+}
+
 
 export enum NotifyDetail {
   Ancestor= 0,
@@ -748,6 +788,14 @@ const unmarshallEnterNotifyEvent: Unmarshaller<EnterNotifyEvent> = (buffer, offs
     offset
   }
 }
+export interface EnterNotifyEventHandler extends EventHandler<EnterNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onEnterNotifyEvent?: EnterNotifyEventHandler
+  }
+}
+
 
 export type LeaveNotifyEvent = {
   detail: NotifyDetail
@@ -786,6 +834,14 @@ const unmarshallLeaveNotifyEvent: Unmarshaller<LeaveNotifyEvent> = (buffer, offs
     offset
   }
 }
+export interface LeaveNotifyEventHandler extends EventHandler<LeaveNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onLeaveNotifyEvent?: LeaveNotifyEventHandler
+  }
+}
+
 
 export type FocusInEvent = {
   detail: NotifyDetail
@@ -806,6 +862,14 @@ const unmarshallFocusInEvent: Unmarshaller<FocusInEvent> = (buffer, offset=0) =>
     offset
   }
 }
+export interface FocusInEventHandler extends EventHandler<FocusInEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onFocusInEvent?: FocusInEventHandler
+  }
+}
+
 
 export type FocusOutEvent = {
   detail: NotifyDetail
@@ -826,6 +890,14 @@ const unmarshallFocusOutEvent: Unmarshaller<FocusOutEvent> = (buffer, offset=0) 
     offset
   }
 }
+export interface FocusOutEventHandler extends EventHandler<FocusOutEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onFocusOutEvent?: FocusOutEventHandler
+  }
+}
+
 
 export type KeymapNotifyEvent = {
   keys: Uint8Array
@@ -844,6 +916,14 @@ const unmarshallKeymapNotifyEvent: Unmarshaller<KeymapNotifyEvent> = (buffer, of
     offset
   }
 }
+export interface KeymapNotifyEventHandler extends EventHandler<KeymapNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onKeymapNotifyEvent?: KeymapNotifyEventHandler
+  }
+}
+
 
 export type ExposeEvent = {
   window: WINDOW
@@ -870,6 +950,14 @@ const unmarshallExposeEvent: Unmarshaller<ExposeEvent> = (buffer, offset=0) => {
     offset
   }
 }
+export interface ExposeEventHandler extends EventHandler<ExposeEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onExposeEvent?: ExposeEventHandler
+  }
+}
+
 
 export type GraphicsExposureEvent = {
   drawable: DRAWABLE
@@ -900,6 +988,14 @@ const unmarshallGraphicsExposureEvent: Unmarshaller<GraphicsExposureEvent> = (bu
     offset
   }
 }
+export interface GraphicsExposureEventHandler extends EventHandler<GraphicsExposureEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onGraphicsExposureEvent?: GraphicsExposureEventHandler
+  }
+}
+
 
 export type NoExposureEvent = {
   drawable: DRAWABLE
@@ -920,6 +1016,14 @@ const unmarshallNoExposureEvent: Unmarshaller<NoExposureEvent> = (buffer, offset
     offset
   }
 }
+export interface NoExposureEventHandler extends EventHandler<NoExposureEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onNoExposureEvent?: NoExposureEventHandler
+  }
+}
+
 
 export enum Visibility {
   Unobscured= 0,
@@ -944,6 +1048,14 @@ const unmarshallVisibilityNotifyEvent: Unmarshaller<VisibilityNotifyEvent> = (bu
     offset
   }
 }
+export interface VisibilityNotifyEventHandler extends EventHandler<VisibilityNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onVisibilityNotifyEvent?: VisibilityNotifyEventHandler
+  }
+}
+
 
 export type CreateNotifyEvent = {
   parent: WINDOW
@@ -974,6 +1086,14 @@ const unmarshallCreateNotifyEvent: Unmarshaller<CreateNotifyEvent> = (buffer, of
     offset
   }
 }
+export interface CreateNotifyEventHandler extends EventHandler<CreateNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onCreateNotifyEvent?: CreateNotifyEventHandler
+  }
+}
+
 
 export type DestroyNotifyEvent = {
   event: WINDOW
@@ -992,6 +1112,14 @@ const unmarshallDestroyNotifyEvent: Unmarshaller<DestroyNotifyEvent> = (buffer, 
     offset
   }
 }
+export interface DestroyNotifyEventHandler extends EventHandler<DestroyNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onDestroyNotifyEvent?: DestroyNotifyEventHandler
+  }
+}
+
 
 export type UnmapNotifyEvent = {
   event: WINDOW
@@ -1012,6 +1140,14 @@ const unmarshallUnmapNotifyEvent: Unmarshaller<UnmapNotifyEvent> = (buffer, offs
     offset
   }
 }
+export interface UnmapNotifyEventHandler extends EventHandler<UnmapNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onUnmapNotifyEvent?: UnmapNotifyEventHandler
+  }
+}
+
 
 export type MapNotifyEvent = {
   event: WINDOW
@@ -1032,6 +1168,14 @@ const unmarshallMapNotifyEvent: Unmarshaller<MapNotifyEvent> = (buffer, offset=0
     offset
   }
 }
+export interface MapNotifyEventHandler extends EventHandler<MapNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onMapNotifyEvent?: MapNotifyEventHandler
+  }
+}
+
 
 export type MapRequestEvent = {
   parent: WINDOW
@@ -1050,6 +1194,14 @@ const unmarshallMapRequestEvent: Unmarshaller<MapRequestEvent> = (buffer, offset
     offset
   }
 }
+export interface MapRequestEventHandler extends EventHandler<MapRequestEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onMapRequestEvent?: MapRequestEventHandler
+  }
+}
+
 
 export type ReparentNotifyEvent = {
   event: WINDOW
@@ -1076,6 +1228,14 @@ const unmarshallReparentNotifyEvent: Unmarshaller<ReparentNotifyEvent> = (buffer
     offset
   }
 }
+export interface ReparentNotifyEventHandler extends EventHandler<ReparentNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onReparentNotifyEvent?: ReparentNotifyEventHandler
+  }
+}
+
 
 export type ConfigureNotifyEvent = {
   event: WINDOW
@@ -1108,6 +1268,14 @@ const unmarshallConfigureNotifyEvent: Unmarshaller<ConfigureNotifyEvent> = (buff
     offset
   }
 }
+export interface ConfigureNotifyEventHandler extends EventHandler<ConfigureNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onConfigureNotifyEvent?: ConfigureNotifyEventHandler
+  }
+}
+
 
 export type ConfigureRequestEvent = {
   stackMode: StackMode
@@ -1142,6 +1310,14 @@ const unmarshallConfigureRequestEvent: Unmarshaller<ConfigureRequestEvent> = (bu
     offset
   }
 }
+export interface ConfigureRequestEventHandler extends EventHandler<ConfigureRequestEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onConfigureRequestEvent?: ConfigureRequestEventHandler
+  }
+}
+
 
 export type GravityNotifyEvent = {
   event: WINDOW
@@ -1164,6 +1340,14 @@ const unmarshallGravityNotifyEvent: Unmarshaller<GravityNotifyEvent> = (buffer, 
     offset
   }
 }
+export interface GravityNotifyEventHandler extends EventHandler<GravityNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onGravityNotifyEvent?: GravityNotifyEventHandler
+  }
+}
+
 
 export type ResizeRequestEvent = {
   window: WINDOW
@@ -1184,6 +1368,14 @@ const unmarshallResizeRequestEvent: Unmarshaller<ResizeRequestEvent> = (buffer, 
     offset
   }
 }
+export interface ResizeRequestEventHandler extends EventHandler<ResizeRequestEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onResizeRequestEvent?: ResizeRequestEventHandler
+  }
+}
+
 
 export enum Place {
   OnTop= 0,
@@ -1209,6 +1401,14 @@ const unmarshallCirculateNotifyEvent: Unmarshaller<CirculateNotifyEvent> = (buff
     offset
   }
 }
+export interface CirculateNotifyEventHandler extends EventHandler<CirculateNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onCirculateNotifyEvent?: CirculateNotifyEventHandler
+  }
+}
+
 
 export type CirculateRequestEvent = {
   event: WINDOW
@@ -1229,6 +1429,14 @@ const unmarshallCirculateRequestEvent: Unmarshaller<CirculateRequestEvent> = (bu
     offset
   }
 }
+export interface CirculateRequestEventHandler extends EventHandler<CirculateRequestEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onCirculateRequestEvent?: CirculateRequestEventHandler
+  }
+}
+
 
 export enum Property {
   NewValue= 0,
@@ -1256,6 +1464,14 @@ const unmarshallPropertyNotifyEvent: Unmarshaller<PropertyNotifyEvent> = (buffer
     offset
   }
 }
+export interface PropertyNotifyEventHandler extends EventHandler<PropertyNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onPropertyNotifyEvent?: PropertyNotifyEventHandler
+  }
+}
+
 
 export type SelectionClearEvent = {
   time: TIMESTAMP
@@ -1276,6 +1492,14 @@ const unmarshallSelectionClearEvent: Unmarshaller<SelectionClearEvent> = (buffer
     offset
   }
 }
+export interface SelectionClearEventHandler extends EventHandler<SelectionClearEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onSelectionClearEvent?: SelectionClearEventHandler
+  }
+}
+
 
 export enum Time {
   CurrentTime= 0,
@@ -1379,6 +1603,14 @@ const unmarshallSelectionRequestEvent: Unmarshaller<SelectionRequestEvent> = (bu
     offset
   }
 }
+export interface SelectionRequestEventHandler extends EventHandler<SelectionRequestEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onSelectionRequestEvent?: SelectionRequestEventHandler
+  }
+}
+
 
 export type SelectionNotifyEvent = {
   time: TIMESTAMP
@@ -1403,6 +1635,14 @@ const unmarshallSelectionNotifyEvent: Unmarshaller<SelectionNotifyEvent> = (buff
     offset
   }
 }
+export interface SelectionNotifyEventHandler extends EventHandler<SelectionNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onSelectionNotifyEvent?: SelectionNotifyEventHandler
+  }
+}
+
 
 export enum ColormapState {
   Uninstalled= 0,
@@ -1434,6 +1674,14 @@ const unmarshallColormapNotifyEvent: Unmarshaller<ColormapNotifyEvent> = (buffer
     offset
   }
 }
+export interface ColormapNotifyEventHandler extends EventHandler<ColormapNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onColormapNotifyEvent?: ColormapNotifyEventHandler
+  }
+}
+
 
 export type ClientMessageData  = {
   data8: Uint8Array
@@ -1489,6 +1737,14 @@ const unmarshallClientMessageEvent: Unmarshaller<ClientMessageEvent> = (buffer, 
     offset
   }
 }
+export interface ClientMessageEventHandler extends EventHandler<ClientMessageEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onClientMessageEvent?: ClientMessageEventHandler
+  }
+}
+
 
 export enum Mapping {
   Modifier= 0,
@@ -1515,6 +1771,14 @@ const unmarshallMappingNotifyEvent: Unmarshaller<MappingNotifyEvent> = (buffer, 
     offset
   }
 }
+export interface MappingNotifyEventHandler extends EventHandler<MappingNotifyEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onMappingNotifyEvent?: MappingNotifyEventHandler
+  }
+}
+
 
 export type GeGenericEvent = {
 }
@@ -1527,6 +1791,14 @@ const unmarshallGeGenericEvent: Unmarshaller<GeGenericEvent> = (buffer, offset=0
     offset
   }
 }
+export interface GeGenericEventHandler extends EventHandler<GeGenericEvent> {}
+
+declare module './connection' {
+  interface XConnection {
+    onGeGenericEvent?: GeGenericEventHandler
+  }
+}
+
 
 export type RequestError = {
   badValue: number
@@ -3664,7 +3936,7 @@ XConnection.prototype.createWindowChecked = function(depth: number, wid: WINDOW,
   requestParts.push(pack('<xB2xIIhhHHHHII', depth, wid, parent, x, y, width, height, borderWidth, _class, visual, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 1, true, true)
+  return this.sendRequest<void>(requestParts, 1, true)
 }
 
 declare module './connection' {
@@ -3722,8 +3994,9 @@ XConnection.prototype.createWindow = function(depth: number, wid: WINDOW, parent
   requestParts.push(pack('<xB2xIIhhHHHHII', depth, wid, parent, x, y, width, height, borderWidth, _class, visual, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 1, true, false)
+  return this.sendRequest<void>(requestParts, 1, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -3780,7 +4053,7 @@ XConnection.prototype.changeWindowAttributesChecked = function(window: WINDOW, v
   requestParts.push(pack('<xx2xII', window, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 2, true, true)
+  return this.sendRequest<void>(requestParts, 2, true)
 }
 
 declare module './connection' {
@@ -3838,8 +4111,9 @@ XConnection.prototype.changeWindowAttributes = function(window: WINDOW, valueLis
   requestParts.push(pack('<xx2xII', window, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 2, true, false)
+  return this.sendRequest<void>(requestParts, 2, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -3852,7 +4126,7 @@ XConnection.prototype.getWindowAttributes = function(window: WINDOW): GetWindowA
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<GetWindowAttributesReply>(this.socket, requestParts, 3, false, true, unmarshallGetWindowAttributesReply)
+  return this.sendRequest<GetWindowAttributesReply>(requestParts, 3, true, unmarshallGetWindowAttributesReply)
 }
 
 declare module './connection' {
@@ -3866,7 +4140,7 @@ XConnection.prototype.getWindowAttributesUnchecked = function(window: WINDOW): G
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<GetWindowAttributesReply>(this.socket, requestParts, 3, false, false, unmarshallGetWindowAttributesReply)
+  return this.sendRequest<GetWindowAttributesReply>(requestParts, 3, false, unmarshallGetWindowAttributesReply)
 }
 
 declare module './connection' {
@@ -3880,7 +4154,7 @@ XConnection.prototype.destroyWindowChecked = function(window: WINDOW): Promise<v
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 4, true, true)
+  return this.sendRequest<void>(requestParts, 4, true)
 }
 
 declare module './connection' {
@@ -3894,8 +4168,9 @@ XConnection.prototype.destroyWindow = function(window: WINDOW): Promise<void> {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 4, true, false)
+  return this.sendRequest<void>(requestParts, 4, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -3908,7 +4183,7 @@ XConnection.prototype.destroySubwindowsChecked = function(window: WINDOW): Promi
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 5, true, true)
+  return this.sendRequest<void>(requestParts, 5, true)
 }
 
 declare module './connection' {
@@ -3922,8 +4197,9 @@ XConnection.prototype.destroySubwindows = function(window: WINDOW): Promise<void
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 5, true, false)
+  return this.sendRequest<void>(requestParts, 5, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -3936,7 +4212,7 @@ XConnection.prototype.changeSaveSetChecked = function(mode: SetMode, window: WIN
 
   requestParts.push(pack('<xB2xI', mode, window))
 
-  return sendRequest<void>(this.socket, requestParts, 6, true, true)
+  return this.sendRequest<void>(requestParts, 6, true)
 }
 
 declare module './connection' {
@@ -3950,8 +4226,9 @@ XConnection.prototype.changeSaveSet = function(mode: SetMode, window: WINDOW): P
 
   requestParts.push(pack('<xB2xI', mode, window))
 
-  return sendRequest<void>(this.socket, requestParts, 6, true, false)
+  return this.sendRequest<void>(requestParts, 6, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -3964,7 +4241,7 @@ XConnection.prototype.reparentWindowChecked = function(window: WINDOW, parent: W
 
   requestParts.push(pack('<xx2xIIhh', window, parent, x, y))
 
-  return sendRequest<void>(this.socket, requestParts, 7, true, true)
+  return this.sendRequest<void>(requestParts, 7, true)
 }
 
 declare module './connection' {
@@ -3978,8 +4255,9 @@ XConnection.prototype.reparentWindow = function(window: WINDOW, parent: WINDOW, 
 
   requestParts.push(pack('<xx2xIIhh', window, parent, x, y))
 
-  return sendRequest<void>(this.socket, requestParts, 7, true, false)
+  return this.sendRequest<void>(requestParts, 7, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -3992,7 +4270,7 @@ XConnection.prototype.mapWindowChecked = function(window: WINDOW): Promise<void>
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 8, true, true)
+  return this.sendRequest<void>(requestParts, 8, true)
 }
 
 declare module './connection' {
@@ -4006,8 +4284,9 @@ XConnection.prototype.mapWindow = function(window: WINDOW): Promise<void> {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 8, true, false)
+  return this.sendRequest<void>(requestParts, 8, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4020,7 +4299,7 @@ XConnection.prototype.mapSubwindowsChecked = function(window: WINDOW): Promise<v
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 9, true, true)
+  return this.sendRequest<void>(requestParts, 9, true)
 }
 
 declare module './connection' {
@@ -4034,8 +4313,9 @@ XConnection.prototype.mapSubwindows = function(window: WINDOW): Promise<void> {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 9, true, false)
+  return this.sendRequest<void>(requestParts, 9, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4048,7 +4328,7 @@ XConnection.prototype.unmapWindowChecked = function(window: WINDOW): Promise<voi
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 10, true, true)
+  return this.sendRequest<void>(requestParts, 10, true)
 }
 
 declare module './connection' {
@@ -4062,8 +4342,9 @@ XConnection.prototype.unmapWindow = function(window: WINDOW): Promise<void> {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 10, true, false)
+  return this.sendRequest<void>(requestParts, 10, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4076,7 +4357,7 @@ XConnection.prototype.unmapSubwindowsChecked = function(window: WINDOW): Promise
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 11, true, true)
+  return this.sendRequest<void>(requestParts, 11, true)
 }
 
 declare module './connection' {
@@ -4090,8 +4371,9 @@ XConnection.prototype.unmapSubwindows = function(window: WINDOW): Promise<void> 
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<void>(this.socket, requestParts, 11, true, false)
+  return this.sendRequest<void>(requestParts, 11, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4132,7 +4414,7 @@ XConnection.prototype.configureWindowChecked = function(window: WINDOW, valueLis
   requestParts.push(pack('<xx2xIH2x', window, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 12, true, true)
+  return this.sendRequest<void>(requestParts, 12, true)
 }
 
 declare module './connection' {
@@ -4174,8 +4456,9 @@ XConnection.prototype.configureWindow = function(window: WINDOW, valueList: Part
   requestParts.push(pack('<xx2xIH2x', window, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 12, true, false)
+  return this.sendRequest<void>(requestParts, 12, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4188,7 +4471,7 @@ XConnection.prototype.circulateWindowChecked = function(direction: Circulate, wi
 
   requestParts.push(pack('<xB2xI', direction, window))
 
-  return sendRequest<void>(this.socket, requestParts, 13, true, true)
+  return this.sendRequest<void>(requestParts, 13, true)
 }
 
 declare module './connection' {
@@ -4202,8 +4485,9 @@ XConnection.prototype.circulateWindow = function(direction: Circulate, window: W
 
   requestParts.push(pack('<xB2xI', direction, window))
 
-  return sendRequest<void>(this.socket, requestParts, 13, true, false)
+  return this.sendRequest<void>(requestParts, 13, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4216,7 +4500,7 @@ XConnection.prototype.getGeometry = function(drawable: DRAWABLE): GetGeometryCoo
 
   requestParts.push(pack('<xx2xI', drawable))
 
-  return sendRequest<GetGeometryReply>(this.socket, requestParts, 14, false, true, unmarshallGetGeometryReply)
+  return this.sendRequest<GetGeometryReply>(requestParts, 14, true, unmarshallGetGeometryReply)
 }
 
 declare module './connection' {
@@ -4230,7 +4514,7 @@ XConnection.prototype.getGeometryUnchecked = function(drawable: DRAWABLE): GetGe
 
   requestParts.push(pack('<xx2xI', drawable))
 
-  return sendRequest<GetGeometryReply>(this.socket, requestParts, 14, false, false, unmarshallGetGeometryReply)
+  return this.sendRequest<GetGeometryReply>(requestParts, 14, false, unmarshallGetGeometryReply)
 }
 
 declare module './connection' {
@@ -4244,7 +4528,7 @@ XConnection.prototype.queryTree = function(window: WINDOW): QueryTreeCookie {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<QueryTreeReply>(this.socket, requestParts, 15, false, true, unmarshallQueryTreeReply)
+  return this.sendRequest<QueryTreeReply>(requestParts, 15, true, unmarshallQueryTreeReply)
 }
 
 declare module './connection' {
@@ -4258,7 +4542,7 @@ XConnection.prototype.queryTreeUnchecked = function(window: WINDOW): QueryTreeCo
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<QueryTreeReply>(this.socket, requestParts, 15, false, false, unmarshallQueryTreeReply)
+  return this.sendRequest<QueryTreeReply>(requestParts, 15, false, unmarshallQueryTreeReply)
 }
 
 declare module './connection' {
@@ -4274,7 +4558,7 @@ XConnection.prototype.internAtom = function(onlyIfExists: number, name: Int8Arra
   requestParts.push(pack('<xB2xH2x', onlyIfExists, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<InternAtomReply>(this.socket, requestParts, 16, false, true, unmarshallInternAtomReply)
+  return this.sendRequest<InternAtomReply>(requestParts, 16, true, unmarshallInternAtomReply)
 }
 
 declare module './connection' {
@@ -4290,7 +4574,7 @@ XConnection.prototype.internAtomUnchecked = function(onlyIfExists: number, name:
   requestParts.push(pack('<xB2xH2x', onlyIfExists, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<InternAtomReply>(this.socket, requestParts, 16, false, false, unmarshallInternAtomReply)
+  return this.sendRequest<InternAtomReply>(requestParts, 16, false, unmarshallInternAtomReply)
 }
 
 declare module './connection' {
@@ -4304,7 +4588,7 @@ XConnection.prototype.getAtomName = function(atom: ATOM): GetAtomNameCookie {
 
   requestParts.push(pack('<xx2xI', atom))
 
-  return sendRequest<GetAtomNameReply>(this.socket, requestParts, 17, false, true, unmarshallGetAtomNameReply)
+  return this.sendRequest<GetAtomNameReply>(requestParts, 17, true, unmarshallGetAtomNameReply)
 }
 
 declare module './connection' {
@@ -4318,7 +4602,7 @@ XConnection.prototype.getAtomNameUnchecked = function(atom: ATOM): GetAtomNameCo
 
   requestParts.push(pack('<xx2xI', atom))
 
-  return sendRequest<GetAtomNameReply>(this.socket, requestParts, 17, false, false, unmarshallGetAtomNameReply)
+  return this.sendRequest<GetAtomNameReply>(requestParts, 17, false, unmarshallGetAtomNameReply)
 }
 
 declare module './connection' {
@@ -4334,7 +4618,7 @@ XConnection.prototype.changePropertyChecked = function(mode: PropMode, window: W
   requestParts.push(pack('<xB2xIIIB3xI', mode, window, property, _type, format, dataLen))
   requestParts.push(data.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 18, true, true)
+  return this.sendRequest<void>(requestParts, 18, true)
 }
 
 declare module './connection' {
@@ -4350,8 +4634,9 @@ XConnection.prototype.changeProperty = function(mode: PropMode, window: WINDOW, 
   requestParts.push(pack('<xB2xIIIB3xI', mode, window, property, _type, format, dataLen))
   requestParts.push(data.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 18, true, false)
+  return this.sendRequest<void>(requestParts, 18, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4364,7 +4649,7 @@ XConnection.prototype.deletePropertyChecked = function(window: WINDOW, property:
 
   requestParts.push(pack('<xx2xII', window, property))
 
-  return sendRequest<void>(this.socket, requestParts, 19, true, true)
+  return this.sendRequest<void>(requestParts, 19, true)
 }
 
 declare module './connection' {
@@ -4378,8 +4663,9 @@ XConnection.prototype.deleteProperty = function(window: WINDOW, property: ATOM):
 
   requestParts.push(pack('<xx2xII', window, property))
 
-  return sendRequest<void>(this.socket, requestParts, 19, true, false)
+  return this.sendRequest<void>(requestParts, 19, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4392,7 +4678,7 @@ XConnection.prototype.getProperty = function(_delete: number, window: WINDOW, pr
 
   requestParts.push(pack('<xB2xIIIII', _delete, window, property, _type, longOffset, longLength))
 
-  return sendRequest<GetPropertyReply>(this.socket, requestParts, 20, false, true, unmarshallGetPropertyReply)
+  return this.sendRequest<GetPropertyReply>(requestParts, 20, true, unmarshallGetPropertyReply)
 }
 
 declare module './connection' {
@@ -4406,7 +4692,7 @@ XConnection.prototype.getPropertyUnchecked = function(_delete: number, window: W
 
   requestParts.push(pack('<xB2xIIIII', _delete, window, property, _type, longOffset, longLength))
 
-  return sendRequest<GetPropertyReply>(this.socket, requestParts, 20, false, false, unmarshallGetPropertyReply)
+  return this.sendRequest<GetPropertyReply>(requestParts, 20, false, unmarshallGetPropertyReply)
 }
 
 declare module './connection' {
@@ -4420,7 +4706,7 @@ XConnection.prototype.listProperties = function(window: WINDOW): ListPropertiesC
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<ListPropertiesReply>(this.socket, requestParts, 21, false, true, unmarshallListPropertiesReply)
+  return this.sendRequest<ListPropertiesReply>(requestParts, 21, true, unmarshallListPropertiesReply)
 }
 
 declare module './connection' {
@@ -4434,7 +4720,7 @@ XConnection.prototype.listPropertiesUnchecked = function(window: WINDOW): ListPr
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<ListPropertiesReply>(this.socket, requestParts, 21, false, false, unmarshallListPropertiesReply)
+  return this.sendRequest<ListPropertiesReply>(requestParts, 21, false, unmarshallListPropertiesReply)
 }
 
 declare module './connection' {
@@ -4448,7 +4734,7 @@ XConnection.prototype.setSelectionOwnerChecked = function(owner: WINDOW, selecti
 
   requestParts.push(pack('<xx2xIII', owner, selection, time))
 
-  return sendRequest<void>(this.socket, requestParts, 22, true, true)
+  return this.sendRequest<void>(requestParts, 22, true)
 }
 
 declare module './connection' {
@@ -4462,8 +4748,9 @@ XConnection.prototype.setSelectionOwner = function(owner: WINDOW, selection: ATO
 
   requestParts.push(pack('<xx2xIII', owner, selection, time))
 
-  return sendRequest<void>(this.socket, requestParts, 22, true, false)
+  return this.sendRequest<void>(requestParts, 22, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4476,7 +4763,7 @@ XConnection.prototype.getSelectionOwner = function(selection: ATOM): GetSelectio
 
   requestParts.push(pack('<xx2xI', selection))
 
-  return sendRequest<GetSelectionOwnerReply>(this.socket, requestParts, 23, false, true, unmarshallGetSelectionOwnerReply)
+  return this.sendRequest<GetSelectionOwnerReply>(requestParts, 23, true, unmarshallGetSelectionOwnerReply)
 }
 
 declare module './connection' {
@@ -4490,7 +4777,7 @@ XConnection.prototype.getSelectionOwnerUnchecked = function(selection: ATOM): Ge
 
   requestParts.push(pack('<xx2xI', selection))
 
-  return sendRequest<GetSelectionOwnerReply>(this.socket, requestParts, 23, false, false, unmarshallGetSelectionOwnerReply)
+  return this.sendRequest<GetSelectionOwnerReply>(requestParts, 23, false, unmarshallGetSelectionOwnerReply)
 }
 
 declare module './connection' {
@@ -4504,7 +4791,7 @@ XConnection.prototype.convertSelectionChecked = function(requestor: WINDOW, sele
 
   requestParts.push(pack('<xx2xIIIII', requestor, selection, target, property, time))
 
-  return sendRequest<void>(this.socket, requestParts, 24, true, true)
+  return this.sendRequest<void>(requestParts, 24, true)
 }
 
 declare module './connection' {
@@ -4518,8 +4805,9 @@ XConnection.prototype.convertSelection = function(requestor: WINDOW, selection: 
 
   requestParts.push(pack('<xx2xIIIII', requestor, selection, target, property, time))
 
-  return sendRequest<void>(this.socket, requestParts, 24, true, false)
+  return this.sendRequest<void>(requestParts, 24, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4533,7 +4821,7 @@ XConnection.prototype.sendEventChecked = function(propagate: number, destination
   requestParts.push(pack('<xB2xII', propagate, destination, eventMask))
   requestParts.push(event.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 25, true, true)
+  return this.sendRequest<void>(requestParts, 25, true)
 }
 
 declare module './connection' {
@@ -4548,8 +4836,9 @@ XConnection.prototype.sendEvent = function(propagate: number, destination: WINDO
   requestParts.push(pack('<xB2xII', propagate, destination, eventMask))
   requestParts.push(event.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 25, true, false)
+  return this.sendRequest<void>(requestParts, 25, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4562,7 +4851,7 @@ XConnection.prototype.grabPointer = function(ownerEvents: number, grabWindow: WI
 
   requestParts.push(pack('<xB2xIHBBIII', ownerEvents, grabWindow, eventMask, pointerMode, keyboardMode, confineTo, cursor, time))
 
-  return sendRequest<GrabPointerReply>(this.socket, requestParts, 26, false, true, unmarshallGrabPointerReply)
+  return this.sendRequest<GrabPointerReply>(requestParts, 26, true, unmarshallGrabPointerReply)
 }
 
 declare module './connection' {
@@ -4576,7 +4865,7 @@ XConnection.prototype.grabPointerUnchecked = function(ownerEvents: number, grabW
 
   requestParts.push(pack('<xB2xIHBBIII', ownerEvents, grabWindow, eventMask, pointerMode, keyboardMode, confineTo, cursor, time))
 
-  return sendRequest<GrabPointerReply>(this.socket, requestParts, 26, false, false, unmarshallGrabPointerReply)
+  return this.sendRequest<GrabPointerReply>(requestParts, 26, false, unmarshallGrabPointerReply)
 }
 
 declare module './connection' {
@@ -4590,7 +4879,7 @@ XConnection.prototype.ungrabPointerChecked = function(time: TIMESTAMP): Promise<
 
   requestParts.push(pack('<xx2xI', time))
 
-  return sendRequest<void>(this.socket, requestParts, 27, true, true)
+  return this.sendRequest<void>(requestParts, 27, true)
 }
 
 declare module './connection' {
@@ -4604,8 +4893,9 @@ XConnection.prototype.ungrabPointer = function(time: TIMESTAMP): Promise<void> {
 
   requestParts.push(pack('<xx2xI', time))
 
-  return sendRequest<void>(this.socket, requestParts, 27, true, false)
+  return this.sendRequest<void>(requestParts, 27, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4618,7 +4908,7 @@ XConnection.prototype.grabButtonChecked = function(ownerEvents: number, grabWind
 
   requestParts.push(pack('<xB2xIHBBIIBxH', ownerEvents, grabWindow, eventMask, pointerMode, keyboardMode, confineTo, cursor, button, modifiers))
 
-  return sendRequest<void>(this.socket, requestParts, 28, true, true)
+  return this.sendRequest<void>(requestParts, 28, true)
 }
 
 declare module './connection' {
@@ -4632,8 +4922,9 @@ XConnection.prototype.grabButton = function(ownerEvents: number, grabWindow: WIN
 
   requestParts.push(pack('<xB2xIHBBIIBxH', ownerEvents, grabWindow, eventMask, pointerMode, keyboardMode, confineTo, cursor, button, modifiers))
 
-  return sendRequest<void>(this.socket, requestParts, 28, true, false)
+  return this.sendRequest<void>(requestParts, 28, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4646,7 +4937,7 @@ XConnection.prototype.ungrabButtonChecked = function(button: ButtonIndex, grabWi
 
   requestParts.push(pack('<xB2xIH2x', button, grabWindow, modifiers))
 
-  return sendRequest<void>(this.socket, requestParts, 29, true, true)
+  return this.sendRequest<void>(requestParts, 29, true)
 }
 
 declare module './connection' {
@@ -4660,8 +4951,9 @@ XConnection.prototype.ungrabButton = function(button: ButtonIndex, grabWindow: W
 
   requestParts.push(pack('<xB2xIH2x', button, grabWindow, modifiers))
 
-  return sendRequest<void>(this.socket, requestParts, 29, true, false)
+  return this.sendRequest<void>(requestParts, 29, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4674,7 +4966,7 @@ XConnection.prototype.changeActivePointerGrabChecked = function(cursor: CURSOR, 
 
   requestParts.push(pack('<xx2xIIH2x', cursor, time, eventMask))
 
-  return sendRequest<void>(this.socket, requestParts, 30, true, true)
+  return this.sendRequest<void>(requestParts, 30, true)
 }
 
 declare module './connection' {
@@ -4688,8 +4980,9 @@ XConnection.prototype.changeActivePointerGrab = function(cursor: CURSOR, time: T
 
   requestParts.push(pack('<xx2xIIH2x', cursor, time, eventMask))
 
-  return sendRequest<void>(this.socket, requestParts, 30, true, false)
+  return this.sendRequest<void>(requestParts, 30, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4702,7 +4995,7 @@ XConnection.prototype.grabKeyboard = function(ownerEvents: number, grabWindow: W
 
   requestParts.push(pack('<xB2xIIBB2x', ownerEvents, grabWindow, time, pointerMode, keyboardMode))
 
-  return sendRequest<GrabKeyboardReply>(this.socket, requestParts, 31, false, true, unmarshallGrabKeyboardReply)
+  return this.sendRequest<GrabKeyboardReply>(requestParts, 31, true, unmarshallGrabKeyboardReply)
 }
 
 declare module './connection' {
@@ -4716,7 +5009,7 @@ XConnection.prototype.grabKeyboardUnchecked = function(ownerEvents: number, grab
 
   requestParts.push(pack('<xB2xIIBB2x', ownerEvents, grabWindow, time, pointerMode, keyboardMode))
 
-  return sendRequest<GrabKeyboardReply>(this.socket, requestParts, 31, false, false, unmarshallGrabKeyboardReply)
+  return this.sendRequest<GrabKeyboardReply>(requestParts, 31, false, unmarshallGrabKeyboardReply)
 }
 
 declare module './connection' {
@@ -4730,7 +5023,7 @@ XConnection.prototype.ungrabKeyboardChecked = function(time: TIMESTAMP): Promise
 
   requestParts.push(pack('<xx2xI', time))
 
-  return sendRequest<void>(this.socket, requestParts, 32, true, true)
+  return this.sendRequest<void>(requestParts, 32, true)
 }
 
 declare module './connection' {
@@ -4744,8 +5037,9 @@ XConnection.prototype.ungrabKeyboard = function(time: TIMESTAMP): Promise<void> 
 
   requestParts.push(pack('<xx2xI', time))
 
-  return sendRequest<void>(this.socket, requestParts, 32, true, false)
+  return this.sendRequest<void>(requestParts, 32, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4758,7 +5052,7 @@ XConnection.prototype.grabKeyChecked = function(ownerEvents: number, grabWindow:
 
   requestParts.push(pack('<xB2xIHBBB3x', ownerEvents, grabWindow, modifiers, key, pointerMode, keyboardMode))
 
-  return sendRequest<void>(this.socket, requestParts, 33, true, true)
+  return this.sendRequest<void>(requestParts, 33, true)
 }
 
 declare module './connection' {
@@ -4772,8 +5066,9 @@ XConnection.prototype.grabKey = function(ownerEvents: number, grabWindow: WINDOW
 
   requestParts.push(pack('<xB2xIHBBB3x', ownerEvents, grabWindow, modifiers, key, pointerMode, keyboardMode))
 
-  return sendRequest<void>(this.socket, requestParts, 33, true, false)
+  return this.sendRequest<void>(requestParts, 33, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4786,7 +5081,7 @@ XConnection.prototype.ungrabKeyChecked = function(key: KEYCODE, grabWindow: WIND
 
   requestParts.push(pack('<xB2xIH2x', key, grabWindow, modifiers))
 
-  return sendRequest<void>(this.socket, requestParts, 34, true, true)
+  return this.sendRequest<void>(requestParts, 34, true)
 }
 
 declare module './connection' {
@@ -4800,8 +5095,9 @@ XConnection.prototype.ungrabKey = function(key: KEYCODE, grabWindow: WINDOW, mod
 
   requestParts.push(pack('<xB2xIH2x', key, grabWindow, modifiers))
 
-  return sendRequest<void>(this.socket, requestParts, 34, true, false)
+  return this.sendRequest<void>(requestParts, 34, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4814,7 +5110,7 @@ XConnection.prototype.allowEventsChecked = function(mode: Allow, time: TIMESTAMP
 
   requestParts.push(pack('<xB2xI', mode, time))
 
-  return sendRequest<void>(this.socket, requestParts, 35, true, true)
+  return this.sendRequest<void>(requestParts, 35, true)
 }
 
 declare module './connection' {
@@ -4828,8 +5124,9 @@ XConnection.prototype.allowEvents = function(mode: Allow, time: TIMESTAMP): Prom
 
   requestParts.push(pack('<xB2xI', mode, time))
 
-  return sendRequest<void>(this.socket, requestParts, 35, true, false)
+  return this.sendRequest<void>(requestParts, 35, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4842,7 +5139,7 @@ XConnection.prototype.grabServerChecked = function(): Promise<void> {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<void>(this.socket, requestParts, 36, true, true)
+  return this.sendRequest<void>(requestParts, 36, true)
 }
 
 declare module './connection' {
@@ -4856,8 +5153,9 @@ XConnection.prototype.grabServer = function(): Promise<void> {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<void>(this.socket, requestParts, 36, true, false)
+  return this.sendRequest<void>(requestParts, 36, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4870,7 +5168,7 @@ XConnection.prototype.ungrabServerChecked = function(): Promise<void> {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<void>(this.socket, requestParts, 37, true, true)
+  return this.sendRequest<void>(requestParts, 37, true)
 }
 
 declare module './connection' {
@@ -4884,8 +5182,9 @@ XConnection.prototype.ungrabServer = function(): Promise<void> {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<void>(this.socket, requestParts, 37, true, false)
+  return this.sendRequest<void>(requestParts, 37, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -4898,7 +5197,7 @@ XConnection.prototype.queryPointer = function(window: WINDOW): QueryPointerCooki
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<QueryPointerReply>(this.socket, requestParts, 38, false, true, unmarshallQueryPointerReply)
+  return this.sendRequest<QueryPointerReply>(requestParts, 38, true, unmarshallQueryPointerReply)
 }
 
 declare module './connection' {
@@ -4912,7 +5211,7 @@ XConnection.prototype.queryPointerUnchecked = function(window: WINDOW): QueryPoi
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<QueryPointerReply>(this.socket, requestParts, 38, false, false, unmarshallQueryPointerReply)
+  return this.sendRequest<QueryPointerReply>(requestParts, 38, false, unmarshallQueryPointerReply)
 }
 
 declare module './connection' {
@@ -4926,7 +5225,7 @@ XConnection.prototype.getMotionEvents = function(window: WINDOW, start: TIMESTAM
 
   requestParts.push(pack('<xx2xIII', window, start, stop))
 
-  return sendRequest<GetMotionEventsReply>(this.socket, requestParts, 39, false, true, unmarshallGetMotionEventsReply)
+  return this.sendRequest<GetMotionEventsReply>(requestParts, 39, true, unmarshallGetMotionEventsReply)
 }
 
 declare module './connection' {
@@ -4940,7 +5239,7 @@ XConnection.prototype.getMotionEventsUnchecked = function(window: WINDOW, start:
 
   requestParts.push(pack('<xx2xIII', window, start, stop))
 
-  return sendRequest<GetMotionEventsReply>(this.socket, requestParts, 39, false, false, unmarshallGetMotionEventsReply)
+  return this.sendRequest<GetMotionEventsReply>(requestParts, 39, false, unmarshallGetMotionEventsReply)
 }
 
 declare module './connection' {
@@ -4954,7 +5253,7 @@ XConnection.prototype.translateCoordinates = function(srcWindow: WINDOW, dstWind
 
   requestParts.push(pack('<xx2xIIhh', srcWindow, dstWindow, srcX, srcY))
 
-  return sendRequest<TranslateCoordinatesReply>(this.socket, requestParts, 40, false, true, unmarshallTranslateCoordinatesReply)
+  return this.sendRequest<TranslateCoordinatesReply>(requestParts, 40, true, unmarshallTranslateCoordinatesReply)
 }
 
 declare module './connection' {
@@ -4968,7 +5267,7 @@ XConnection.prototype.translateCoordinatesUnchecked = function(srcWindow: WINDOW
 
   requestParts.push(pack('<xx2xIIhh', srcWindow, dstWindow, srcX, srcY))
 
-  return sendRequest<TranslateCoordinatesReply>(this.socket, requestParts, 40, false, false, unmarshallTranslateCoordinatesReply)
+  return this.sendRequest<TranslateCoordinatesReply>(requestParts, 40, false, unmarshallTranslateCoordinatesReply)
 }
 
 declare module './connection' {
@@ -4982,7 +5281,7 @@ XConnection.prototype.warpPointerChecked = function(srcWindow: WINDOW, dstWindow
 
   requestParts.push(pack('<xx2xIIhhHHhh', srcWindow, dstWindow, srcX, srcY, srcWidth, srcHeight, dstX, dstY))
 
-  return sendRequest<void>(this.socket, requestParts, 41, true, true)
+  return this.sendRequest<void>(requestParts, 41, true)
 }
 
 declare module './connection' {
@@ -4996,8 +5295,9 @@ XConnection.prototype.warpPointer = function(srcWindow: WINDOW, dstWindow: WINDO
 
   requestParts.push(pack('<xx2xIIhhHHhh', srcWindow, dstWindow, srcX, srcY, srcWidth, srcHeight, dstX, dstY))
 
-  return sendRequest<void>(this.socket, requestParts, 41, true, false)
+  return this.sendRequest<void>(requestParts, 41, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5010,7 +5310,7 @@ XConnection.prototype.setInputFocusChecked = function(revertTo: InputFocus, focu
 
   requestParts.push(pack('<xB2xII', revertTo, focus, time))
 
-  return sendRequest<void>(this.socket, requestParts, 42, true, true)
+  return this.sendRequest<void>(requestParts, 42, true)
 }
 
 declare module './connection' {
@@ -5024,8 +5324,9 @@ XConnection.prototype.setInputFocus = function(revertTo: InputFocus, focus: WIND
 
   requestParts.push(pack('<xB2xII', revertTo, focus, time))
 
-  return sendRequest<void>(this.socket, requestParts, 42, true, false)
+  return this.sendRequest<void>(requestParts, 42, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5038,7 +5339,7 @@ XConnection.prototype.getInputFocus = function(): GetInputFocusCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetInputFocusReply>(this.socket, requestParts, 43, false, true, unmarshallGetInputFocusReply)
+  return this.sendRequest<GetInputFocusReply>(requestParts, 43, true, unmarshallGetInputFocusReply)
 }
 
 declare module './connection' {
@@ -5052,7 +5353,7 @@ XConnection.prototype.getInputFocusUnchecked = function(): GetInputFocusCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetInputFocusReply>(this.socket, requestParts, 43, false, false, unmarshallGetInputFocusReply)
+  return this.sendRequest<GetInputFocusReply>(requestParts, 43, false, unmarshallGetInputFocusReply)
 }
 
 declare module './connection' {
@@ -5066,7 +5367,7 @@ XConnection.prototype.queryKeymap = function(): QueryKeymapCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<QueryKeymapReply>(this.socket, requestParts, 44, false, true, unmarshallQueryKeymapReply)
+  return this.sendRequest<QueryKeymapReply>(requestParts, 44, true, unmarshallQueryKeymapReply)
 }
 
 declare module './connection' {
@@ -5080,7 +5381,7 @@ XConnection.prototype.queryKeymapUnchecked = function(): QueryKeymapCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<QueryKeymapReply>(this.socket, requestParts, 44, false, false, unmarshallQueryKeymapReply)
+  return this.sendRequest<QueryKeymapReply>(requestParts, 44, false, unmarshallQueryKeymapReply)
 }
 
 declare module './connection' {
@@ -5096,7 +5397,7 @@ XConnection.prototype.openFontChecked = function(fid: FONT, name: Int8Array): Pr
   requestParts.push(pack('<xx2xIH2x', fid, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 45, true, true)
+  return this.sendRequest<void>(requestParts, 45, true)
 }
 
 declare module './connection' {
@@ -5112,8 +5413,9 @@ XConnection.prototype.openFont = function(fid: FONT, name: Int8Array): Promise<v
   requestParts.push(pack('<xx2xIH2x', fid, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 45, true, false)
+  return this.sendRequest<void>(requestParts, 45, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5126,7 +5428,7 @@ XConnection.prototype.closeFontChecked = function(font: FONT): Promise<void> {
 
   requestParts.push(pack('<xx2xI', font))
 
-  return sendRequest<void>(this.socket, requestParts, 46, true, true)
+  return this.sendRequest<void>(requestParts, 46, true)
 }
 
 declare module './connection' {
@@ -5140,8 +5442,9 @@ XConnection.prototype.closeFont = function(font: FONT): Promise<void> {
 
   requestParts.push(pack('<xx2xI', font))
 
-  return sendRequest<void>(this.socket, requestParts, 46, true, false)
+  return this.sendRequest<void>(requestParts, 46, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5154,7 +5457,7 @@ XConnection.prototype.queryFont = function(font: FONTABLE): QueryFontCookie {
 
   requestParts.push(pack('<xx2xI', font))
 
-  return sendRequest<QueryFontReply>(this.socket, requestParts, 47, false, true, unmarshallQueryFontReply)
+  return this.sendRequest<QueryFontReply>(requestParts, 47, true, unmarshallQueryFontReply)
 }
 
 declare module './connection' {
@@ -5168,7 +5471,7 @@ XConnection.prototype.queryFontUnchecked = function(font: FONTABLE): QueryFontCo
 
   requestParts.push(pack('<xx2xI', font))
 
-  return sendRequest<QueryFontReply>(this.socket, requestParts, 47, false, false, unmarshallQueryFontReply)
+  return this.sendRequest<QueryFontReply>(requestParts, 47, false, unmarshallQueryFontReply)
 }
 
 declare module './connection' {
@@ -5188,7 +5491,7 @@ XConnection.prototype.queryTextExtents = function(font: FONTABLE, stringLen: num
 
   })
 
-  return sendRequest<QueryTextExtentsReply>(this.socket, requestParts, 48, false, true, unmarshallQueryTextExtentsReply)
+  return this.sendRequest<QueryTextExtentsReply>(requestParts, 48, true, unmarshallQueryTextExtentsReply)
 }
 
 declare module './connection' {
@@ -5208,7 +5511,7 @@ XConnection.prototype.queryTextExtentsUnchecked = function(font: FONTABLE, strin
 
   })
 
-  return sendRequest<QueryTextExtentsReply>(this.socket, requestParts, 48, false, false, unmarshallQueryTextExtentsReply)
+  return this.sendRequest<QueryTextExtentsReply>(requestParts, 48, false, unmarshallQueryTextExtentsReply)
 }
 
 declare module './connection' {
@@ -5224,7 +5527,7 @@ XConnection.prototype.listFonts = function(maxNames: number, pattern: Int8Array)
   requestParts.push(pack('<xx2xHH', maxNames, patternLen))
   requestParts.push(pattern.buffer)
 
-  return sendRequest<ListFontsReply>(this.socket, requestParts, 49, false, true, unmarshallListFontsReply)
+  return this.sendRequest<ListFontsReply>(requestParts, 49, true, unmarshallListFontsReply)
 }
 
 declare module './connection' {
@@ -5240,7 +5543,7 @@ XConnection.prototype.listFontsUnchecked = function(maxNames: number, pattern: I
   requestParts.push(pack('<xx2xHH', maxNames, patternLen))
   requestParts.push(pattern.buffer)
 
-  return sendRequest<ListFontsReply>(this.socket, requestParts, 49, false, false, unmarshallListFontsReply)
+  return this.sendRequest<ListFontsReply>(requestParts, 49, false, unmarshallListFontsReply)
 }
 
 declare module './connection' {
@@ -5256,7 +5559,7 @@ XConnection.prototype.listFontsWithInfo = function(maxNames: number, pattern: In
   requestParts.push(pack('<xx2xHH', maxNames, patternLen))
   requestParts.push(pattern.buffer)
 
-  return sendRequest<ListFontsWithInfoReply>(this.socket, requestParts, 50, false, true, unmarshallListFontsWithInfoReply)
+  return this.sendRequest<ListFontsWithInfoReply>(requestParts, 50, true, unmarshallListFontsWithInfoReply)
 }
 
 declare module './connection' {
@@ -5272,7 +5575,7 @@ XConnection.prototype.listFontsWithInfoUnchecked = function(maxNames: number, pa
   requestParts.push(pack('<xx2xHH', maxNames, patternLen))
   requestParts.push(pattern.buffer)
 
-  return sendRequest<ListFontsWithInfoReply>(this.socket, requestParts, 50, false, false, unmarshallListFontsWithInfoReply)
+  return this.sendRequest<ListFontsWithInfoReply>(requestParts, 50, false, unmarshallListFontsWithInfoReply)
 }
 
 declare module './connection' {
@@ -5292,7 +5595,7 @@ XConnection.prototype.setFontPathChecked = function(font: STR[]): Promise<void> 
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 51, true, true)
+  return this.sendRequest<void>(requestParts, 51, true)
 }
 
 declare module './connection' {
@@ -5312,8 +5615,9 @@ XConnection.prototype.setFontPath = function(font: STR[]): Promise<void> {
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 51, true, false)
+  return this.sendRequest<void>(requestParts, 51, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5326,7 +5630,7 @@ XConnection.prototype.getFontPath = function(): GetFontPathCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetFontPathReply>(this.socket, requestParts, 52, false, true, unmarshallGetFontPathReply)
+  return this.sendRequest<GetFontPathReply>(requestParts, 52, true, unmarshallGetFontPathReply)
 }
 
 declare module './connection' {
@@ -5340,7 +5644,7 @@ XConnection.prototype.getFontPathUnchecked = function(): GetFontPathCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetFontPathReply>(this.socket, requestParts, 52, false, false, unmarshallGetFontPathReply)
+  return this.sendRequest<GetFontPathReply>(requestParts, 52, false, unmarshallGetFontPathReply)
 }
 
 declare module './connection' {
@@ -5354,7 +5658,7 @@ XConnection.prototype.createPixmapChecked = function(depth: number, pid: PIXMAP,
 
   requestParts.push(pack('<xB2xIIHH', depth, pid, drawable, width, height))
 
-  return sendRequest<void>(this.socket, requestParts, 53, true, true)
+  return this.sendRequest<void>(requestParts, 53, true)
 }
 
 declare module './connection' {
@@ -5368,8 +5672,9 @@ XConnection.prototype.createPixmap = function(depth: number, pid: PIXMAP, drawab
 
   requestParts.push(pack('<xB2xIIHH', depth, pid, drawable, width, height))
 
-  return sendRequest<void>(this.socket, requestParts, 53, true, false)
+  return this.sendRequest<void>(requestParts, 53, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5382,7 +5687,7 @@ XConnection.prototype.freePixmapChecked = function(pixmap: PIXMAP): Promise<void
 
   requestParts.push(pack('<xx2xI', pixmap))
 
-  return sendRequest<void>(this.socket, requestParts, 54, true, true)
+  return this.sendRequest<void>(requestParts, 54, true)
 }
 
 declare module './connection' {
@@ -5396,8 +5701,9 @@ XConnection.prototype.freePixmap = function(pixmap: PIXMAP): Promise<void> {
 
   requestParts.push(pack('<xx2xI', pixmap))
 
-  return sendRequest<void>(this.socket, requestParts, 54, true, false)
+  return this.sendRequest<void>(requestParts, 54, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5470,7 +5776,7 @@ XConnection.prototype.createGCChecked = function(cid: GCONTEXT, drawable: DRAWAB
   requestParts.push(pack('<xx2xIII', cid, drawable, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 55, true, true)
+  return this.sendRequest<void>(requestParts, 55, true)
 }
 
 declare module './connection' {
@@ -5544,8 +5850,9 @@ XConnection.prototype.createGC = function(cid: GCONTEXT, drawable: DRAWABLE, val
   requestParts.push(pack('<xx2xIII', cid, drawable, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 55, true, false)
+  return this.sendRequest<void>(requestParts, 55, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5618,7 +5925,7 @@ XConnection.prototype.changeGCChecked = function(gc: GCONTEXT, valueList: Partia
   requestParts.push(pack('<xx2xII', gc, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 56, true, true)
+  return this.sendRequest<void>(requestParts, 56, true)
 }
 
 declare module './connection' {
@@ -5692,8 +5999,9 @@ XConnection.prototype.changeGC = function(gc: GCONTEXT, valueList: Partial<{ fun
   requestParts.push(pack('<xx2xII', gc, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 56, true, false)
+  return this.sendRequest<void>(requestParts, 56, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5706,7 +6014,7 @@ XConnection.prototype.copyGCChecked = function(srcGc: GCONTEXT, dstGc: GCONTEXT,
 
   requestParts.push(pack('<xx2xIII', srcGc, dstGc, valueMask))
 
-  return sendRequest<void>(this.socket, requestParts, 57, true, true)
+  return this.sendRequest<void>(requestParts, 57, true)
 }
 
 declare module './connection' {
@@ -5720,8 +6028,9 @@ XConnection.prototype.copyGC = function(srcGc: GCONTEXT, dstGc: GCONTEXT, valueM
 
   requestParts.push(pack('<xx2xIII', srcGc, dstGc, valueMask))
 
-  return sendRequest<void>(this.socket, requestParts, 57, true, false)
+  return this.sendRequest<void>(requestParts, 57, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5736,7 +6045,7 @@ XConnection.prototype.setDashesChecked = function(gc: GCONTEXT, dashOffset: numb
   requestParts.push(pack('<xx2xIHH', gc, dashOffset, dashesLen))
   requestParts.push(dashes.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 58, true, true)
+  return this.sendRequest<void>(requestParts, 58, true)
 }
 
 declare module './connection' {
@@ -5752,8 +6061,9 @@ XConnection.prototype.setDashes = function(gc: GCONTEXT, dashOffset: number, das
   requestParts.push(pack('<xx2xIHH', gc, dashOffset, dashesLen))
   requestParts.push(dashes.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 58, true, false)
+  return this.sendRequest<void>(requestParts, 58, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5770,7 +6080,7 @@ XConnection.prototype.setClipRectanglesChecked = function(ordering: ClipOrdering
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 59, true, true)
+  return this.sendRequest<void>(requestParts, 59, true)
 }
 
 declare module './connection' {
@@ -5788,8 +6098,9 @@ XConnection.prototype.setClipRectangles = function(ordering: ClipOrdering, gc: G
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 59, true, false)
+  return this.sendRequest<void>(requestParts, 59, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5802,7 +6113,7 @@ XConnection.prototype.freeGCChecked = function(gc: GCONTEXT): Promise<void> {
 
   requestParts.push(pack('<xx2xI', gc))
 
-  return sendRequest<void>(this.socket, requestParts, 60, true, true)
+  return this.sendRequest<void>(requestParts, 60, true)
 }
 
 declare module './connection' {
@@ -5816,8 +6127,9 @@ XConnection.prototype.freeGC = function(gc: GCONTEXT): Promise<void> {
 
   requestParts.push(pack('<xx2xI', gc))
 
-  return sendRequest<void>(this.socket, requestParts, 60, true, false)
+  return this.sendRequest<void>(requestParts, 60, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5830,7 +6142,7 @@ XConnection.prototype.clearAreaChecked = function(exposures: number, window: WIN
 
   requestParts.push(pack('<xB2xIhhHH', exposures, window, x, y, width, height))
 
-  return sendRequest<void>(this.socket, requestParts, 61, true, true)
+  return this.sendRequest<void>(requestParts, 61, true)
 }
 
 declare module './connection' {
@@ -5844,8 +6156,9 @@ XConnection.prototype.clearArea = function(exposures: number, window: WINDOW, x:
 
   requestParts.push(pack('<xB2xIhhHH', exposures, window, x, y, width, height))
 
-  return sendRequest<void>(this.socket, requestParts, 61, true, false)
+  return this.sendRequest<void>(requestParts, 61, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5858,7 +6171,7 @@ XConnection.prototype.copyAreaChecked = function(srcDrawable: DRAWABLE, dstDrawa
 
   requestParts.push(pack('<xx2xIIIhhhhHH', srcDrawable, dstDrawable, gc, srcX, srcY, dstX, dstY, width, height))
 
-  return sendRequest<void>(this.socket, requestParts, 62, true, true)
+  return this.sendRequest<void>(requestParts, 62, true)
 }
 
 declare module './connection' {
@@ -5872,8 +6185,9 @@ XConnection.prototype.copyArea = function(srcDrawable: DRAWABLE, dstDrawable: DR
 
   requestParts.push(pack('<xx2xIIIhhhhHH', srcDrawable, dstDrawable, gc, srcX, srcY, dstX, dstY, width, height))
 
-  return sendRequest<void>(this.socket, requestParts, 62, true, false)
+  return this.sendRequest<void>(requestParts, 62, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5886,7 +6200,7 @@ XConnection.prototype.copyPlaneChecked = function(srcDrawable: DRAWABLE, dstDraw
 
   requestParts.push(pack('<xx2xIIIhhhhHHI', srcDrawable, dstDrawable, gc, srcX, srcY, dstX, dstY, width, height, bitPlane))
 
-  return sendRequest<void>(this.socket, requestParts, 63, true, true)
+  return this.sendRequest<void>(requestParts, 63, true)
 }
 
 declare module './connection' {
@@ -5900,8 +6214,9 @@ XConnection.prototype.copyPlane = function(srcDrawable: DRAWABLE, dstDrawable: D
 
   requestParts.push(pack('<xx2xIIIhhhhHHI', srcDrawable, dstDrawable, gc, srcX, srcY, dstX, dstY, width, height, bitPlane))
 
-  return sendRequest<void>(this.socket, requestParts, 63, true, false)
+  return this.sendRequest<void>(requestParts, 63, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5918,7 +6233,7 @@ XConnection.prototype.polyPointChecked = function(coordinateMode: CoordMode, dra
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 64, true, true)
+  return this.sendRequest<void>(requestParts, 64, true)
 }
 
 declare module './connection' {
@@ -5936,8 +6251,9 @@ XConnection.prototype.polyPoint = function(coordinateMode: CoordMode, drawable: 
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 64, true, false)
+  return this.sendRequest<void>(requestParts, 64, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5954,7 +6270,7 @@ XConnection.prototype.polyLineChecked = function(coordinateMode: CoordMode, draw
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 65, true, true)
+  return this.sendRequest<void>(requestParts, 65, true)
 }
 
 declare module './connection' {
@@ -5972,8 +6288,9 @@ XConnection.prototype.polyLine = function(coordinateMode: CoordMode, drawable: D
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 65, true, false)
+  return this.sendRequest<void>(requestParts, 65, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -5990,7 +6307,7 @@ XConnection.prototype.polySegmentChecked = function(drawable: DRAWABLE, gc: GCON
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 66, true, true)
+  return this.sendRequest<void>(requestParts, 66, true)
 }
 
 declare module './connection' {
@@ -6008,8 +6325,9 @@ XConnection.prototype.polySegment = function(drawable: DRAWABLE, gc: GCONTEXT, s
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 66, true, false)
+  return this.sendRequest<void>(requestParts, 66, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6026,7 +6344,7 @@ XConnection.prototype.polyRectangleChecked = function(drawable: DRAWABLE, gc: GC
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 67, true, true)
+  return this.sendRequest<void>(requestParts, 67, true)
 }
 
 declare module './connection' {
@@ -6044,8 +6362,9 @@ XConnection.prototype.polyRectangle = function(drawable: DRAWABLE, gc: GCONTEXT,
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 67, true, false)
+  return this.sendRequest<void>(requestParts, 67, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6062,7 +6381,7 @@ XConnection.prototype.polyArcChecked = function(drawable: DRAWABLE, gc: GCONTEXT
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 68, true, true)
+  return this.sendRequest<void>(requestParts, 68, true)
 }
 
 declare module './connection' {
@@ -6080,8 +6399,9 @@ XConnection.prototype.polyArc = function(drawable: DRAWABLE, gc: GCONTEXT, arcsL
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 68, true, false)
+  return this.sendRequest<void>(requestParts, 68, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6098,7 +6418,7 @@ XConnection.prototype.fillPolyChecked = function(drawable: DRAWABLE, gc: GCONTEX
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 69, true, true)
+  return this.sendRequest<void>(requestParts, 69, true)
 }
 
 declare module './connection' {
@@ -6116,8 +6436,9 @@ XConnection.prototype.fillPoly = function(drawable: DRAWABLE, gc: GCONTEXT, shap
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 69, true, false)
+  return this.sendRequest<void>(requestParts, 69, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6134,7 +6455,7 @@ XConnection.prototype.polyFillRectangleChecked = function(drawable: DRAWABLE, gc
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 70, true, true)
+  return this.sendRequest<void>(requestParts, 70, true)
 }
 
 declare module './connection' {
@@ -6152,8 +6473,9 @@ XConnection.prototype.polyFillRectangle = function(drawable: DRAWABLE, gc: GCONT
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 70, true, false)
+  return this.sendRequest<void>(requestParts, 70, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6170,7 +6492,7 @@ XConnection.prototype.polyFillArcChecked = function(drawable: DRAWABLE, gc: GCON
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 71, true, true)
+  return this.sendRequest<void>(requestParts, 71, true)
 }
 
 declare module './connection' {
@@ -6188,8 +6510,9 @@ XConnection.prototype.polyFillArc = function(drawable: DRAWABLE, gc: GCONTEXT, a
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 71, true, false)
+  return this.sendRequest<void>(requestParts, 71, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6203,7 +6526,7 @@ XConnection.prototype.putImageChecked = function(format: ImageFormat, drawable: 
   requestParts.push(pack('<xB2xIIHHhhBB2x', format, drawable, gc, width, height, dstX, dstY, leftPad, depth))
   requestParts.push(data.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 72, true, true)
+  return this.sendRequest<void>(requestParts, 72, true)
 }
 
 declare module './connection' {
@@ -6218,8 +6541,9 @@ XConnection.prototype.putImage = function(format: ImageFormat, drawable: DRAWABL
   requestParts.push(pack('<xB2xIIHHhhBB2x', format, drawable, gc, width, height, dstX, dstY, leftPad, depth))
   requestParts.push(data.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 72, true, false)
+  return this.sendRequest<void>(requestParts, 72, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6232,7 +6556,7 @@ XConnection.prototype.getImage = function(format: ImageFormat, drawable: DRAWABL
 
   requestParts.push(pack('<xB2xIhhHHI', format, drawable, x, y, width, height, planeMask))
 
-  return sendRequest<GetImageReply>(this.socket, requestParts, 73, false, true, unmarshallGetImageReply)
+  return this.sendRequest<GetImageReply>(requestParts, 73, true, unmarshallGetImageReply)
 }
 
 declare module './connection' {
@@ -6246,7 +6570,7 @@ XConnection.prototype.getImageUnchecked = function(format: ImageFormat, drawable
 
   requestParts.push(pack('<xB2xIhhHHI', format, drawable, x, y, width, height, planeMask))
 
-  return sendRequest<GetImageReply>(this.socket, requestParts, 73, false, false, unmarshallGetImageReply)
+  return this.sendRequest<GetImageReply>(requestParts, 73, false, unmarshallGetImageReply)
 }
 
 declare module './connection' {
@@ -6261,7 +6585,7 @@ XConnection.prototype.polyText8Checked = function(drawable: DRAWABLE, gc: GCONTE
   requestParts.push(pack('<xx2xIIhh', drawable, gc, x, y))
   requestParts.push(items.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 74, true, true)
+  return this.sendRequest<void>(requestParts, 74, true)
 }
 
 declare module './connection' {
@@ -6276,8 +6600,9 @@ XConnection.prototype.polyText8 = function(drawable: DRAWABLE, gc: GCONTEXT, x: 
   requestParts.push(pack('<xx2xIIhh', drawable, gc, x, y))
   requestParts.push(items.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 74, true, false)
+  return this.sendRequest<void>(requestParts, 74, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6291,7 +6616,7 @@ XConnection.prototype.polyText16Checked = function(drawable: DRAWABLE, gc: GCONT
   requestParts.push(pack('<xx2xIIhh', drawable, gc, x, y))
   requestParts.push(items.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 75, true, true)
+  return this.sendRequest<void>(requestParts, 75, true)
 }
 
 declare module './connection' {
@@ -6306,8 +6631,9 @@ XConnection.prototype.polyText16 = function(drawable: DRAWABLE, gc: GCONTEXT, x:
   requestParts.push(pack('<xx2xIIhh', drawable, gc, x, y))
   requestParts.push(items.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 75, true, false)
+  return this.sendRequest<void>(requestParts, 75, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6322,7 +6648,7 @@ XConnection.prototype.imageText8Checked = function(drawable: DRAWABLE, gc: GCONT
   requestParts.push(pack('<xB2xIIhh', stringLen, drawable, gc, x, y))
   requestParts.push(_string.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 76, true, true)
+  return this.sendRequest<void>(requestParts, 76, true)
 }
 
 declare module './connection' {
@@ -6338,8 +6664,9 @@ XConnection.prototype.imageText8 = function(drawable: DRAWABLE, gc: GCONTEXT, x:
   requestParts.push(pack('<xB2xIIhh', stringLen, drawable, gc, x, y))
   requestParts.push(_string.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 76, true, false)
+  return this.sendRequest<void>(requestParts, 76, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6357,7 +6684,7 @@ XConnection.prototype.imageText16Checked = function(drawable: DRAWABLE, gc: GCON
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 77, true, true)
+  return this.sendRequest<void>(requestParts, 77, true)
 }
 
 declare module './connection' {
@@ -6376,8 +6703,9 @@ XConnection.prototype.imageText16 = function(drawable: DRAWABLE, gc: GCONTEXT, x
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 77, true, false)
+  return this.sendRequest<void>(requestParts, 77, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6390,7 +6718,7 @@ XConnection.prototype.createColormapChecked = function(alloc: ColormapAlloc, mid
 
   requestParts.push(pack('<xB2xIII', alloc, mid, window, visual))
 
-  return sendRequest<void>(this.socket, requestParts, 78, true, true)
+  return this.sendRequest<void>(requestParts, 78, true)
 }
 
 declare module './connection' {
@@ -6404,8 +6732,9 @@ XConnection.prototype.createColormap = function(alloc: ColormapAlloc, mid: COLOR
 
   requestParts.push(pack('<xB2xIII', alloc, mid, window, visual))
 
-  return sendRequest<void>(this.socket, requestParts, 78, true, false)
+  return this.sendRequest<void>(requestParts, 78, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6418,7 +6747,7 @@ XConnection.prototype.freeColormapChecked = function(cmap: COLORMAP): Promise<vo
 
   requestParts.push(pack('<xx2xI', cmap))
 
-  return sendRequest<void>(this.socket, requestParts, 79, true, true)
+  return this.sendRequest<void>(requestParts, 79, true)
 }
 
 declare module './connection' {
@@ -6432,8 +6761,9 @@ XConnection.prototype.freeColormap = function(cmap: COLORMAP): Promise<void> {
 
   requestParts.push(pack('<xx2xI', cmap))
 
-  return sendRequest<void>(this.socket, requestParts, 79, true, false)
+  return this.sendRequest<void>(requestParts, 79, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6446,7 +6776,7 @@ XConnection.prototype.copyColormapAndFreeChecked = function(mid: COLORMAP, srcCm
 
   requestParts.push(pack('<xx2xII', mid, srcCmap))
 
-  return sendRequest<void>(this.socket, requestParts, 80, true, true)
+  return this.sendRequest<void>(requestParts, 80, true)
 }
 
 declare module './connection' {
@@ -6460,8 +6790,9 @@ XConnection.prototype.copyColormapAndFree = function(mid: COLORMAP, srcCmap: COL
 
   requestParts.push(pack('<xx2xII', mid, srcCmap))
 
-  return sendRequest<void>(this.socket, requestParts, 80, true, false)
+  return this.sendRequest<void>(requestParts, 80, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6474,7 +6805,7 @@ XConnection.prototype.installColormapChecked = function(cmap: COLORMAP): Promise
 
   requestParts.push(pack('<xx2xI', cmap))
 
-  return sendRequest<void>(this.socket, requestParts, 81, true, true)
+  return this.sendRequest<void>(requestParts, 81, true)
 }
 
 declare module './connection' {
@@ -6488,8 +6819,9 @@ XConnection.prototype.installColormap = function(cmap: COLORMAP): Promise<void> 
 
   requestParts.push(pack('<xx2xI', cmap))
 
-  return sendRequest<void>(this.socket, requestParts, 81, true, false)
+  return this.sendRequest<void>(requestParts, 81, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6502,7 +6834,7 @@ XConnection.prototype.uninstallColormapChecked = function(cmap: COLORMAP): Promi
 
   requestParts.push(pack('<xx2xI', cmap))
 
-  return sendRequest<void>(this.socket, requestParts, 82, true, true)
+  return this.sendRequest<void>(requestParts, 82, true)
 }
 
 declare module './connection' {
@@ -6516,8 +6848,9 @@ XConnection.prototype.uninstallColormap = function(cmap: COLORMAP): Promise<void
 
   requestParts.push(pack('<xx2xI', cmap))
 
-  return sendRequest<void>(this.socket, requestParts, 82, true, false)
+  return this.sendRequest<void>(requestParts, 82, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6530,7 +6863,7 @@ XConnection.prototype.listInstalledColormaps = function(window: WINDOW): ListIns
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<ListInstalledColormapsReply>(this.socket, requestParts, 83, false, true, unmarshallListInstalledColormapsReply)
+  return this.sendRequest<ListInstalledColormapsReply>(requestParts, 83, true, unmarshallListInstalledColormapsReply)
 }
 
 declare module './connection' {
@@ -6544,7 +6877,7 @@ XConnection.prototype.listInstalledColormapsUnchecked = function(window: WINDOW)
 
   requestParts.push(pack('<xx2xI', window))
 
-  return sendRequest<ListInstalledColormapsReply>(this.socket, requestParts, 83, false, false, unmarshallListInstalledColormapsReply)
+  return this.sendRequest<ListInstalledColormapsReply>(requestParts, 83, false, unmarshallListInstalledColormapsReply)
 }
 
 declare module './connection' {
@@ -6558,7 +6891,7 @@ XConnection.prototype.allocColor = function(cmap: COLORMAP, red: number, green: 
 
   requestParts.push(pack('<xx2xIHHH2x', cmap, red, green, blue))
 
-  return sendRequest<AllocColorReply>(this.socket, requestParts, 84, false, true, unmarshallAllocColorReply)
+  return this.sendRequest<AllocColorReply>(requestParts, 84, true, unmarshallAllocColorReply)
 }
 
 declare module './connection' {
@@ -6572,7 +6905,7 @@ XConnection.prototype.allocColorUnchecked = function(cmap: COLORMAP, red: number
 
   requestParts.push(pack('<xx2xIHHH2x', cmap, red, green, blue))
 
-  return sendRequest<AllocColorReply>(this.socket, requestParts, 84, false, false, unmarshallAllocColorReply)
+  return this.sendRequest<AllocColorReply>(requestParts, 84, false, unmarshallAllocColorReply)
 }
 
 declare module './connection' {
@@ -6588,7 +6921,7 @@ XConnection.prototype.allocNamedColor = function(cmap: COLORMAP, name: Int8Array
   requestParts.push(pack('<xx2xIH2x', cmap, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<AllocNamedColorReply>(this.socket, requestParts, 85, false, true, unmarshallAllocNamedColorReply)
+  return this.sendRequest<AllocNamedColorReply>(requestParts, 85, true, unmarshallAllocNamedColorReply)
 }
 
 declare module './connection' {
@@ -6604,7 +6937,7 @@ XConnection.prototype.allocNamedColorUnchecked = function(cmap: COLORMAP, name: 
   requestParts.push(pack('<xx2xIH2x', cmap, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<AllocNamedColorReply>(this.socket, requestParts, 85, false, false, unmarshallAllocNamedColorReply)
+  return this.sendRequest<AllocNamedColorReply>(requestParts, 85, false, unmarshallAllocNamedColorReply)
 }
 
 declare module './connection' {
@@ -6618,7 +6951,7 @@ XConnection.prototype.allocColorCells = function(contiguous: number, cmap: COLOR
 
   requestParts.push(pack('<xB2xIHH', contiguous, cmap, colors, planes))
 
-  return sendRequest<AllocColorCellsReply>(this.socket, requestParts, 86, false, true, unmarshallAllocColorCellsReply)
+  return this.sendRequest<AllocColorCellsReply>(requestParts, 86, true, unmarshallAllocColorCellsReply)
 }
 
 declare module './connection' {
@@ -6632,7 +6965,7 @@ XConnection.prototype.allocColorCellsUnchecked = function(contiguous: number, cm
 
   requestParts.push(pack('<xB2xIHH', contiguous, cmap, colors, planes))
 
-  return sendRequest<AllocColorCellsReply>(this.socket, requestParts, 86, false, false, unmarshallAllocColorCellsReply)
+  return this.sendRequest<AllocColorCellsReply>(requestParts, 86, false, unmarshallAllocColorCellsReply)
 }
 
 declare module './connection' {
@@ -6646,7 +6979,7 @@ XConnection.prototype.allocColorPlanes = function(contiguous: number, cmap: COLO
 
   requestParts.push(pack('<xB2xIHHHH', contiguous, cmap, colors, reds, greens, blues))
 
-  return sendRequest<AllocColorPlanesReply>(this.socket, requestParts, 87, false, true, unmarshallAllocColorPlanesReply)
+  return this.sendRequest<AllocColorPlanesReply>(requestParts, 87, true, unmarshallAllocColorPlanesReply)
 }
 
 declare module './connection' {
@@ -6660,7 +6993,7 @@ XConnection.prototype.allocColorPlanesUnchecked = function(contiguous: number, c
 
   requestParts.push(pack('<xB2xIHHHH', contiguous, cmap, colors, reds, greens, blues))
 
-  return sendRequest<AllocColorPlanesReply>(this.socket, requestParts, 87, false, false, unmarshallAllocColorPlanesReply)
+  return this.sendRequest<AllocColorPlanesReply>(requestParts, 87, false, unmarshallAllocColorPlanesReply)
 }
 
 declare module './connection' {
@@ -6675,7 +7008,7 @@ XConnection.prototype.freeColorsChecked = function(cmap: COLORMAP, planeMask: nu
   requestParts.push(pack('<xx2xII', cmap, planeMask))
   requestParts.push(pixels.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 88, true, true)
+  return this.sendRequest<void>(requestParts, 88, true)
 }
 
 declare module './connection' {
@@ -6690,8 +7023,9 @@ XConnection.prototype.freeColors = function(cmap: COLORMAP, planeMask: number, p
   requestParts.push(pack('<xx2xII', cmap, planeMask))
   requestParts.push(pixels.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 88, true, false)
+  return this.sendRequest<void>(requestParts, 88, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6708,7 +7042,7 @@ XConnection.prototype.storeColorsChecked = function(cmap: COLORMAP, itemsLen: nu
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 89, true, true)
+  return this.sendRequest<void>(requestParts, 89, true)
 }
 
 declare module './connection' {
@@ -6726,8 +7060,9 @@ XConnection.prototype.storeColors = function(cmap: COLORMAP, itemsLen: number, i
 
   })
 
-  return sendRequest<void>(this.socket, requestParts, 89, true, false)
+  return this.sendRequest<void>(requestParts, 89, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6742,7 +7077,7 @@ XConnection.prototype.storeNamedColorChecked = function(flags: number, cmap: COL
   requestParts.push(pack('<xB2xIIH2x', flags, cmap, pixel, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 90, true, true)
+  return this.sendRequest<void>(requestParts, 90, true)
 }
 
 declare module './connection' {
@@ -6758,8 +7093,9 @@ XConnection.prototype.storeNamedColor = function(flags: number, cmap: COLORMAP, 
   requestParts.push(pack('<xB2xIIH2x', flags, cmap, pixel, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 90, true, false)
+  return this.sendRequest<void>(requestParts, 90, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6773,7 +7109,7 @@ XConnection.prototype.queryColors = function(cmap: COLORMAP, pixelsLen: number, 
   requestParts.push(pack('<xx2xI', cmap))
   requestParts.push(pixels.buffer)
 
-  return sendRequest<QueryColorsReply>(this.socket, requestParts, 91, false, true, unmarshallQueryColorsReply)
+  return this.sendRequest<QueryColorsReply>(requestParts, 91, true, unmarshallQueryColorsReply)
 }
 
 declare module './connection' {
@@ -6788,7 +7124,7 @@ XConnection.prototype.queryColorsUnchecked = function(cmap: COLORMAP, pixelsLen:
   requestParts.push(pack('<xx2xI', cmap))
   requestParts.push(pixels.buffer)
 
-  return sendRequest<QueryColorsReply>(this.socket, requestParts, 91, false, false, unmarshallQueryColorsReply)
+  return this.sendRequest<QueryColorsReply>(requestParts, 91, false, unmarshallQueryColorsReply)
 }
 
 declare module './connection' {
@@ -6804,7 +7140,7 @@ XConnection.prototype.lookupColor = function(cmap: COLORMAP, name: Int8Array): L
   requestParts.push(pack('<xx2xIH2x', cmap, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<LookupColorReply>(this.socket, requestParts, 92, false, true, unmarshallLookupColorReply)
+  return this.sendRequest<LookupColorReply>(requestParts, 92, true, unmarshallLookupColorReply)
 }
 
 declare module './connection' {
@@ -6820,7 +7156,7 @@ XConnection.prototype.lookupColorUnchecked = function(cmap: COLORMAP, name: Int8
   requestParts.push(pack('<xx2xIH2x', cmap, nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<LookupColorReply>(this.socket, requestParts, 92, false, false, unmarshallLookupColorReply)
+  return this.sendRequest<LookupColorReply>(requestParts, 92, false, unmarshallLookupColorReply)
 }
 
 declare module './connection' {
@@ -6834,7 +7170,7 @@ XConnection.prototype.createCursorChecked = function(cid: CURSOR, source: PIXMAP
 
   requestParts.push(pack('<xx2xIIIHHHHHHHH', cid, source, mask, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue, x, y))
 
-  return sendRequest<void>(this.socket, requestParts, 93, true, true)
+  return this.sendRequest<void>(requestParts, 93, true)
 }
 
 declare module './connection' {
@@ -6848,8 +7184,9 @@ XConnection.prototype.createCursor = function(cid: CURSOR, source: PIXMAP, mask:
 
   requestParts.push(pack('<xx2xIIIHHHHHHHH', cid, source, mask, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue, x, y))
 
-  return sendRequest<void>(this.socket, requestParts, 93, true, false)
+  return this.sendRequest<void>(requestParts, 93, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6862,7 +7199,7 @@ XConnection.prototype.createGlyphCursorChecked = function(cid: CURSOR, sourceFon
 
   requestParts.push(pack('<xx2xIIIHHHHHHHH', cid, sourceFont, maskFont, sourceChar, maskChar, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue))
 
-  return sendRequest<void>(this.socket, requestParts, 94, true, true)
+  return this.sendRequest<void>(requestParts, 94, true)
 }
 
 declare module './connection' {
@@ -6876,8 +7213,9 @@ XConnection.prototype.createGlyphCursor = function(cid: CURSOR, sourceFont: FONT
 
   requestParts.push(pack('<xx2xIIIHHHHHHHH', cid, sourceFont, maskFont, sourceChar, maskChar, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue))
 
-  return sendRequest<void>(this.socket, requestParts, 94, true, false)
+  return this.sendRequest<void>(requestParts, 94, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6890,7 +7228,7 @@ XConnection.prototype.freeCursorChecked = function(cursor: CURSOR): Promise<void
 
   requestParts.push(pack('<xx2xI', cursor))
 
-  return sendRequest<void>(this.socket, requestParts, 95, true, true)
+  return this.sendRequest<void>(requestParts, 95, true)
 }
 
 declare module './connection' {
@@ -6904,8 +7242,9 @@ XConnection.prototype.freeCursor = function(cursor: CURSOR): Promise<void> {
 
   requestParts.push(pack('<xx2xI', cursor))
 
-  return sendRequest<void>(this.socket, requestParts, 95, true, false)
+  return this.sendRequest<void>(requestParts, 95, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6918,7 +7257,7 @@ XConnection.prototype.recolorCursorChecked = function(cursor: CURSOR, foreRed: n
 
   requestParts.push(pack('<xx2xIHHHHHH', cursor, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue))
 
-  return sendRequest<void>(this.socket, requestParts, 96, true, true)
+  return this.sendRequest<void>(requestParts, 96, true)
 }
 
 declare module './connection' {
@@ -6932,8 +7271,9 @@ XConnection.prototype.recolorCursor = function(cursor: CURSOR, foreRed: number, 
 
   requestParts.push(pack('<xx2xIHHHHHH', cursor, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue))
 
-  return sendRequest<void>(this.socket, requestParts, 96, true, false)
+  return this.sendRequest<void>(requestParts, 96, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -6946,7 +7286,7 @@ XConnection.prototype.queryBestSize = function(_class: QueryShapeOf, drawable: D
 
   requestParts.push(pack('<xB2xIHH', _class, drawable, width, height))
 
-  return sendRequest<QueryBestSizeReply>(this.socket, requestParts, 97, false, true, unmarshallQueryBestSizeReply)
+  return this.sendRequest<QueryBestSizeReply>(requestParts, 97, true, unmarshallQueryBestSizeReply)
 }
 
 declare module './connection' {
@@ -6960,7 +7300,7 @@ XConnection.prototype.queryBestSizeUnchecked = function(_class: QueryShapeOf, dr
 
   requestParts.push(pack('<xB2xIHH', _class, drawable, width, height))
 
-  return sendRequest<QueryBestSizeReply>(this.socket, requestParts, 97, false, false, unmarshallQueryBestSizeReply)
+  return this.sendRequest<QueryBestSizeReply>(requestParts, 97, false, unmarshallQueryBestSizeReply)
 }
 
 declare module './connection' {
@@ -6976,7 +7316,7 @@ XConnection.prototype.queryExtension = function(name: Int8Array): QueryExtension
   requestParts.push(pack('<xx2xH2x', nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<QueryExtensionReply>(this.socket, requestParts, 98, false, true, unmarshallQueryExtensionReply)
+  return this.sendRequest<QueryExtensionReply>(requestParts, 98, true, unmarshallQueryExtensionReply)
 }
 
 declare module './connection' {
@@ -6992,7 +7332,7 @@ XConnection.prototype.queryExtensionUnchecked = function(name: Int8Array): Query
   requestParts.push(pack('<xx2xH2x', nameLen))
   requestParts.push(name.buffer)
 
-  return sendRequest<QueryExtensionReply>(this.socket, requestParts, 98, false, false, unmarshallQueryExtensionReply)
+  return this.sendRequest<QueryExtensionReply>(requestParts, 98, false, unmarshallQueryExtensionReply)
 }
 
 declare module './connection' {
@@ -7006,7 +7346,7 @@ XConnection.prototype.listExtensions = function(): ListExtensionsCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<ListExtensionsReply>(this.socket, requestParts, 99, false, true, unmarshallListExtensionsReply)
+  return this.sendRequest<ListExtensionsReply>(requestParts, 99, true, unmarshallListExtensionsReply)
 }
 
 declare module './connection' {
@@ -7020,7 +7360,7 @@ XConnection.prototype.listExtensionsUnchecked = function(): ListExtensionsCookie
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<ListExtensionsReply>(this.socket, requestParts, 99, false, false, unmarshallListExtensionsReply)
+  return this.sendRequest<ListExtensionsReply>(requestParts, 99, false, unmarshallListExtensionsReply)
 }
 
 declare module './connection' {
@@ -7036,7 +7376,7 @@ XConnection.prototype.changeKeyboardMappingChecked = function(firstKeycode: KEYC
   requestParts.push(pack('<xB2xBB2x', keycodeCount, firstKeycode, keysymsPerKeycode))
   requestParts.push(keysyms.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 100, true, true)
+  return this.sendRequest<void>(requestParts, 100, true)
 }
 
 declare module './connection' {
@@ -7052,8 +7392,9 @@ XConnection.prototype.changeKeyboardMapping = function(firstKeycode: KEYCODE, ke
   requestParts.push(pack('<xB2xBB2x', keycodeCount, firstKeycode, keysymsPerKeycode))
   requestParts.push(keysyms.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 100, true, false)
+  return this.sendRequest<void>(requestParts, 100, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7066,7 +7407,7 @@ XConnection.prototype.getKeyboardMapping = function(firstKeycode: KEYCODE, count
 
   requestParts.push(pack('<xx2xBB', firstKeycode, count))
 
-  return sendRequest<GetKeyboardMappingReply>(this.socket, requestParts, 101, false, true, unmarshallGetKeyboardMappingReply)
+  return this.sendRequest<GetKeyboardMappingReply>(requestParts, 101, true, unmarshallGetKeyboardMappingReply)
 }
 
 declare module './connection' {
@@ -7080,7 +7421,7 @@ XConnection.prototype.getKeyboardMappingUnchecked = function(firstKeycode: KEYCO
 
   requestParts.push(pack('<xx2xBB', firstKeycode, count))
 
-  return sendRequest<GetKeyboardMappingReply>(this.socket, requestParts, 101, false, false, unmarshallGetKeyboardMappingReply)
+  return this.sendRequest<GetKeyboardMappingReply>(requestParts, 101, false, unmarshallGetKeyboardMappingReply)
 }
 
 declare module './connection' {
@@ -7124,7 +7465,7 @@ XConnection.prototype.changeKeyboardControlChecked = function(valueList: Partial
   requestParts.push(pack('<xx2xI', valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 102, true, true)
+  return this.sendRequest<void>(requestParts, 102, true)
 }
 
 declare module './connection' {
@@ -7168,8 +7509,9 @@ XConnection.prototype.changeKeyboardControl = function(valueList: Partial<{ keyC
   requestParts.push(pack('<xx2xI', valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return sendRequest<void>(this.socket, requestParts, 102, true, false)
+  return this.sendRequest<void>(requestParts, 102, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7182,7 +7524,7 @@ XConnection.prototype.getKeyboardControl = function(): GetKeyboardControlCookie 
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetKeyboardControlReply>(this.socket, requestParts, 103, false, true, unmarshallGetKeyboardControlReply)
+  return this.sendRequest<GetKeyboardControlReply>(requestParts, 103, true, unmarshallGetKeyboardControlReply)
 }
 
 declare module './connection' {
@@ -7196,7 +7538,7 @@ XConnection.prototype.getKeyboardControlUnchecked = function(): GetKeyboardContr
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetKeyboardControlReply>(this.socket, requestParts, 103, false, false, unmarshallGetKeyboardControlReply)
+  return this.sendRequest<GetKeyboardControlReply>(requestParts, 103, false, unmarshallGetKeyboardControlReply)
 }
 
 declare module './connection' {
@@ -7210,7 +7552,7 @@ XConnection.prototype.bellChecked = function(percent: number): Promise<void> {
 
   requestParts.push(pack('<xb2x', percent))
 
-  return sendRequest<void>(this.socket, requestParts, 104, true, true)
+  return this.sendRequest<void>(requestParts, 104, true)
 }
 
 declare module './connection' {
@@ -7224,8 +7566,9 @@ XConnection.prototype.bell = function(percent: number): Promise<void> {
 
   requestParts.push(pack('<xb2x', percent))
 
-  return sendRequest<void>(this.socket, requestParts, 104, true, false)
+  return this.sendRequest<void>(requestParts, 104, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7238,7 +7581,7 @@ XConnection.prototype.changePointerControlChecked = function(accelerationNumerat
 
   requestParts.push(pack('<xx2xhhhBB', accelerationNumerator, accelerationDenominator, threshold, doAcceleration, doThreshold))
 
-  return sendRequest<void>(this.socket, requestParts, 105, true, true)
+  return this.sendRequest<void>(requestParts, 105, true)
 }
 
 declare module './connection' {
@@ -7252,8 +7595,9 @@ XConnection.prototype.changePointerControl = function(accelerationNumerator: num
 
   requestParts.push(pack('<xx2xhhhBB', accelerationNumerator, accelerationDenominator, threshold, doAcceleration, doThreshold))
 
-  return sendRequest<void>(this.socket, requestParts, 105, true, false)
+  return this.sendRequest<void>(requestParts, 105, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7266,7 +7610,7 @@ XConnection.prototype.getPointerControl = function(): GetPointerControlCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetPointerControlReply>(this.socket, requestParts, 106, false, true, unmarshallGetPointerControlReply)
+  return this.sendRequest<GetPointerControlReply>(requestParts, 106, true, unmarshallGetPointerControlReply)
 }
 
 declare module './connection' {
@@ -7280,7 +7624,7 @@ XConnection.prototype.getPointerControlUnchecked = function(): GetPointerControl
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetPointerControlReply>(this.socket, requestParts, 106, false, false, unmarshallGetPointerControlReply)
+  return this.sendRequest<GetPointerControlReply>(requestParts, 106, false, unmarshallGetPointerControlReply)
 }
 
 declare module './connection' {
@@ -7294,7 +7638,7 @@ XConnection.prototype.setScreenSaverChecked = function(timeout: number, interval
 
   requestParts.push(pack('<xx2xhhBB', timeout, interval, preferBlanking, allowExposures))
 
-  return sendRequest<void>(this.socket, requestParts, 107, true, true)
+  return this.sendRequest<void>(requestParts, 107, true)
 }
 
 declare module './connection' {
@@ -7308,8 +7652,9 @@ XConnection.prototype.setScreenSaver = function(timeout: number, interval: numbe
 
   requestParts.push(pack('<xx2xhhBB', timeout, interval, preferBlanking, allowExposures))
 
-  return sendRequest<void>(this.socket, requestParts, 107, true, false)
+  return this.sendRequest<void>(requestParts, 107, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7322,7 +7667,7 @@ XConnection.prototype.getScreenSaver = function(): GetScreenSaverCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetScreenSaverReply>(this.socket, requestParts, 108, false, true, unmarshallGetScreenSaverReply)
+  return this.sendRequest<GetScreenSaverReply>(requestParts, 108, true, unmarshallGetScreenSaverReply)
 }
 
 declare module './connection' {
@@ -7336,7 +7681,7 @@ XConnection.prototype.getScreenSaverUnchecked = function(): GetScreenSaverCookie
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetScreenSaverReply>(this.socket, requestParts, 108, false, false, unmarshallGetScreenSaverReply)
+  return this.sendRequest<GetScreenSaverReply>(requestParts, 108, false, unmarshallGetScreenSaverReply)
 }
 
 declare module './connection' {
@@ -7352,7 +7697,7 @@ XConnection.prototype.changeHostsChecked = function(mode: HostMode, family: Fami
   requestParts.push(pack('<xB2xBxH', mode, family, addressLen))
   requestParts.push(address.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 109, true, true)
+  return this.sendRequest<void>(requestParts, 109, true)
 }
 
 declare module './connection' {
@@ -7368,8 +7713,9 @@ XConnection.prototype.changeHosts = function(mode: HostMode, family: Family, add
   requestParts.push(pack('<xB2xBxH', mode, family, addressLen))
   requestParts.push(address.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 109, true, false)
+  return this.sendRequest<void>(requestParts, 109, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7382,7 +7728,7 @@ XConnection.prototype.listHosts = function(): ListHostsCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<ListHostsReply>(this.socket, requestParts, 110, false, true, unmarshallListHostsReply)
+  return this.sendRequest<ListHostsReply>(requestParts, 110, true, unmarshallListHostsReply)
 }
 
 declare module './connection' {
@@ -7396,7 +7742,7 @@ XConnection.prototype.listHostsUnchecked = function(): ListHostsCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<ListHostsReply>(this.socket, requestParts, 110, false, false, unmarshallListHostsReply)
+  return this.sendRequest<ListHostsReply>(requestParts, 110, false, unmarshallListHostsReply)
 }
 
 declare module './connection' {
@@ -7410,7 +7756,7 @@ XConnection.prototype.setAccessControlChecked = function(mode: AccessControl): P
 
   requestParts.push(pack('<xB2x', mode))
 
-  return sendRequest<void>(this.socket, requestParts, 111, true, true)
+  return this.sendRequest<void>(requestParts, 111, true)
 }
 
 declare module './connection' {
@@ -7424,8 +7770,9 @@ XConnection.prototype.setAccessControl = function(mode: AccessControl): Promise<
 
   requestParts.push(pack('<xB2x', mode))
 
-  return sendRequest<void>(this.socket, requestParts, 111, true, false)
+  return this.sendRequest<void>(requestParts, 111, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7438,7 +7785,7 @@ XConnection.prototype.setCloseDownModeChecked = function(mode: CloseDown): Promi
 
   requestParts.push(pack('<xB2x', mode))
 
-  return sendRequest<void>(this.socket, requestParts, 112, true, true)
+  return this.sendRequest<void>(requestParts, 112, true)
 }
 
 declare module './connection' {
@@ -7452,8 +7799,9 @@ XConnection.prototype.setCloseDownMode = function(mode: CloseDown): Promise<void
 
   requestParts.push(pack('<xB2x', mode))
 
-  return sendRequest<void>(this.socket, requestParts, 112, true, false)
+  return this.sendRequest<void>(requestParts, 112, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7466,7 +7814,7 @@ XConnection.prototype.killClientChecked = function(resource: number): Promise<vo
 
   requestParts.push(pack('<xx2xI', resource))
 
-  return sendRequest<void>(this.socket, requestParts, 113, true, true)
+  return this.sendRequest<void>(requestParts, 113, true)
 }
 
 declare module './connection' {
@@ -7480,8 +7828,9 @@ XConnection.prototype.killClient = function(resource: number): Promise<void> {
 
   requestParts.push(pack('<xx2xI', resource))
 
-  return sendRequest<void>(this.socket, requestParts, 113, true, false)
+  return this.sendRequest<void>(requestParts, 113, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7496,7 +7845,7 @@ XConnection.prototype.rotatePropertiesChecked = function(window: WINDOW, delta: 
   requestParts.push(pack('<xx2xIHh', window, atomsLen, delta))
   requestParts.push(atoms.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 114, true, true)
+  return this.sendRequest<void>(requestParts, 114, true)
 }
 
 declare module './connection' {
@@ -7512,8 +7861,9 @@ XConnection.prototype.rotateProperties = function(window: WINDOW, delta: number,
   requestParts.push(pack('<xx2xIHh', window, atomsLen, delta))
   requestParts.push(atoms.buffer)
 
-  return sendRequest<void>(this.socket, requestParts, 114, true, false)
+  return this.sendRequest<void>(requestParts, 114, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7526,7 +7876,7 @@ XConnection.prototype.forceScreenSaverChecked = function(mode: ScreenSaver): Pro
 
   requestParts.push(pack('<xB2x', mode))
 
-  return sendRequest<void>(this.socket, requestParts, 115, true, true)
+  return this.sendRequest<void>(requestParts, 115, true)
 }
 
 declare module './connection' {
@@ -7540,8 +7890,9 @@ XConnection.prototype.forceScreenSaver = function(mode: ScreenSaver): Promise<vo
 
   requestParts.push(pack('<xB2x', mode))
 
-  return sendRequest<void>(this.socket, requestParts, 115, true, false)
+  return this.sendRequest<void>(requestParts, 115, false)
 }
+
 
 declare module './connection' {
   interface XConnection {
@@ -7556,7 +7907,7 @@ XConnection.prototype.setPointerMapping = function(map: Uint8Array): SetPointerM
   requestParts.push(pack('<xB2x', mapLen))
   requestParts.push(map.buffer)
 
-  return sendRequest<SetPointerMappingReply>(this.socket, requestParts, 116, false, true, unmarshallSetPointerMappingReply)
+  return this.sendRequest<SetPointerMappingReply>(requestParts, 116, true, unmarshallSetPointerMappingReply)
 }
 
 declare module './connection' {
@@ -7572,7 +7923,7 @@ XConnection.prototype.setPointerMappingUnchecked = function(map: Uint8Array): Se
   requestParts.push(pack('<xB2x', mapLen))
   requestParts.push(map.buffer)
 
-  return sendRequest<SetPointerMappingReply>(this.socket, requestParts, 116, false, false, unmarshallSetPointerMappingReply)
+  return this.sendRequest<SetPointerMappingReply>(requestParts, 116, false, unmarshallSetPointerMappingReply)
 }
 
 declare module './connection' {
@@ -7586,7 +7937,7 @@ XConnection.prototype.getPointerMapping = function(): GetPointerMappingCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetPointerMappingReply>(this.socket, requestParts, 117, false, true, unmarshallGetPointerMappingReply)
+  return this.sendRequest<GetPointerMappingReply>(requestParts, 117, true, unmarshallGetPointerMappingReply)
 }
 
 declare module './connection' {
@@ -7600,7 +7951,7 @@ XConnection.prototype.getPointerMappingUnchecked = function(): GetPointerMapping
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetPointerMappingReply>(this.socket, requestParts, 117, false, false, unmarshallGetPointerMappingReply)
+  return this.sendRequest<GetPointerMappingReply>(requestParts, 117, false, unmarshallGetPointerMappingReply)
 }
 
 declare module './connection' {
@@ -7616,7 +7967,7 @@ XConnection.prototype.setModifierMapping = function(keycodes: Uint8Array): SetMo
   requestParts.push(pack('<xB2x', keycodesPerModifier))
   requestParts.push(keycodes.buffer)
 
-  return sendRequest<SetModifierMappingReply>(this.socket, requestParts, 118, false, true, unmarshallSetModifierMappingReply)
+  return this.sendRequest<SetModifierMappingReply>(requestParts, 118, true, unmarshallSetModifierMappingReply)
 }
 
 declare module './connection' {
@@ -7632,7 +7983,7 @@ XConnection.prototype.setModifierMappingUnchecked = function(keycodes: Uint8Arra
   requestParts.push(pack('<xB2x', keycodesPerModifier))
   requestParts.push(keycodes.buffer)
 
-  return sendRequest<SetModifierMappingReply>(this.socket, requestParts, 118, false, false, unmarshallSetModifierMappingReply)
+  return this.sendRequest<SetModifierMappingReply>(requestParts, 118, false, unmarshallSetModifierMappingReply)
 }
 
 declare module './connection' {
@@ -7646,7 +7997,7 @@ XConnection.prototype.getModifierMapping = function(): GetModifierMappingCookie 
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetModifierMappingReply>(this.socket, requestParts, 119, false, true, unmarshallGetModifierMappingReply)
+  return this.sendRequest<GetModifierMappingReply>(requestParts, 119, true, unmarshallGetModifierMappingReply)
 }
 
 declare module './connection' {
@@ -7660,7 +8011,7 @@ XConnection.prototype.getModifierMappingUnchecked = function(): GetModifierMappi
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<GetModifierMappingReply>(this.socket, requestParts, 119, false, false, unmarshallGetModifierMappingReply)
+  return this.sendRequest<GetModifierMappingReply>(requestParts, 119, false, unmarshallGetModifierMappingReply)
 }
 
 declare module './connection' {
@@ -7674,7 +8025,7 @@ XConnection.prototype.noOperationChecked = function(): Promise<void> {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<void>(this.socket, requestParts, 127, true, true)
+  return this.sendRequest<void>(requestParts, 127, true)
 }
 
 declare module './connection' {
@@ -7688,62 +8039,159 @@ XConnection.prototype.noOperation = function(): Promise<void> {
 
   requestParts.push(pack('<xx2x', ))
 
-  return sendRequest<void>(this.socket, requestParts, 127, true, false)
-}
-export const events = {
-    2 : unmarshallKeyPressEvent,
-    3 : unmarshallKeyReleaseEvent,
-    4 : unmarshallButtonPressEvent,
-    5 : unmarshallButtonReleaseEvent,
-    6 : unmarshallMotionNotifyEvent,
-    7 : unmarshallEnterNotifyEvent,
-    8 : unmarshallLeaveNotifyEvent,
-    9 : unmarshallFocusInEvent,
-    10 : unmarshallFocusOutEvent,
-    11 : unmarshallKeymapNotifyEvent,
-    12 : unmarshallExposeEvent,
-    13 : unmarshallGraphicsExposureEvent,
-    14 : unmarshallNoExposureEvent,
-    15 : unmarshallVisibilityNotifyEvent,
-    16 : unmarshallCreateNotifyEvent,
-    17 : unmarshallDestroyNotifyEvent,
-    18 : unmarshallUnmapNotifyEvent,
-    19 : unmarshallMapNotifyEvent,
-    20 : unmarshallMapRequestEvent,
-    21 : unmarshallReparentNotifyEvent,
-    22 : unmarshallConfigureNotifyEvent,
-    23 : unmarshallConfigureRequestEvent,
-    24 : unmarshallGravityNotifyEvent,
-    25 : unmarshallResizeRequestEvent,
-    26 : unmarshallCirculateNotifyEvent,
-    27 : unmarshallCirculateRequestEvent,
-    28 : unmarshallPropertyNotifyEvent,
-    29 : unmarshallSelectionClearEvent,
-    30 : unmarshallSelectionRequestEvent,
-    31 : unmarshallSelectionNotifyEvent,
-    32 : unmarshallColormapNotifyEvent,
-    33 : unmarshallClientMessageEvent,
-    34 : unmarshallMappingNotifyEvent,
-    35 : unmarshallGeGenericEvent,
+  return this.sendRequest<void>(requestParts, 127, false)
 }
 
-export const errors = {
-    1 : [unmarshallRequestError, BadRequest],
-    2 : [unmarshallValueError, BadValue],
-    3 : [unmarshallWindowError, BadWindow],
-    4 : [unmarshallPixmapError, BadPixmap],
-    5 : [unmarshallAtomError, BadAtom],
-    6 : [unmarshallCursorError, BadCursor],
-    7 : [unmarshallFontError, BadFont],
-    8 : [unmarshallMatchError, BadMatch],
-    9 : [unmarshallDrawableError, BadDrawable],
-    10 : [unmarshallAccessError, BadAccess],
-    11 : [unmarshallAllocError, BadAlloc],
-    12 : [unmarshallColormapError, BadColormap],
-    13 : [unmarshallGContextError, BadGContext],
-    14 : [unmarshallIDChoiceError, BadIDChoice],
-    15 : [unmarshallNameError, BadName],
-    16 : [unmarshallLengthError, BadLength],
-    17 : [unmarshallImplementationError, BadImplementation],
+events[2] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallKeyPressEvent(rawEvent, 0).value
+  xConnection.onKeyPressEvent?.(event)
 }
-
+events[3] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallKeyReleaseEvent(rawEvent, 0).value
+  xConnection.onKeyReleaseEvent?.(event)
+}
+events[4] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallButtonPressEvent(rawEvent, 0).value
+  xConnection.onButtonPressEvent?.(event)
+}
+events[5] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallButtonReleaseEvent(rawEvent, 0).value
+  xConnection.onButtonReleaseEvent?.(event)
+}
+events[6] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallMotionNotifyEvent(rawEvent, 0).value
+  xConnection.onMotionNotifyEvent?.(event)
+}
+events[7] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallEnterNotifyEvent(rawEvent, 0).value
+  xConnection.onEnterNotifyEvent?.(event)
+}
+events[8] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallLeaveNotifyEvent(rawEvent, 0).value
+  xConnection.onLeaveNotifyEvent?.(event)
+}
+events[9] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallFocusInEvent(rawEvent, 0).value
+  xConnection.onFocusInEvent?.(event)
+}
+events[10] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallFocusOutEvent(rawEvent, 0).value
+  xConnection.onFocusOutEvent?.(event)
+}
+events[11] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallKeymapNotifyEvent(rawEvent, 0).value
+  xConnection.onKeymapNotifyEvent?.(event)
+}
+events[12] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallExposeEvent(rawEvent, 0).value
+  xConnection.onExposeEvent?.(event)
+}
+events[13] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallGraphicsExposureEvent(rawEvent, 0).value
+  xConnection.onGraphicsExposureEvent?.(event)
+}
+events[14] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallNoExposureEvent(rawEvent, 0).value
+  xConnection.onNoExposureEvent?.(event)
+}
+events[15] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallVisibilityNotifyEvent(rawEvent, 0).value
+  xConnection.onVisibilityNotifyEvent?.(event)
+}
+events[16] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallCreateNotifyEvent(rawEvent, 0).value
+  xConnection.onCreateNotifyEvent?.(event)
+}
+events[17] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallDestroyNotifyEvent(rawEvent, 0).value
+  xConnection.onDestroyNotifyEvent?.(event)
+}
+events[18] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallUnmapNotifyEvent(rawEvent, 0).value
+  xConnection.onUnmapNotifyEvent?.(event)
+}
+events[19] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallMapNotifyEvent(rawEvent, 0).value
+  xConnection.onMapNotifyEvent?.(event)
+}
+events[20] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallMapRequestEvent(rawEvent, 0).value
+  xConnection.onMapRequestEvent?.(event)
+}
+events[21] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallReparentNotifyEvent(rawEvent, 0).value
+  xConnection.onReparentNotifyEvent?.(event)
+}
+events[22] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallConfigureNotifyEvent(rawEvent, 0).value
+  xConnection.onConfigureNotifyEvent?.(event)
+}
+events[23] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallConfigureRequestEvent(rawEvent, 0).value
+  xConnection.onConfigureRequestEvent?.(event)
+}
+events[24] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallGravityNotifyEvent(rawEvent, 0).value
+  xConnection.onGravityNotifyEvent?.(event)
+}
+events[25] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallResizeRequestEvent(rawEvent, 0).value
+  xConnection.onResizeRequestEvent?.(event)
+}
+events[26] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallCirculateNotifyEvent(rawEvent, 0).value
+  xConnection.onCirculateNotifyEvent?.(event)
+}
+events[27] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallCirculateRequestEvent(rawEvent, 0).value
+  xConnection.onCirculateRequestEvent?.(event)
+}
+events[28] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallPropertyNotifyEvent(rawEvent, 0).value
+  xConnection.onPropertyNotifyEvent?.(event)
+}
+events[29] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallSelectionClearEvent(rawEvent, 0).value
+  xConnection.onSelectionClearEvent?.(event)
+}
+events[30] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallSelectionRequestEvent(rawEvent, 0).value
+  xConnection.onSelectionRequestEvent?.(event)
+}
+events[31] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallSelectionNotifyEvent(rawEvent, 0).value
+  xConnection.onSelectionNotifyEvent?.(event)
+}
+events[32] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallColormapNotifyEvent(rawEvent, 0).value
+  xConnection.onColormapNotifyEvent?.(event)
+}
+events[33] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallClientMessageEvent(rawEvent, 0).value
+  xConnection.onClientMessageEvent?.(event)
+}
+events[34] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallMappingNotifyEvent(rawEvent, 0).value
+  xConnection.onMappingNotifyEvent?.(event)
+}
+events[35] = (xConnection: XConnection, rawEvent: Buffer) => {
+  const event = unmarshallGeGenericEvent(rawEvent, 0).value
+  xConnection.onGeGenericEvent?.(event)
+}
+errors[1] = [unmarshallRequestError, BadRequest]
+errors[2] = [unmarshallValueError, BadValue]
+errors[3] = [unmarshallWindowError, BadWindow]
+errors[4] = [unmarshallPixmapError, BadPixmap]
+errors[5] = [unmarshallAtomError, BadAtom]
+errors[6] = [unmarshallCursorError, BadCursor]
+errors[7] = [unmarshallFontError, BadFont]
+errors[8] = [unmarshallMatchError, BadMatch]
+errors[9] = [unmarshallDrawableError, BadDrawable]
+errors[10] = [unmarshallAccessError, BadAccess]
+errors[11] = [unmarshallAllocError, BadAlloc]
+errors[12] = [unmarshallColormapError, BadColormap]
+errors[13] = [unmarshallGContextError, BadGContext]
+errors[14] = [unmarshallIDChoiceError, BadIDChoice]
+errors[15] = [unmarshallNameError, BadName]
+errors[16] = [unmarshallLengthError, BadLength]
+errors[17] = [unmarshallImplementationError, BadImplementation]
