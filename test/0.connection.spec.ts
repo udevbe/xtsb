@@ -1,18 +1,18 @@
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import { connect } from '../src'
+import { connect, XConnectionOptions } from '../src'
 import { setupXvfb } from './setupXvfb'
 
-// Make sure to give each test file it's own unique display num to ensure they connect to to their own X server.
-const displayNum = '99'
-const display = `:${displayNum}`
-const xAuthority = `/tmp/.Xauthority-test-Xvfb-${displayNum}`
-const testOptions = { display, xAuthority }
-
 describe('Connection', () => {
+
+  const displayNum = '0'
+  const display = `:${displayNum}`
+  let testOptions: XConnectionOptions
   let xvfbProc: ChildProcessWithoutNullStreams
 
   beforeAll(async (done) => {
-    xvfbProc = await setupXvfb(display, xAuthority)
+    const { xProc, xAuthority} = await setupXvfb(display)
+    xvfbProc = xProc
+    testOptions = { display, xAuthority }
     done()
   })
 
@@ -26,6 +26,7 @@ describe('Connection', () => {
     expect.any(connection.setup.roots[0])
     expect.any(connection.setup.roots[0].root)
     expect.any(connection.setup.protocolMajorVersion)
+    connection.close()
     done()
   })
 })
