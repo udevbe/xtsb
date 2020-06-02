@@ -15,7 +15,7 @@ export interface EventHandler<T> {
 }
 
 interface RawEventHandler {
-  (xConnection: XConnection, rawEvent: Buffer): void
+  (xConnection: XConnection, rawEvent: Uint8Array): void
 }
 
 export const events: { [key: number]: RawEventHandler } = {}

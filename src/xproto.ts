@@ -322,7 +322,6 @@ const unmarshallSetupRequest: Unmarshaller<SetupRequest> = (buffer, offset=0) =>
   const authorizationProtocolNameWithOffset = xcbSimpleList(buffer, offset, authorizationProtocolNameLen, Int8Array, 1)
   offset = authorizationProtocolNameWithOffset.offset
   const authorizationProtocolName = authorizationProtocolNameWithOffset.value
-  offset += 1
   offset += typePad(1, offset)
   const authorizationProtocolDataWithOffset = xcbSimpleList(buffer, offset, authorizationProtocolDataLen, Int8Array, 1)
   offset = authorizationProtocolDataWithOffset.offset
@@ -429,7 +428,6 @@ const unmarshallSetup: Unmarshaller<Setup> = (buffer, offset=0) => {
   const vendorWithOffset = xcbSimpleList(buffer, offset, vendorLen, Int8Array, 1)
   offset = vendorWithOffset.offset
   const vendor = vendorWithOffset.value
-  offset += 1
   offset += typePad(8, offset)
   const pixmapFormatsWithOffset = xcbComplexList(buffer, offset, pixmapFormatsLen, unmarshallFORMAT)
   offset = pixmapFormatsWithOffset.offset
@@ -904,7 +902,6 @@ export type KeymapNotifyEvent = {
 }
 
 const unmarshallKeymapNotifyEvent: Unmarshaller<KeymapNotifyEvent> = (buffer, offset=0) => {
-  offset += 1
   const keysWithOffset = xcbSimpleList(buffer, offset, 31, Uint8Array, 1)
   offset = keysWithOffset.offset
   const keys = keysWithOffset.value
@@ -2793,7 +2790,6 @@ export type QueryKeymapReply = {
 }
 
 const unmarshallQueryKeymapReply: Unmarshaller<QueryKeymapReply> = (buffer, offset=0) => {
-  offset += 8
   const keysWithOffset = xcbSimpleList(buffer, offset, 32, Uint8Array, 1)
   offset = keysWithOffset.offset
   const keys = keysWithOffset.value
@@ -2876,11 +2872,9 @@ export type QueryFontReply = {
 }
 
 const unmarshallQueryFontReply: Unmarshaller<QueryFontReply> = (buffer, offset=0) => {
-  offset += 8
   const minBoundsWithOffset = unmarshallCHARINFO(buffer, offset)
   const minBounds = minBoundsWithOffset.value
   offset = minBoundsWithOffset.offset
-  offset += 4
   offset += typePad(12, offset)
   const maxBoundsWithOffset = unmarshallCHARINFO(buffer, offset)
   const maxBounds = maxBoundsWithOffset.value
@@ -3021,7 +3015,6 @@ const unmarshallListFontsWithInfoReply: Unmarshaller<ListFontsWithInfoReply> = (
   const minBoundsWithOffset = unmarshallCHARINFO(buffer, offset)
   const minBounds = minBoundsWithOffset.value
   offset = minBoundsWithOffset.offset
-  offset += 4
   offset += typePad(12, offset)
   const maxBoundsWithOffset = unmarshallCHARINFO(buffer, offset)
   const maxBounds = maxBoundsWithOffset.value
@@ -3926,7 +3919,7 @@ XConnection.prototype.createWindow = function(depth: number, wid: WINDOW, parent
     cursor: CW.Cursor
   }
   const valueMaskSortedList = Object.keys(valueList).sort((a, b) => valueListBitmasks[a] - valueListBitmasks[b])
-  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit)
+  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit, 0)
 
   const valueListValues =
     Object.entries(valueList)
@@ -3985,7 +3978,7 @@ XConnection.prototype.changeWindowAttributes = function(window: WINDOW, valueLis
     cursor: CW.Cursor
   }
   const valueMaskSortedList = Object.keys(valueList).sort((a, b) => valueListBitmasks[a] - valueListBitmasks[b])
-  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit)
+  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit, 0)
 
   const valueListValues =
     Object.entries(valueList)
@@ -4163,7 +4156,7 @@ XConnection.prototype.configureWindow = function(window: WINDOW, valueList: Part
     stackMode: ConfigWindow.StackMode
   }
   const valueMaskSortedList = Object.keys(valueList).sort((a, b) => valueListBitmasks[a] - valueListBitmasks[b])
-  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit)
+  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit, 0)
 
   const valueListValues =
     Object.entries(valueList)
@@ -4891,7 +4884,7 @@ XConnection.prototype.createGC = function(cid: GCONTEXT, drawable: DRAWABLE, val
     arcMode: GC.ArcMode
   }
   const valueMaskSortedList = Object.keys(valueList).sort((a, b) => valueListBitmasks[a] - valueListBitmasks[b])
-  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit)
+  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit, 0)
 
   const valueListValues =
     Object.entries(valueList)
@@ -4966,7 +4959,7 @@ XConnection.prototype.changeGC = function(gc: GCONTEXT, valueList: Partial<{ fun
     arcMode: GC.ArcMode
   }
   const valueMaskSortedList = Object.keys(valueList).sort((a, b) => valueListBitmasks[a] - valueListBitmasks[b])
-  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit)
+  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit, 0)
 
   const valueListValues =
     Object.entries(valueList)
@@ -5750,7 +5743,7 @@ XConnection.prototype.changeKeyboardControl = function(valueList: Partial<{ keyC
     autoRepeatMode: KB.AutoRepeatMode
   }
   const valueMaskSortedList = Object.keys(valueList).sort((a, b) => valueListBitmasks[a] - valueListBitmasks[b])
-  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit)
+  const valueMask = valueMaskSortedList.map(value => valueListBitmasks[value]).reduce((mask, bit)=> mask | bit, 0)
 
   const valueListValues =
     Object.entries(valueList)
@@ -6041,139 +6034,139 @@ XConnection.prototype.noOperation = function(): Promise<void> {
   return this.sendRequest<void>(requestParts, 127)
 }
 
-events[2] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[2] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallKeyPressEvent(rawEvent, 0).value
   xConnection.onKeyPressEvent?.(event)
 }
-events[3] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[3] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallKeyReleaseEvent(rawEvent, 0).value
   xConnection.onKeyReleaseEvent?.(event)
 }
-events[4] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[4] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallButtonPressEvent(rawEvent, 0).value
   xConnection.onButtonPressEvent?.(event)
 }
-events[5] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[5] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallButtonReleaseEvent(rawEvent, 0).value
   xConnection.onButtonReleaseEvent?.(event)
 }
-events[6] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[6] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallMotionNotifyEvent(rawEvent, 0).value
   xConnection.onMotionNotifyEvent?.(event)
 }
-events[7] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[7] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallEnterNotifyEvent(rawEvent, 0).value
   xConnection.onEnterNotifyEvent?.(event)
 }
-events[8] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[8] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallLeaveNotifyEvent(rawEvent, 0).value
   xConnection.onLeaveNotifyEvent?.(event)
 }
-events[9] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[9] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallFocusInEvent(rawEvent, 0).value
   xConnection.onFocusInEvent?.(event)
 }
-events[10] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[10] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallFocusOutEvent(rawEvent, 0).value
   xConnection.onFocusOutEvent?.(event)
 }
-events[11] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[11] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallKeymapNotifyEvent(rawEvent, 0).value
   xConnection.onKeymapNotifyEvent?.(event)
 }
-events[12] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[12] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallExposeEvent(rawEvent, 0).value
   xConnection.onExposeEvent?.(event)
 }
-events[13] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[13] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallGraphicsExposureEvent(rawEvent, 0).value
   xConnection.onGraphicsExposureEvent?.(event)
 }
-events[14] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[14] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallNoExposureEvent(rawEvent, 0).value
   xConnection.onNoExposureEvent?.(event)
 }
-events[15] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[15] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallVisibilityNotifyEvent(rawEvent, 0).value
   xConnection.onVisibilityNotifyEvent?.(event)
 }
-events[16] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[16] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallCreateNotifyEvent(rawEvent, 0).value
   xConnection.onCreateNotifyEvent?.(event)
 }
-events[17] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[17] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallDestroyNotifyEvent(rawEvent, 0).value
   xConnection.onDestroyNotifyEvent?.(event)
 }
-events[18] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[18] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallUnmapNotifyEvent(rawEvent, 0).value
   xConnection.onUnmapNotifyEvent?.(event)
 }
-events[19] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[19] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallMapNotifyEvent(rawEvent, 0).value
   xConnection.onMapNotifyEvent?.(event)
 }
-events[20] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[20] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallMapRequestEvent(rawEvent, 0).value
   xConnection.onMapRequestEvent?.(event)
 }
-events[21] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[21] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallReparentNotifyEvent(rawEvent, 0).value
   xConnection.onReparentNotifyEvent?.(event)
 }
-events[22] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[22] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallConfigureNotifyEvent(rawEvent, 0).value
   xConnection.onConfigureNotifyEvent?.(event)
 }
-events[23] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[23] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallConfigureRequestEvent(rawEvent, 0).value
   xConnection.onConfigureRequestEvent?.(event)
 }
-events[24] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[24] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallGravityNotifyEvent(rawEvent, 0).value
   xConnection.onGravityNotifyEvent?.(event)
 }
-events[25] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[25] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallResizeRequestEvent(rawEvent, 0).value
   xConnection.onResizeRequestEvent?.(event)
 }
-events[26] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[26] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallCirculateNotifyEvent(rawEvent, 0).value
   xConnection.onCirculateNotifyEvent?.(event)
 }
-events[27] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[27] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallCirculateRequestEvent(rawEvent, 0).value
   xConnection.onCirculateRequestEvent?.(event)
 }
-events[28] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[28] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallPropertyNotifyEvent(rawEvent, 0).value
   xConnection.onPropertyNotifyEvent?.(event)
 }
-events[29] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[29] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallSelectionClearEvent(rawEvent, 0).value
   xConnection.onSelectionClearEvent?.(event)
 }
-events[30] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[30] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallSelectionRequestEvent(rawEvent, 0).value
   xConnection.onSelectionRequestEvent?.(event)
 }
-events[31] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[31] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallSelectionNotifyEvent(rawEvent, 0).value
   xConnection.onSelectionNotifyEvent?.(event)
 }
-events[32] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[32] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallColormapNotifyEvent(rawEvent, 0).value
   xConnection.onColormapNotifyEvent?.(event)
 }
-events[33] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[33] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallClientMessageEvent(rawEvent, 0).value
   xConnection.onClientMessageEvent?.(event)
 }
-events[34] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[34] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallMappingNotifyEvent(rawEvent, 0).value
   xConnection.onMappingNotifyEvent?.(event)
 }
-events[35] = (xConnection: XConnection, rawEvent: Buffer) => {
+events[35] = (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallGeGenericEvent(rawEvent, 0).value
   xConnection.onGeGenericEvent?.(event)
 }

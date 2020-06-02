@@ -9,7 +9,7 @@ export interface XConnectionOptions {
   xAuthority?: string
 }
 
-type ReplyResolver = { resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void }
+type ReplyResolver = { resolve: (value?: any | PromiseLike<any>) => void, resolveWithError: (reason?: any) => void }
 
 export class XConnection {
   readonly socket: net.Socket
@@ -42,9 +42,9 @@ export class XConnection {
     socket.on('data', data => this.onData(data))
   }
 
-  allocateID() {
+  allocateID(): number {
     if (this.unusedIds.length > 0) {
-      return this.unusedIds.pop()
+      return this.unusedIds.pop() as number
     }
     // TODO: handle overflow (XCMiscGetXIDRange from XC_MISC ext)
     return (++this.nextResourceId << this.resourceIdShift) + this.resourceIdBase
@@ -58,16 +58,16 @@ export class XConnection {
     this.socket.end()
   }
 
-  private onData(data: Buffer) {
-    const type = data.readUInt8(0)
+  private onData(data: Uint8Array) {
+    const type = data[0]
 
     if (type === 0) {
-      const replySequenceNumber = data.readUInt16LE(2)
-      // TODO resolve older replyResolvers, these are void request that cam now considered ok
+      const replySequenceNumber = data[2] | data[3] << 8
+      // TODO resolve older replyResolvers, these are void request that can now considered ok
       const replyResolver = this.findReplyResolver(replySequenceNumber)
-      replyResolver.reject(data)
+      replyResolver.resolveWithError(data)
     } else if (type === 1) {
-      const replySequenceNumber = data.readUInt16LE(2)
+      const replySequenceNumber = data[2] | data[3] << 8
       // TODO resolve older replyResolvers, these are void request that cam now considered ok
       const replyResolver = this.findReplyResolver(replySequenceNumber)
       replyResolver.resolve(data)
@@ -81,19 +81,18 @@ export class XConnection {
     // TODO isChecked
     const requestBuffer = createRequestBuffer(requestParts)
     requestBuffer[0] = opcode
-    new Uint16Array(requestBuffer)[1] = requestBuffer.length
+    new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(requestBuffer.buffer, requestBuffer.byteOffset).length
+
+    const resolveWithError = (reject: (reason?: any) => void) => (rawError: Uint8Array) => {
+      const errorCode = rawError[1]
+      const [errorUnmarshaller, ErrorClass] = errors[errorCode]
+      const errorBody = errorUnmarshaller(rawError.buffer, rawError.byteOffset)
+      reject(new ErrorClass(errorBody))
+    }
 
     if (replyUnmarshaller) {
-      const promise = new Promise<Buffer>((resolve, reject) => {
-        this.replyResolvers.push({
-          resolve,
-          reject: (rawError: Buffer) => {
-            const errorCode = rawError.readUInt8(1)
-            const [errorUnmarshaller, ErrorClass] = errors[errorCode]
-            const errorBody = errorUnmarshaller(rawError, 0)
-            reject(new ErrorClass(errorBody))
-          }
-        })
+      const promise = new Promise<Uint8Array>((resolve, reject) => {
+        this.replyResolvers.push({ resolve, resolveWithError: resolveWithError(reject) })
       }).then(rawReply => replyUnmarshaller(rawReply, 0).value)
 
       this.requestSequenceNumber++
@@ -102,7 +101,7 @@ export class XConnection {
     } else {
       // TODO return a requestChecker object that can fire an explicit noop request (a 'sync') to check if the request was processed with or without error.
       return new Promise<T>((resolve, reject) => {
-        this.replyResolvers.push({ resolve, reject })
+        this.replyResolvers.push({ resolve, resolveWithError: resolveWithError(reject) })
 
         this.requestSequenceNumber++
         this.socket.write(requestBuffer)

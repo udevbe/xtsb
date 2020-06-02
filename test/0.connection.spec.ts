@@ -30,4 +30,16 @@ describe('Connection', () => {
     connection.close()
     done()
   })
+
+  it('can receive a reply from a request.', async done => {
+    const connection = await connect(testOptions)
+
+    const windowId = connection.allocateID()
+    connection.createWindow(0, windowId, connection.setup.roots[0].root, 0, 0, 1, 1, 0, 0, 0, {})
+    const queryTreeReply = await connection.queryTree(windowId)
+    const foundWindowId = queryTreeReply.children.find(id => id === windowId)
+
+    expect(foundWindowId).toBe(windowId)
+    done()
+  })
 })

@@ -43,7 +43,7 @@ interface Cookie {
   authData: string
 }
 
-async function readXauthority(xAuthority?: string): Promise<Buffer | null> {
+async function readXauthority(xAuthority?: string): Promise<Uint8Array | null> {
   const nixFilename = xAuthority || process.env.XAUTHORITY || path.join(homedir(), '.Xauthority')
   try {
     return await fsReadFile(nixFilename)
@@ -67,13 +67,14 @@ async function readXauthority(xAuthority?: string): Promise<Buffer | null> {
   }
 }
 
-function parseXauth(buf: Buffer): Cookie[] {
+function parseXauth(buf: Uint8Array): Cookie[] {
   let offset = 0
   const auth: Cookie[] = []
   const cookieProperties: (keyof Omit<Cookie, 'type'>)[] = ['address', 'display', 'authName', 'authData']
 
+
   while (offset < buf.length) {
-    const type = buf.readUInt16BE(offset)
+    const type = buf[offset+1] | buf[offset] << 8
     if (!connectionTypeToName.hasOwnProperty(type)) {
       throw new Error('Unknown address type')
     }
@@ -83,7 +84,7 @@ function parseXauth(buf: Buffer): Cookie[] {
 
     offset += 2
     cookieProperties.forEach((property) => {
-      const length = buf.readUInt16BE(offset)
+      const length = buf[offset+1] | buf[offset] << 8
       offset += 2
       if (cookie.type === 0 && property === 'address') { // Internet
         // 4 bytes of ip addess, convert to w.x.y.z string
@@ -194,11 +195,11 @@ export async function writeClientHello(socket: net.Socket, displayNum: string, a
     paddedString(cookie.authData)
   )
 
-  socket.write(new Buffer(authReq))
+  socket.write(new Uint8Array(authReq))
 }
 
-const unmarshallVISUALTYPE: Unmarshaller<VISUALTYPE> = (buffer, offset = 0) => {
-  const [visualId, _class, bitsPerRgbValue, colormapEntries, redMask, greenMask, blueMask] = unpackFrom('IBBHIII4x', buffer, offset)
+const unmarshallVISUALTYPE: Unmarshaller<VISUALTYPE> = (buffer, offset=0) => {
+  const [ visualId, _class, bitsPerRgbValue, colormapEntries, redMask, greenMask, blueMask ] = unpackFrom('<IBBHIII4x', buffer, offset)
   offset += 24
 
   return {
@@ -209,14 +210,14 @@ const unmarshallVISUALTYPE: Unmarshaller<VISUALTYPE> = (buffer, offset = 0) => {
       colormapEntries,
       redMask,
       greenMask,
-      blueMask
+      blueMask,
     },
     offset
   }
 }
 
-const unmarshallDEPTH: Unmarshaller<DEPTH> = (buffer, offset = 0) => {
-  const [depth, visualsLen] = unpackFrom('BxH4x', buffer, offset)
+const unmarshallDEPTH: Unmarshaller<DEPTH> = (buffer, offset=0) => {
+  const [ depth, visualsLen ] = unpackFrom('<BxH4x', buffer, offset)
   offset += 8
   const visualsWithOffset = xcbComplexList(buffer, offset, visualsLen, unmarshallVISUALTYPE)
   offset = visualsWithOffset.offset
@@ -226,14 +227,14 @@ const unmarshallDEPTH: Unmarshaller<DEPTH> = (buffer, offset = 0) => {
     value: {
       depth,
       visualsLen,
-      visuals
+      visuals,
     },
     offset
   }
 }
 
-const unmarshallSCREEN: Unmarshaller<SCREEN> = (buffer, offset = 0) => {
-  const [root, defaultColormap, whitePixel, blackPixel, currentInputMasks, widthInPixels, heightInPixels, widthInMillimeters, heightInMillimeters, minInstalledMaps, maxInstalledMaps, rootVisual, backingStores, saveUnders, rootDepth, allowedDepthsLen] = unpackFrom('IIIIIHHHHHHIBBBB', buffer, offset)
+const unmarshallSCREEN: Unmarshaller<SCREEN> = (buffer, offset=0) => {
+  const [ root, defaultColormap, whitePixel, blackPixel, currentInputMasks, widthInPixels, heightInPixels, widthInMillimeters, heightInMillimeters, minInstalledMaps, maxInstalledMaps, rootVisual, backingStores, saveUnders, rootDepth, allowedDepthsLen ] = unpackFrom('<IIIIIHHHHHHIBBBB', buffer, offset)
   offset += 40
   const allowedDepthsWithOffset = xcbComplexList(buffer, offset, allowedDepthsLen, unmarshallDEPTH)
   offset = allowedDepthsWithOffset.offset
@@ -257,52 +258,32 @@ const unmarshallSCREEN: Unmarshaller<SCREEN> = (buffer, offset = 0) => {
       saveUnders,
       rootDepth,
       allowedDepthsLen,
-      allowedDepths
+      allowedDepths,
     },
     offset
   }
 }
 
-const unmarshallFORMAT: Unmarshaller<FORMAT> = (buffer, offset = 0) => {
-  const [depth, bitsPerPixel, scanlinePad] = unpackFrom('BBB5x', buffer, offset)
+const unmarshallFORMAT: Unmarshaller<FORMAT> = (buffer, offset=0) => {
+  const [ depth, bitsPerPixel, scanlinePad ] = unpackFrom('<BBB5x', buffer, offset)
   offset += 8
 
   return {
     value: {
       depth,
       bitsPerPixel,
-      scanlinePad
+      scanlinePad,
     },
     offset
   }
 }
 
-const unmarshallSetup: Unmarshaller<Setup> = (buffer, offset = 0) => {
-  const [
-    status,
-    protocolMajorVersion,
-    protocolMinorVersion,
-    length,
-    releaseNumber,
-    resourceIdBase,
-    resourceIdMask,
-    motionBufferSize,
-    vendorLen,
-    maximumRequestLength,
-    rootsLen,
-    pixmapFormatsLen,
-    imageByteOrder,
-    bitmapFormatBitOrder,
-    bitmapFormatScanlineUnit,
-    bitmapFormatScanlinePad,
-    minKeycode,
-    maxKeycode
-  ] = unpackFrom('<BxHHHIIIIHHBBBBBBBB4x', buffer, offset)
+const unmarshallSetup: Unmarshaller<Setup> = (buffer, offset=0) => {
+  const [ status, protocolMajorVersion, protocolMinorVersion, length, releaseNumber, resourceIdBase, resourceIdMask, motionBufferSize, vendorLen, maximumRequestLength, rootsLen, pixmapFormatsLen, imageByteOrder, bitmapFormatBitOrder, bitmapFormatScanlineUnit, bitmapFormatScanlinePad, minKeycode, maxKeycode ] = unpackFrom('<BxHHHIIIIHHBBBBBBBB4x', buffer, offset)
   offset += 40
   const vendorWithOffset = xcbSimpleList(buffer, offset, vendorLen, Int8Array, 1)
   offset = vendorWithOffset.offset
   const vendor = vendorWithOffset.value
-  offset += 1
   offset += typePad(8, offset)
   const pixmapFormatsWithOffset = xcbComplexList(buffer, offset, pixmapFormatsLen, unmarshallFORMAT)
   offset = pixmapFormatsWithOffset.offset
@@ -334,14 +315,14 @@ const unmarshallSetup: Unmarshaller<Setup> = (buffer, offset = 0) => {
       maxKeycode,
       vendor,
       pixmapFormats,
-      roots
+      roots,
     },
     offset
   }
 }
 
-const unmarshallSetupFailed: Unmarshaller<SetupFailed> = (buffer, offset = 0) => {
-  const [status, reasonLen, protocolMajorVersion, protocolMinorVersion, length] = unpackFrom('BBHHH', buffer, offset)
+const unmarshallSetupFailed: Unmarshaller<SetupFailed> = (buffer, offset=0) => {
+  const [ status, reasonLen, protocolMajorVersion, protocolMinorVersion, length ] = unpackFrom('<BBHHH', buffer, offset)
   offset += 8
   const reasonWithOffset = xcbSimpleList(buffer, offset, reasonLen, Int8Array, 1)
   offset = reasonWithOffset.offset
@@ -354,14 +335,14 @@ const unmarshallSetupFailed: Unmarshaller<SetupFailed> = (buffer, offset = 0) =>
       protocolMajorVersion,
       protocolMinorVersion,
       length,
-      reason
+      reason,
     },
     offset
   }
 }
 
-export function readServerHello(buffer: Buffer): Setup {
-  const retCode = buffer.readUInt8(0)
+export function readServerHello(buffer: Uint8Array): Setup {
+  const retCode = buffer[0]
   if (retCode === 0) {
     // error
     const setupFailed = unmarshallSetupFailed(buffer, 0).value

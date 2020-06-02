@@ -327,8 +327,8 @@ def _ts_unmarshall_complex(self):
     (format, size, list) = _ts_flush_format()
     if len(list) > 0:
       _ts('  const [ %s ] = unpackFrom(\'<%s\', buffer, offset)', list, format)
-    if size > 0:
-      _ts('  offset += %d', size)
+      if size > 0:
+        _ts('  offset += %d', size)
 
     if need_alignment:
       _ts('  offset += typePad(%d, offset)', _ts_type_alignsize(field))
@@ -524,7 +524,7 @@ def _ts_request_helper(self, name, void):
             _n(field.field_name)
           )
           _ts(
-            '  const %s = %sSortedList.map(value => %sBitmasks[value]).reduce((mask, bit)=> mask | bit)',
+            '  const %s = %sSortedList.map(value => %sBitmasks[value]).reduce((mask, bit)=> mask | bit, 0)',
             _n(field.type.fieldref),
             _n(field.type.fieldref),
             _n(field.field_name)
@@ -695,7 +695,7 @@ def ts_union(self, name):
   _ts('')
   for field in self.fields:
     if field.type.is_simple:
-      _ts('  const %s = unpackFromFrom(\'%s\', buffer, offset)', _n(field.field_name),
+      _ts('  const %s = unpackFromFrom(\'<%s\', buffer, offset)', _n(field.field_name),
           field.type.ts_format_str)
       _ts('  size = Math.max(size, %s)', field.type.size)
     elif field.type.is_list:
@@ -776,7 +776,7 @@ def ts_event(self, name):
   _ts('')
   # Opcode define
   _ts_setlevel(2)
-  _ts('events[%s] = (xConnection: XConnection, rawEvent: Buffer) => {', self.opcodes[name])
+  _ts('events[%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
   _ts('  const event = unmarshall%s(rawEvent, 0).value', self.ts_event_name)
   _ts('  xConnection.on%s?.(event)', self.ts_event_name)
   _ts('}')
