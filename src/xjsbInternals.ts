@@ -1,6 +1,4 @@
 import TypedArray = NodeJS.TypedArray
-import { rejects } from 'assert'
-import * as net from 'net'
 import { XConnection } from './connection'
 
 export type UnmarshallResult<T> = {

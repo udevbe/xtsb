@@ -1,13 +1,15 @@
 import * as net from 'net'
 import * as os from 'os'
 import { readServerHello, writeClientHello } from './auth'
-import { Unmarshaller } from './xjsbInternals'
+import { Unmarshaller, events, errors } from './xjsbInternals'
 import { Setup } from './xproto'
 
 export interface XConnectionOptions {
   display?: string
   xAuthority?: string
 }
+
+type ReplyResolver = { resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void }
 
 export class XConnection {
   readonly socket: net.Socket
@@ -19,8 +21,8 @@ export class XConnection {
   private readonly resourceIdShift: number
   private readonly resourceIdBase: number
 
-  private sequenceNumber: number = 0
-  private readonly pendingReplies: Map<number, { resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void }> = new Map()
+  private requestSequenceNumber: number = 0
+  private readonly replyResolvers: ReplyResolver[] = []
 
   constructor(
     socket: net.Socket,
@@ -36,6 +38,8 @@ export class XConnection {
     this.nextResourceId = nextResourceId
     this.resourceIdShift = resourceIdShift
     this.resourceIdBase = resourceIdBase
+
+    socket.on('data', data => this.onData(data))
   }
 
   allocateID() {
@@ -54,21 +58,62 @@ export class XConnection {
     this.socket.end()
   }
 
-  sendRequest<T>(requestParts: ArrayBuffer[], opcode: number, isChecked: boolean, replyUnmarshaller?: Unmarshaller<T>): Promise<T> {
+  private onData(data: Buffer) {
+    const type = data.readUInt8(0)
+
+    if (type === 0) {
+      const replySequenceNumber = data.readUInt16LE(2)
+      // TODO resolve older replyResolvers, these are void request that cam now considered ok
+      const replyResolver = this.findReplyResolver(replySequenceNumber)
+      replyResolver.reject(data)
+    } else if (type === 1) {
+      const replySequenceNumber = data.readUInt16LE(2)
+      // TODO resolve older replyResolvers, these are void request that cam now considered ok
+      const replyResolver = this.findReplyResolver(replySequenceNumber)
+      replyResolver.resolve(data)
+    } else {
+      // Event
+      events[type](this, data)
+    }
+  }
+
+  sendRequest<T>(requestParts: ArrayBuffer[], opcode: number, replyUnmarshaller?: Unmarshaller<T>): Promise<T> {
     // TODO isChecked
     const requestBuffer = createRequestBuffer(requestParts)
+    requestBuffer[0] = opcode
+    new Uint16Array(requestBuffer)[1] = requestBuffer.length
 
     if (replyUnmarshaller) {
       const promise = new Promise<Buffer>((resolve, reject) => {
-        this.pendingReplies.set(this.sequenceNumber++, { resolve, reject })
+        this.replyResolvers.push({
+          resolve,
+          reject: (rawError: Buffer) => {
+            const errorCode = rawError.readUInt8(1)
+            const [errorUnmarshaller, ErrorClass] = errors[errorCode]
+            const errorBody = errorUnmarshaller(rawError, 0)
+            reject(new ErrorClass(errorBody))
+          }
+        })
       }).then(rawReply => replyUnmarshaller(rawReply, 0).value)
-      // TODO opcode
+
+      this.requestSequenceNumber++
       this.socket.write(requestBuffer)
       return promise
     } else {
-      // @ts-ignore
-      return Promise.resolve()
+      // TODO return a requestChecker object that can fire an explicit noop request (a 'sync') to check if the request was processed with or without error.
+      return new Promise<T>((resolve, reject) => {
+        this.replyResolvers.push({ resolve, reject })
+
+        this.requestSequenceNumber++
+        this.socket.write(requestBuffer)
+      })
     }
+  }
+
+  private findReplyResolver(replySequenceNumber: number): ReplyResolver {
+    const requestNumberOffset = this.requestSequenceNumber - replySequenceNumber
+    const pendingReplyIndex = (this.replyResolvers.length - requestNumberOffset) - 1
+    return this.replyResolvers[pendingReplyIndex]
   }
 }
 
@@ -131,7 +176,9 @@ async function createXConnection(socket: net.Socket, displayNum: string, xAuthor
     resourceIdShift++
   }
 
-  return new XConnection(socket, displayNum, setup, nextResourceId, resourceIdShift, setup.resourceIdBase)
+  const xConnection = new XConnection(socket, displayNum, setup, nextResourceId, resourceIdShift, setup.resourceIdBase)
+
+  return xConnection
 }
 
 export async function connect(options?: XConnectionOptions): Promise<XConnection> {

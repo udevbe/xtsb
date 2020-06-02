@@ -401,7 +401,7 @@ def _ts_reply(self, name):
   _ts_unmarshall_complex(self)
 
 
-def _ts_request_helper(self, name, void, regular):
+def _ts_request_helper(self, name, void):
   '''
   Declares a request function.
   '''
@@ -420,21 +420,21 @@ def _ts_request_helper(self, name, void, regular):
   # ------------------------------
 
   # Whether we are _checked or _unchecked
-  checked = void and not regular
-  unchecked = not void and not regular
+  # checked = void and not regular
+  # unchecked = not void and not regular
 
   # What kind of cookie we return
   func_cookie = 'xcbVoidCookie' if void else self.ts_cookie_name
 
   # What flag is passed to xcb_request
-  func_flags = checked or (not void and regular)
+  # func_flags = checked or (not void and regular)
 
   # What our function name is
   func_name = self.ts_request_name
-  if checked:
-    func_name = self.ts_checked_name
-  if unchecked:
-    func_name = self.ts_unchecked_name
+  # if checked:
+  #   func_name = self.ts_checked_name
+  # if unchecked:
+  # func_name = self.ts_unchecked_name
 
   param_fields = []
   wire_fields = []
@@ -575,10 +575,9 @@ def _ts_request_helper(self, name, void, regular):
   write_request_part(wire_fields)
 
   _ts(
-    '  return this.sendRequest<%s>(requestParts, %s, %s%s)',
+    '  return this.sendRequest<%s>(requestParts, %s%s)',
     self.ts_reply_name if not void else 'void',
     self.opcode,
-    _b(func_flags),
     f', unmarshall{self.ts_reply_name}' if not void else ''
   )
   _ts('}')
@@ -745,14 +744,11 @@ def ts_request(self, name):
     # Reply class definition
     _ts_reply(self.reply, name)
     # Request prototypes
-    _ts_request_helper(self, name, False, True)
-    _ts_request_helper(self, name, False, False)
+    _ts_request_helper(self, name, False)
   else:
     # Request prototypes
-    _ts_request_helper(self, name, True, False)
-    _ts_request_helper(self, name, True, True)
-
-    _ts('')
+    _ts_request_helper(self, name, True)
+  _ts('')
 
 
 def ts_event(self, name):
