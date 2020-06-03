@@ -22,8 +22,12 @@ describe('Connection', () => {
   })
 
   it('performs a setup handshake with the X server.', async done => {
+    // Given
+
+    // When
     const connection = await connect(testOptions)
 
+    // Then
     expect.any(connection.setup.roots[0])
     expect.any(connection.setup.roots[0].root)
     expect.any(connection.setup.protocolMajorVersion)
@@ -32,14 +36,19 @@ describe('Connection', () => {
   })
 
   it('can receive a reply from a request.', async done => {
+    // Given
     const connection = await connect(testOptions)
 
+    // When
     const windowId = connection.allocateID()
     connection.createWindow(0, windowId, connection.setup.roots[0].root, 0, 0, 1, 1, 0, 0, 0, {})
     const queryTreeReply = await connection.queryTree(windowId)
-    const foundWindowId = queryTreeReply.children.find(id => id === windowId)
 
-    expect(foundWindowId).toBe(windowId)
+    // Then
+    expect(queryTreeReply.parent).toBe(connection.setup.roots[0].root)
+    expect(queryTreeReply.root).toBe(connection.setup.roots[0].root)
+    expect(queryTreeReply.childrenLen).toBe(0)
+    expect(queryTreeReply.children.length).toBe(0)
     done()
   })
 })

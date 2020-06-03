@@ -1,7 +1,7 @@
 import * as net from 'net'
 import * as os from 'os'
 import { readServerHello, writeClientHello } from './auth'
-import { Unmarshaller, events, errors } from './xjsbInternals'
+import { errors, events, Unmarshaller } from './xjsbInternals'
 import { Setup } from './xproto'
 
 export interface XConnectionOptions {
@@ -93,7 +93,7 @@ export class XConnection {
     if (replyUnmarshaller) {
       const promise = new Promise<Uint8Array>((resolve, reject) => {
         this.replyResolvers.push({ resolve, resolveWithError: resolveWithError(reject) })
-      }).then(rawReply => replyUnmarshaller(rawReply, 0).value)
+      }).then(rawReply => replyUnmarshaller(rawReply.buffer, rawReply.byteOffset).value)
 
       this.requestSequenceNumber++
       this.socket.write(requestBuffer)
@@ -175,9 +175,7 @@ async function createXConnection(socket: net.Socket, displayNum: string, xAuthor
     resourceIdShift++
   }
 
-  const xConnection = new XConnection(socket, displayNum, setup, nextResourceId, resourceIdShift, setup.resourceIdBase)
-
-  return xConnection
+  return new XConnection(socket, displayNum, setup, nextResourceId, resourceIdShift, setup.resourceIdBase)
 }
 
 export async function connect(options?: XConnectionOptions): Promise<XConnection> {
