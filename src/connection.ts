@@ -1,8 +1,9 @@
 import * as net from 'net'
 import * as os from 'os'
 import { readServerHello, writeClientHello } from './auth'
-import { errors, events, Unmarshaller } from './xjsbInternals'
-import { Setup } from './xproto'
+import { unpackFrom } from './struct'
+import { errors, events, RequestChecker, Unmarshaller } from './xjsbInternals'
+import { GetInputFocusReply, Setup } from './xproto'
 
 export interface XConnectionOptions {
   display?: string
@@ -10,6 +11,26 @@ export interface XConnectionOptions {
 }
 
 type ReplyResolver = { resolve: (value?: any | PromiseLike<any>) => void, resolveWithError: (reason?: any) => void }
+
+const resolveWithError = (reject: (reason?: any) => void) => (rawError: Uint8Array) => {
+  const errorCode = rawError[1]
+  const [errorUnmarshaller, ErrorClass] = errors[errorCode]
+  const errorBody = errorUnmarshaller(rawError.buffer, rawError.byteOffset)
+  reject(new ErrorClass(errorBody))
+}
+
+const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (buffer, offset = 0) => {
+  const [revertTo, focus] = unpackFrom('<xB2x4xI', buffer, offset)
+  offset += 12
+
+  return {
+    value: {
+      revertTo,
+      focus
+    },
+    offset
+  }
+}
 
 export class XConnection {
   readonly socket: net.Socket
@@ -63,12 +84,12 @@ export class XConnection {
 
     if (type === 0) {
       const replySequenceNumber = data[2] | data[3] << 8
-      // TODO resolve older replyResolvers, these are void request that can now considered ok
+      this.resolvePreviousReplyResolvers(replySequenceNumber)
       const replyResolver = this.findReplyResolver(replySequenceNumber)
       replyResolver.resolveWithError(data)
     } else if (type === 1) {
       const replySequenceNumber = data[2] | data[3] << 8
-      // TODO resolve older replyResolvers, these are void request that cam now considered ok
+      this.resolvePreviousReplyResolvers(replySequenceNumber)
       const replyResolver = this.findReplyResolver(replySequenceNumber)
       replyResolver.resolve(data)
     } else {
@@ -77,42 +98,52 @@ export class XConnection {
     }
   }
 
-  sendRequest<T>(requestParts: ArrayBuffer[], opcode: number, replyUnmarshaller?: Unmarshaller<T>): Promise<T> {
-    // TODO isChecked
+  sendVoidRequest(requestParts: ArrayBuffer[], opcode: number): RequestChecker {
     const requestBuffer = createRequestBuffer(requestParts)
     requestBuffer[0] = opcode
     new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(requestBuffer.buffer, requestBuffer.byteOffset).length
 
-    const resolveWithError = (reject: (reason?: any) => void) => (rawError: Uint8Array) => {
-      const errorCode = rawError[1]
-      const [errorUnmarshaller, ErrorClass] = errors[errorCode]
-      const errorBody = errorUnmarshaller(rawError.buffer, rawError.byteOffset)
-      reject(new ErrorClass(errorBody))
-    }
-
-    if (replyUnmarshaller) {
-      const promise = new Promise<Uint8Array>((resolve, reject) => {
-        this.replyResolvers.push({ resolve, resolveWithError: resolveWithError(reject) })
-      }).then(rawReply => replyUnmarshaller(rawReply.buffer, rawReply.byteOffset).value)
+    const voidRequestPromise = new Promise<void>((resolve, reject) => {
+      this.replyResolvers.push({ resolve, resolveWithError: resolveWithError(reject) })
 
       this.requestSequenceNumber++
       this.socket.write(requestBuffer)
-      return promise
-    } else {
-      // TODO return a requestChecker object that can fire an explicit noop request (a 'sync') to check if the request was processed with or without error.
-      return new Promise<T>((resolve, reject) => {
-        this.replyResolvers.push({ resolve, resolveWithError: resolveWithError(reject) })
+    })
 
-        this.requestSequenceNumber++
-        this.socket.write(requestBuffer)
-      })
+    // TODO return a requestChecker object that can fire an explicit noop request (a 'sync') to check if the request was processed with or without error.
+    return {
+      check: (): Promise<void> => {
+        // fire a poor man 'sync' call to ensure the xserver has processed our previous actual call.
+        this.sendRequest<GetInputFocusReply>([new ArrayBuffer(4)], 43, unmarshallGetInputFocusReply)
+        return voidRequestPromise
+      }
     }
+  }
+
+  sendRequest<T>(requestParts: ArrayBuffer[], opcode: number, replyUnmarshaller: Unmarshaller<T>): Promise<T> {
+    const requestBuffer = createRequestBuffer(requestParts)
+    requestBuffer[0] = opcode
+    new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(requestBuffer.buffer, requestBuffer.byteOffset).length
+
+    const promise = new Promise<Uint8Array>((resolve, reject) => {
+      this.replyResolvers.push({ resolve, resolveWithError: resolveWithError(reject) })
+    }).then(rawReply => replyUnmarshaller(rawReply.buffer, rawReply.byteOffset).value)
+
+    this.requestSequenceNumber++
+    this.socket.write(requestBuffer)
+    return promise
   }
 
   private findReplyResolver(replySequenceNumber: number): ReplyResolver {
     const requestNumberOffset = this.requestSequenceNumber - replySequenceNumber
-    const pendingReplyIndex = (this.replyResolvers.length - requestNumberOffset) - 1
-    return this.replyResolvers[pendingReplyIndex]
+    const replyResolverIndex = (this.replyResolvers.length - requestNumberOffset) - 1
+    return this.replyResolvers[replyResolverIndex]
+  }
+
+  private resolvePreviousReplyResolvers(replySequenceNumber: number) {
+    const requestNumberOffset = this.requestSequenceNumber - replySequenceNumber
+    const replyResolverIndex = (this.replyResolvers.length - requestNumberOffset) - 1
+    this.replyResolvers.splice(0, replyResolverIndex).forEach(previousReplyResolver => previousReplyResolver.resolve())
   }
 }
 

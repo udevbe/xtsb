@@ -1,6 +1,10 @@
 import TypedArray = NodeJS.TypedArray
 import { XConnection } from './connection'
 
+export interface RequestChecker {
+  check(): Promise<void>
+}
+
 export type UnmarshallResult<T> = {
   value: T,
   offset: number

@@ -462,7 +462,7 @@ def _ts_request_helper(self, name, void):
     '    %s (%s): %s',
     func_name,
     ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
-    func_cookie if not void else 'Promise<void>'
+    func_cookie if not void else 'RequestChecker'
   )
   _ts('  }')
   _ts('}')
@@ -471,7 +471,7 @@ def _ts_request_helper(self, name, void):
     'XConnection.prototype.%s = function(%s): %s {',
     func_name,
     ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
-    func_cookie if not void else 'Promise<void>'
+    func_cookie if not void else 'RequestChecker'
   )
   for field in param_fields:
     if field.type.is_list and field.type.expr.lenfield:
@@ -574,12 +574,18 @@ def _ts_request_helper(self, name, void):
 
   write_request_part(wire_fields)
 
-  _ts(
-    '  return this.sendRequest<%s>(requestParts, %s%s)',
-    self.ts_reply_name if not void else 'void',
-    self.opcode,
-    f', unmarshall{self.ts_reply_name}' if not void else ''
-  )
+  if void:
+    _ts(
+      '  return this.sendVoidRequest(requestParts, %s)',
+      self.opcode
+    )
+  else:
+    _ts(
+      '  return this.sendRequest<%s>(requestParts, %s, %s)',
+      self.ts_reply_name if not void else 'void',
+      self.opcode,
+      f'unmarshall{self.ts_reply_name}'
+    )
   _ts('}')
 
 
@@ -598,8 +604,9 @@ def ts_open(self):
   _ts('//')
   _ts('')
   _ts('import { XConnection } from \'./connection\'')
+  _ts('import type { Unmarshaller, EventHandler, RequestChecker } from \'./xjsbInternals\'')
   _ts(
-    'import { xcbSimpleList, xcbComplexList, Unmarshaller, typePad, notUndefined, events, errors, EventHandler } from \'./xjsbInternals\'')
+    'import { xcbSimpleList, xcbComplexList, typePad, notUndefined, events, errors } from \'./xjsbInternals\'')
   _ts('import { unpackFrom, pack } from \'./struct\'')
   _ts('')
 
@@ -777,7 +784,8 @@ def ts_event(self, name):
   # Opcode define
   _ts_setlevel(2)
   _ts('events[%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
-  _ts('  const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value', self.ts_event_name)
+  _ts('  const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
+      self.ts_event_name)
   _ts('  xConnection.on%s?.(event)', self.ts_event_name)
   _ts('}')
 
