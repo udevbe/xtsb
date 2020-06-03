@@ -777,7 +777,7 @@ def ts_event(self, name):
   # Opcode define
   _ts_setlevel(2)
   _ts('events[%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
-  _ts('  const event = unmarshall%s(rawEvent, 0).value', self.ts_event_name)
+  _ts('  const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value', self.ts_event_name)
   _ts('  xConnection.on%s?.(event)', self.ts_event_name)
   _ts('}')
 
@@ -817,10 +817,15 @@ def ts_error(self, name):
   # Exception definition
   _ts('')
   _ts('export class %s extends Error {', self.ts_except_name)
-  _ts('  readonly error: %s', self.ts_error_name)
+  _ts('  readonly xError: %s', self.ts_error_name)
   _ts('  constructor (error: %s) {', self.ts_error_name)
   _ts('    super()')
-  _ts('    this.error = error')
+  _ts('    Object.setPrototypeOf(this, %s.prototype)', self.ts_except_name)
+  _ts('    this.name = \'%s\'', self.ts_error_name)
+  _ts('    this.xError = error')
+  _ts('  }')
+  _ts('  toString () {')
+  _ts('    return JSON.stringify(this.xError)')
   _ts('  }')
   _ts('}')
 

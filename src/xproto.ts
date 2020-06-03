@@ -1818,10 +1818,15 @@ const unmarshallRequestError: Unmarshaller<RequestError> = (buffer, offset=0) =>
 }
 
 export class BadRequest extends Error {
-  readonly error: RequestError
+  readonly xError: RequestError
   constructor (error: RequestError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadRequest.prototype)
+    this.name = 'RequestError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -1846,10 +1851,15 @@ const unmarshallValueError: Unmarshaller<ValueError> = (buffer, offset=0) => {
 }
 
 export class BadValue extends Error {
-  readonly error: ValueError
+  readonly xError: ValueError
   constructor (error: ValueError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadValue.prototype)
+    this.name = 'ValueError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -1874,10 +1884,15 @@ const unmarshallWindowError: Unmarshaller<WindowError> = (buffer, offset=0) => {
 }
 
 export class BadWindow extends Error {
-  readonly error: WindowError
+  readonly xError: WindowError
   constructor (error: WindowError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadWindow.prototype)
+    this.name = 'WindowError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -1902,10 +1917,15 @@ const unmarshallPixmapError: Unmarshaller<PixmapError> = (buffer, offset=0) => {
 }
 
 export class BadPixmap extends Error {
-  readonly error: PixmapError
+  readonly xError: PixmapError
   constructor (error: PixmapError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadPixmap.prototype)
+    this.name = 'PixmapError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -1930,10 +1950,15 @@ const unmarshallAtomError: Unmarshaller<AtomError> = (buffer, offset=0) => {
 }
 
 export class BadAtom extends Error {
-  readonly error: AtomError
+  readonly xError: AtomError
   constructor (error: AtomError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadAtom.prototype)
+    this.name = 'AtomError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -1958,10 +1983,15 @@ const unmarshallCursorError: Unmarshaller<CursorError> = (buffer, offset=0) => {
 }
 
 export class BadCursor extends Error {
-  readonly error: CursorError
+  readonly xError: CursorError
   constructor (error: CursorError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadCursor.prototype)
+    this.name = 'CursorError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -1986,10 +2016,15 @@ const unmarshallFontError: Unmarshaller<FontError> = (buffer, offset=0) => {
 }
 
 export class BadFont extends Error {
-  readonly error: FontError
+  readonly xError: FontError
   constructor (error: FontError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadFont.prototype)
+    this.name = 'FontError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -2014,10 +2049,15 @@ const unmarshallMatchError: Unmarshaller<MatchError> = (buffer, offset=0) => {
 }
 
 export class BadMatch extends Error {
-  readonly error: MatchError
+  readonly xError: MatchError
   constructor (error: MatchError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadMatch.prototype)
+    this.name = 'MatchError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -2042,10 +2082,15 @@ const unmarshallDrawableError: Unmarshaller<DrawableError> = (buffer, offset=0) 
 }
 
 export class BadDrawable extends Error {
-  readonly error: DrawableError
+  readonly xError: DrawableError
   constructor (error: DrawableError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadDrawable.prototype)
+    this.name = 'DrawableError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -2070,10 +2115,15 @@ const unmarshallAccessError: Unmarshaller<AccessError> = (buffer, offset=0) => {
 }
 
 export class BadAccess extends Error {
-  readonly error: AccessError
+  readonly xError: AccessError
   constructor (error: AccessError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadAccess.prototype)
+    this.name = 'AccessError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -2098,10 +2148,15 @@ const unmarshallAllocError: Unmarshaller<AllocError> = (buffer, offset=0) => {
 }
 
 export class BadAlloc extends Error {
-  readonly error: AllocError
+  readonly xError: AllocError
   constructor (error: AllocError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadAlloc.prototype)
+    this.name = 'AllocError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -2126,10 +2181,15 @@ const unmarshallColormapError: Unmarshaller<ColormapError> = (buffer, offset=0) 
 }
 
 export class BadColormap extends Error {
-  readonly error: ColormapError
+  readonly xError: ColormapError
   constructor (error: ColormapError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadColormap.prototype)
+    this.name = 'ColormapError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -2154,10 +2214,15 @@ const unmarshallGContextError: Unmarshaller<GContextError> = (buffer, offset=0) 
 }
 
 export class BadGContext extends Error {
-  readonly error: GContextError
+  readonly xError: GContextError
   constructor (error: GContextError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadGContext.prototype)
+    this.name = 'GContextError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -2182,10 +2247,15 @@ const unmarshallIDChoiceError: Unmarshaller<IDChoiceError> = (buffer, offset=0) 
 }
 
 export class BadIDChoice extends Error {
-  readonly error: IDChoiceError
+  readonly xError: IDChoiceError
   constructor (error: IDChoiceError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadIDChoice.prototype)
+    this.name = 'IDChoiceError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -2210,10 +2280,15 @@ const unmarshallNameError: Unmarshaller<NameError> = (buffer, offset=0) => {
 }
 
 export class BadName extends Error {
-  readonly error: NameError
+  readonly xError: NameError
   constructor (error: NameError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadName.prototype)
+    this.name = 'NameError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -2238,10 +2313,15 @@ const unmarshallLengthError: Unmarshaller<LengthError> = (buffer, offset=0) => {
 }
 
 export class BadLength extends Error {
-  readonly error: LengthError
+  readonly xError: LengthError
   constructor (error: LengthError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadLength.prototype)
+    this.name = 'LengthError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -2266,10 +2346,15 @@ const unmarshallImplementationError: Unmarshaller<ImplementationError> = (buffer
 }
 
 export class BadImplementation extends Error {
-  readonly error: ImplementationError
+  readonly xError: ImplementationError
   constructor (error: ImplementationError) {
     super()
-    this.error = error
+    Object.setPrototypeOf(this, BadImplementation.prototype)
+    this.name = 'ImplementationError'
+    this.xError = error
+  }
+  toString () {
+    return JSON.stringify(this.xError)
   }
 }
 
@@ -6035,139 +6120,139 @@ XConnection.prototype.noOperation = function(): Promise<void> {
 }
 
 events[2] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallKeyPressEvent(rawEvent, 0).value
+  const event = unmarshallKeyPressEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onKeyPressEvent?.(event)
 }
 events[3] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallKeyReleaseEvent(rawEvent, 0).value
+  const event = unmarshallKeyReleaseEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onKeyReleaseEvent?.(event)
 }
 events[4] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallButtonPressEvent(rawEvent, 0).value
+  const event = unmarshallButtonPressEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onButtonPressEvent?.(event)
 }
 events[5] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallButtonReleaseEvent(rawEvent, 0).value
+  const event = unmarshallButtonReleaseEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onButtonReleaseEvent?.(event)
 }
 events[6] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallMotionNotifyEvent(rawEvent, 0).value
+  const event = unmarshallMotionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onMotionNotifyEvent?.(event)
 }
 events[7] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallEnterNotifyEvent(rawEvent, 0).value
+  const event = unmarshallEnterNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onEnterNotifyEvent?.(event)
 }
 events[8] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallLeaveNotifyEvent(rawEvent, 0).value
+  const event = unmarshallLeaveNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onLeaveNotifyEvent?.(event)
 }
 events[9] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallFocusInEvent(rawEvent, 0).value
+  const event = unmarshallFocusInEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onFocusInEvent?.(event)
 }
 events[10] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallFocusOutEvent(rawEvent, 0).value
+  const event = unmarshallFocusOutEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onFocusOutEvent?.(event)
 }
 events[11] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallKeymapNotifyEvent(rawEvent, 0).value
+  const event = unmarshallKeymapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onKeymapNotifyEvent?.(event)
 }
 events[12] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallExposeEvent(rawEvent, 0).value
+  const event = unmarshallExposeEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onExposeEvent?.(event)
 }
 events[13] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallGraphicsExposureEvent(rawEvent, 0).value
+  const event = unmarshallGraphicsExposureEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onGraphicsExposureEvent?.(event)
 }
 events[14] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallNoExposureEvent(rawEvent, 0).value
+  const event = unmarshallNoExposureEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onNoExposureEvent?.(event)
 }
 events[15] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallVisibilityNotifyEvent(rawEvent, 0).value
+  const event = unmarshallVisibilityNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onVisibilityNotifyEvent?.(event)
 }
 events[16] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallCreateNotifyEvent(rawEvent, 0).value
+  const event = unmarshallCreateNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onCreateNotifyEvent?.(event)
 }
 events[17] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallDestroyNotifyEvent(rawEvent, 0).value
+  const event = unmarshallDestroyNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onDestroyNotifyEvent?.(event)
 }
 events[18] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallUnmapNotifyEvent(rawEvent, 0).value
+  const event = unmarshallUnmapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onUnmapNotifyEvent?.(event)
 }
 events[19] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallMapNotifyEvent(rawEvent, 0).value
+  const event = unmarshallMapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onMapNotifyEvent?.(event)
 }
 events[20] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallMapRequestEvent(rawEvent, 0).value
+  const event = unmarshallMapRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onMapRequestEvent?.(event)
 }
 events[21] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallReparentNotifyEvent(rawEvent, 0).value
+  const event = unmarshallReparentNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onReparentNotifyEvent?.(event)
 }
 events[22] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallConfigureNotifyEvent(rawEvent, 0).value
+  const event = unmarshallConfigureNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onConfigureNotifyEvent?.(event)
 }
 events[23] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallConfigureRequestEvent(rawEvent, 0).value
+  const event = unmarshallConfigureRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onConfigureRequestEvent?.(event)
 }
 events[24] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallGravityNotifyEvent(rawEvent, 0).value
+  const event = unmarshallGravityNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onGravityNotifyEvent?.(event)
 }
 events[25] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallResizeRequestEvent(rawEvent, 0).value
+  const event = unmarshallResizeRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onResizeRequestEvent?.(event)
 }
 events[26] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallCirculateNotifyEvent(rawEvent, 0).value
+  const event = unmarshallCirculateNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onCirculateNotifyEvent?.(event)
 }
 events[27] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallCirculateRequestEvent(rawEvent, 0).value
+  const event = unmarshallCirculateRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onCirculateRequestEvent?.(event)
 }
 events[28] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallPropertyNotifyEvent(rawEvent, 0).value
+  const event = unmarshallPropertyNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onPropertyNotifyEvent?.(event)
 }
 events[29] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallSelectionClearEvent(rawEvent, 0).value
+  const event = unmarshallSelectionClearEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onSelectionClearEvent?.(event)
 }
 events[30] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallSelectionRequestEvent(rawEvent, 0).value
+  const event = unmarshallSelectionRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onSelectionRequestEvent?.(event)
 }
 events[31] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallSelectionNotifyEvent(rawEvent, 0).value
+  const event = unmarshallSelectionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onSelectionNotifyEvent?.(event)
 }
 events[32] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallColormapNotifyEvent(rawEvent, 0).value
+  const event = unmarshallColormapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onColormapNotifyEvent?.(event)
 }
 events[33] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallClientMessageEvent(rawEvent, 0).value
+  const event = unmarshallClientMessageEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onClientMessageEvent?.(event)
 }
 events[34] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallMappingNotifyEvent(rawEvent, 0).value
+  const event = unmarshallMappingNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onMappingNotifyEvent?.(event)
 }
 events[35] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallGeGenericEvent(rawEvent, 0).value
+  const event = unmarshallGeGenericEvent(rawEvent.buffer, rawEvent.byteOffset).value
   xConnection.onGeGenericEvent?.(event)
 }
 errors[1] = [unmarshallRequestError, BadRequest]

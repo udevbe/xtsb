@@ -1,5 +1,5 @@
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import { connect, XConnectionOptions } from '../src'
+import { BadWindow, connect, EventMask, WindowClass, XConnectionOptions } from '../src'
 import { setupXvfb } from './setupXvfb'
 
 describe('Connection', () => {
@@ -41,7 +41,7 @@ describe('Connection', () => {
 
     // When
     const windowId = connection.allocateID()
-    connection.createWindow(0, windowId, connection.setup.roots[0].root, 0, 0, 1, 1, 0, 0, 0, {})
+    connection.createWindow(0, windowId, connection.setup.roots[0].root, 0, 0, 1, 1, 0, WindowClass.InputOutput, 0, {})
     const queryTreeReply = await connection.queryTree(windowId)
 
     // Then
@@ -50,5 +50,32 @@ describe('Connection', () => {
     expect(queryTreeReply.childrenLen).toBe(0)
     expect(queryTreeReply.children.length).toBe(0)
     done()
+  })
+
+  it('can receive an error from a request.', async done => {
+    // Given
+    const connection = await connect(testOptions)
+
+    // When
+    const windowId = connection.allocateID()
+    connection.createWindow(0, windowId, 12345, 0, 0, 1, 1, 0, WindowClass.InputOutput, 0, {}).catch(error => {
+      expect(error).toBeInstanceOf(BadWindow)
+      done()
+    })
+  })
+
+  it('can receive events.', async done => {
+    // Given
+    const connection = await connect(testOptions)
+
+    // When
+    const windowId = connection.allocateID()
+    connection.createWindow(0, windowId, connection.setup.roots[0].root, 0, 0, 1, 1, 0, WindowClass.InputOutput, 0, { eventMask: EventMask.StructureNotify})
+    connection.onDestroyNotifyEvent = event => {
+      expect(event.window).toBe(windowId)
+      done()
+    }
+
+    connection.destroyWindow(windowId)
   })
 })
