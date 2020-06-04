@@ -1,6 +1,12 @@
 # XTSB [![Build Status](https://travis-ci.org/udevbe/xtsb.svg?branch=master)](https://travis-ci.org/udevbe/xtsb) [![Coverage Status](https://coveralls.io/repos/github/udevbe/xtsb/badge.svg?branch=master)](https://coveralls.io/github/udevbe/xtsb?branch=master)
 
-X11 TypeScript Bindings
+X11 TypeScript Bindings. 
+
+Wip, although probably already quite usable. Not published on NPM yet.
+
+Currently only works in Node.
+
+Originally created for use in [Greenfield](https://github.com/udevbe/greenfield/issues/12).
 
 
 # Build
