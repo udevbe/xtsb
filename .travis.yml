@@ -4,16 +4,22 @@ cache:
     - ~/.npm
 notifications:
   email: false
+
 node_js:
   - '12'
   - '13'
   - '14'
 script:
   - yarn test:prod && yarn build
-after_success:
-  - yarn travis-deploy-once "yarn report-coverage"
-  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then npm run travis-deploy-once "yarn deploy-docs"; fi
-  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then npm run travis-deploy-once "yarn semantic-release"; fi
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
+
+jobs:
+  include:
+    - stage: report coverage
+      script: yarn report-coverage
+    - stage: deploy docs
+      script: if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then yarn deploy-docs; fi
+#    - stage: semantic release
+#      script: if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then yarn semantic-release; fi
