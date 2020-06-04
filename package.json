@@ -1,6 +1,6 @@
 {
   "name": "xtsb",
-  "version": "0.0.1",
+  "version": "0.0.0-development",
   "description": "",
   "keywords": [],
   "main": "dist/xtsb.umd.js",
@@ -12,11 +12,11 @@
   "author": "Erik De Rijcke <derijcke.erik@gmail.com>",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/udevbe/xtsb.git"
   },
   "license": "MIT",
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=12.0.0"
   },
   "scripts": {
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
@@ -110,7 +110,7 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-sourcemaps": "^0.6.2",
     "rollup-plugin-typescript2": "^0.27.1",
-    "semantic-release": "^17.0.7",
+    "semantic-release": "^17.0.8",
     "shelljs": "^0.8.3",
     "travis-deploy-once": "^5.0.9",
     "ts-jest": "^26.0.0",
