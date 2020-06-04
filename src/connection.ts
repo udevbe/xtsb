@@ -10,13 +10,14 @@ export interface XConnectionOptions {
   xAuthority?: string
 }
 
-type ReplyResolver = { resolve: (value?: any | PromiseLike<any>) => void, resolveWithError: (reason?: any) => void }
+type ReplyResolver = { resolve: (value?: any | PromiseLike<any>) => void, resolveWithError: (reason?: any) => number }
 
-const resolveWithError = (reject: (reason?: any) => void) => (rawError: Uint8Array) => {
+const resolveWithError = (reject: (reason?: any) => void) => (rawError: Uint8Array): number => {
   const errorCode = rawError[1]
   const [errorUnmarshaller, ErrorClass] = errors[errorCode]
   const errorBody = errorUnmarshaller(rawError.buffer, rawError.byteOffset)
-  reject(new ErrorClass(errorBody))
+  reject(new ErrorClass(errorBody.value))
+  return errorBody.offset
 }
 
 const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (buffer, offset = 0) => {
@@ -31,6 +32,7 @@ const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (buffer, 
     offset
   }
 }
+
 
 export class XConnection {
   readonly socket: net.Socket
@@ -80,21 +82,29 @@ export class XConnection {
   }
 
   private onData(data: Uint8Array) {
-    const type = data[0]
+    let offset = 0
 
-    if (type === 0) {
-      const replySequenceNumber = data[2] | data[3] << 8
-      this.resolvePreviousReplyResolvers(replySequenceNumber)
-      const replyResolver = this.findReplyResolver(replySequenceNumber)
-      replyResolver.resolveWithError(data)
-    } else if (type === 1) {
-      const replySequenceNumber = data[2] | data[3] << 8
-      this.resolvePreviousReplyResolvers(replySequenceNumber)
-      const replyResolver = this.findReplyResolver(replySequenceNumber)
-      replyResolver.resolve(data)
-    } else {
-      // Event
-      events[type](this, data)
+    while ((data.byteOffset + offset) < data.byteLength) {
+      const packet = new Uint8Array(data.buffer, data.byteOffset + offset)
+
+      const type = packet[0]
+      if (type === 0) {
+        const replySequenceNumber = packet[2] | packet[3] << 8
+        this.resolvePreviousReplyResolvers(replySequenceNumber)
+        const replyResolver = this.findReplyResolver(replySequenceNumber)
+        offset += replyResolver.resolveWithError(packet)
+      } else if (type === 1) {
+        const replySequenceNumber = packet[2] | packet[3] << 8
+        const length = 32 + (4* (packet[4] | packet[5] << 8 | packet[6] << 16 | packet[7] << 24))
+        this.resolvePreviousReplyResolvers(replySequenceNumber)
+        const replyResolver = this.findReplyResolver(replySequenceNumber)
+        replyResolver.resolve(packet)
+        offset += length
+      } else {
+        // Event
+        events[type](this, packet)
+        offset += 32
+      }
     }
   }
 

@@ -75,4 +75,23 @@ describe('Connection', () => {
 
     connection.destroyWindow(windowId)
   })
+
+  it('can wait on a successful checked request.', async done => {
+    // Given
+    const windowId0 = connection.allocateID()
+    const windowId1 = connection.allocateID()
+
+    // When
+    connection.createWindow(0, windowId0, connection.setup.roots[0].root, 0, 0, 1, 1, 0, WindowClass.InputOutput, 0, { eventMask: EventMask.StructureNotify })
+    await connection.destroyWindow(windowId0).check()
+    await connection.createWindow(0, windowId1, connection.setup.roots[0].root, 0, 0, 1, 1, 0, WindowClass.InputOutput, 0, {}).check()
+    const queryTreeReply = await connection.queryTree(windowId1)
+
+    // Then
+    expect(queryTreeReply.parent).toBe(connection.setup.roots[0].root)
+    expect(queryTreeReply.root).toBe(connection.setup.roots[0].root)
+    expect(queryTreeReply.childrenLen).toBe(0)
+    expect(queryTreeReply.children.length).toBe(0)
+    done()
+  })
 })
