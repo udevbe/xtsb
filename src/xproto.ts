@@ -5,6 +5,7 @@
 
 import { XConnection } from './connection'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
+// tslint:disable-next-line:no-duplicate-imports
 import { xcbSimpleList, xcbComplexList, typePad, notUndefined, events, errors } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 

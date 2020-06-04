@@ -95,7 +95,7 @@ export class XConnection {
         offset += 32
       } else if (type === 1) {
         const replySequenceNumber = packet[2] | packet[3] << 8
-        const length = 32 + (4* (packet[4] | packet[5] << 8 | packet[6] << 16 | packet[7] << 24))
+        const length = 32 + (4 * (packet[4] | packet[5] << 8 | packet[6] << 16 | packet[7] << 24))
         this.resolvePreviousReplyResolvers(replySequenceNumber)
         const replyResolver = this.findReplyResolver(replySequenceNumber)
         replyResolver.resolve(packet)
@@ -124,6 +124,7 @@ export class XConnection {
     return {
       check: (): Promise<void> => {
         // fire a poor man 'sync' call to ensure the xserver has processed our previous actual call.
+        // tslint:disable-next-line:no-floating-promises
         this.sendRequest<GetInputFocusReply>([new ArrayBuffer(4)], 43, unmarshallGetInputFocusReply)
         return voidRequestPromise
       }
@@ -197,6 +198,7 @@ async function startHandshake(socket: net.Socket, displayNum: string, authHost: 
       const setup = readServerHello(data)
       resolve(setup)
     })
+    // tslint:disable-next-line:no-floating-promises
     writeClientHello(socket, displayNum, authHost, socketFamily, xAuthority)
   })
 }

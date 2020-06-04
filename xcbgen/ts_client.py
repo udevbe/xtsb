@@ -605,6 +605,7 @@ def ts_open(self):
   _ts('')
   _ts('import { XConnection } from \'./connection\'')
   _ts('import type { Unmarshaller, EventHandler, RequestChecker } from \'./xjsbInternals\'')
+  _ts('// tslint:disable-next-line:no-duplicate-imports')
   _ts(
     'import { xcbSimpleList, xcbComplexList, typePad, notUndefined, events, errors } from \'./xjsbInternals\'')
   _ts('import { unpackFrom, pack } from \'./struct\'')
