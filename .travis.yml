@@ -10,7 +10,8 @@ node_js:
   - '13'
   - '14'
 script:
-  - yarn test:prod && yarn build
+  - yarn test:prod
+  - yarn build
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
@@ -18,7 +19,8 @@ branches:
 jobs:
   include:
     - stage: report coverage
-      script: yarn report-coverage
+      script: yarn test:prod
+    - script: yarn report-coverage
     - stage: deploy docs
       script: if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then yarn deploy-docs; fi
 #    - stage: semantic release
