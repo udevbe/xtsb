@@ -1,3 +1,8 @@
+# XTSB [![Build Status](https://travis-ci.org/udevbe/xtsb.svg?branch=master)](https://travis-ci.org/udevbe/xtsb) [![Coverage Status](https://coveralls.io/repos/github/udevbe/xtsb/badge.svg?branch=master)](https://coveralls.io/github/udevbe/xtsb?branch=master)
+
+X11 TypeScript Bindings
+
+
 # Build
 
 yarn install
@@ -50,6 +55,8 @@ main()
 
  http://udev.be/xtsb/
  
-# License MIT
+# License 
+
+MIT
 
 
