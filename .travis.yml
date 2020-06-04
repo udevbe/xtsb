@@ -19,8 +19,10 @@ branches:
 jobs:
   include:
     - stage: report coverage
-      script: yarn test:prod && yarn report-coverage
+      script:
+        - yarn test:prod && yarn report-coverage
     - stage: deploy docs
-      script: if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then yarn deploy-docs; fi
+      script:
+        - if [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_PULL_REQUEST == false ]; then yarn deploy-docs; fi
 #    - stage: semantic release
-#      script: if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then yarn semantic-release; fi
+#      script: if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" == "false" ]; then yarn semantic-release; fi
