@@ -10,14 +10,13 @@ export interface XConnectionOptions {
   xAuthority?: string
 }
 
-type ReplyResolver = { resolve: (value?: any | PromiseLike<any>) => void, resolveWithError: (reason?: any) => number }
+type ReplyResolver = { resolve: (value?: any | PromiseLike<any>) => void, resolveWithError: (reason?: any) => void }
 
-const resolveWithError = (reject: (reason?: any) => void) => (rawError: Uint8Array): number => {
+const resolveWithError = (reject: (reason?: any) => void) => (rawError: Uint8Array) => {
   const errorCode = rawError[1]
   const [errorUnmarshaller, ErrorClass] = errors[errorCode]
   const errorBody = errorUnmarshaller(rawError.buffer, rawError.byteOffset)
   reject(new ErrorClass(errorBody.value))
-  return errorBody.offset
 }
 
 const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (buffer, offset = 0) => {
@@ -92,7 +91,8 @@ export class XConnection {
         const replySequenceNumber = packet[2] | packet[3] << 8
         this.resolvePreviousReplyResolvers(replySequenceNumber)
         const replyResolver = this.findReplyResolver(replySequenceNumber)
-        offset += replyResolver.resolveWithError(packet)
+        replyResolver.resolveWithError(packet)
+        offset += 32
       } else if (type === 1) {
         const replySequenceNumber = packet[2] | packet[3] << 8
         const length = 32 + (4* (packet[4] | packet[5] << 8 | packet[6] << 16 | packet[7] << 24))

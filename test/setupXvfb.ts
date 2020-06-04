@@ -32,7 +32,7 @@ export async function setupXvfb(display: string): Promise<{ xProc: ChildProcessW
   })
   await new Promise(resolve => setTimeout(() => {
     resolve(xProc)
-  }, 100))
+  }, 750))
 
   return { xProc, xAuthority }
 }

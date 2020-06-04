@@ -69,6 +69,7 @@ describe('Connection', () => {
     // When
     connection.createWindow(0, windowId, connection.setup.roots[0].root, 0, 0, 1, 1, 0, WindowClass.InputOutput, 0, { eventMask: EventMask.StructureNotify })
     connection.onDestroyNotifyEvent = event => {
+      connection.onDestroyNotifyEvent = undefined
       expect(event.window).toBe(windowId)
       done()
     }
