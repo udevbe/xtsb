@@ -19,8 +19,7 @@ branches:
 jobs:
   include:
     - stage: report coverage
-      script: yarn test:prod
-    - script: yarn report-coverage
+      script: yarn test:prod && yarn report-coverage
     - stage: deploy docs
       script: if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then yarn deploy-docs; fi
 #    - stage: semantic release
