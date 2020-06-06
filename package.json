@@ -22,7 +22,7 @@
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "rimraf dist",
     "build:protocol": "PYTHONPATH='.' python3.7 xcbgen/ts_client.py ./protocol/xproto.xml",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --excludeExternals --excludeNotExported --excludePrivate --out docs --target es6 --theme minimal --mode modules --inputFiles src/xproto.ts --inputFiles src/connection.ts --inputFiles src/nodeConnection.ts",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --includeDeclarations --excludeExternals --excludeNotExported --excludePrivate --out docs --target es6 --theme minimal --mode modules --inputFiles src/xproto.ts --inputFiles src/connection.ts --inputFiles src/nodeConnection.ts",
     "start": "rollup -c rollup.config.ts -w",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",
