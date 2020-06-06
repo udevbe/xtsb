@@ -47,7 +47,7 @@ export async function authenticate(
       const setup = readServerHello(data)
       resolve(setup)
     }
-
+    // tslint:disable-next-line:no-floating-promises
     writeClientHello(xConnectionSocket, displayNum, authHost, socketFamily, cookie)
   })
 }
