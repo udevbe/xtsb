@@ -294,6 +294,10 @@ def _ts_type_fields(self):
   for field in self.fields:
     if field.type.is_pad or field.auto:
       continue
+    if hasattr(self, 'doc') and hasattr(self.doc, 'fields') and field.field_name in self.doc.fields:
+      _ts(' /**')
+      _ts('  * %s', self.doc.fields[field.field_name].replace('\n', '\n  * '))
+      _ts('  */')
     _ts(f'  {_n(field.field_name)}: {_ts_field_type(field)}')
 
 
@@ -406,35 +410,8 @@ def _ts_request_helper(self, name, void):
   Declares a request function.
   '''
 
-  # Four stunningly confusing possibilities here:
-  #
-  #   Void            Non-void
-  # ------------------------------
-  # "req"            "req"
-  # 0 flag           CHECKED flag   Normal Mode
-  # void_cookie      req_cookie
-  # ------------------------------
-  # "req_checked"    "req_unchecked"
-  # CHECKED flag     0 flag         Abnormal Mode
-  # void_cookie      req_cookie
-  # ------------------------------
-
-  # Whether we are _checked or _unchecked
-  # checked = void and not regular
-  # unchecked = not void and not regular
-
-  # What kind of cookie we return
-  func_cookie = 'xcbVoidCookie' if void else self.ts_cookie_name
-
-  # What flag is passed to xcb_request
-  # func_flags = checked or (not void and regular)
-
-  # What our function name is
+  func_cookie = 'RequestChecker' if void else self.ts_cookie_name
   func_name = self.ts_request_name
-  # if checked:
-  #   func_name = self.ts_checked_name
-  # if unchecked:
-  # func_name = self.ts_unchecked_name
 
   param_fields = []
   wire_fields = []
@@ -458,11 +435,41 @@ def _ts_request_helper(self, name, void):
   _ts('')
   _ts('declare module \'./connection\' {')
   _ts('  interface XConnection {')
+  if hasattr(self, 'doc') and self.doc:
+    _ts('    /**')
+    if hasattr(self.doc, 'brief') and self.doc.brief:
+      _ts('     * %s', self.doc.brief)
+    if hasattr(self.doc, 'description') and self.doc.description:
+      _ts('     *  ')
+      _ts('     * %s', self.doc.description.replace('\n', '\n     * '))
+    if hasattr(self.doc, 'example') and self.doc.example:
+      # code comment is broken
+      # _ts('     *  ')
+      # _ts('     * Example:  ')
+      # _ts('     *  ')
+      # _ts('     * ```')
+      # _ts('     * %s', self.doc.example.replace('\n', '\n     * '))
+      # _ts('     * ```')
+      pass
+    if hasattr(self.doc, 'fields'):
+      for param_name, param_descr in self.doc.fields.items():
+        _ts('     * @param %s %s', param_name, param_descr.replace('\n\n', '\n     * ').replace('\n', '\n     * '))
+    if hasattr(self.doc, 'see') and self.doc.see:
+      _ts('     *  ')
+      _ts('     * See also:  ')
+      for type_name, xtype in self.doc.see.items():
+        if xtype == 'request':
+          _ts('     *  ')
+          _ts('     * {@link XConnection.%s}  ', type_name[0].lower() + type_name[1:])
+        if xtype == 'event':
+          _ts('     *  ')
+          _ts('     * {@link %sEvent}  ', type_name)
+    _ts('     */')
   _ts(
     '    %s (%s): %s',
     func_name,
     ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
-    func_cookie if not void else 'RequestChecker'
+    func_cookie
   )
   _ts('  }')
   _ts('}')
@@ -471,7 +478,7 @@ def _ts_request_helper(self, name, void):
     'XConnection.prototype.%s = function(%s): %s {',
     func_name,
     ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
-    func_cookie if not void else 'RequestChecker'
+    func_cookie
   )
   for field in param_fields:
     if field.type.is_list and field.type.expr.lenfield:
@@ -768,6 +775,26 @@ def ts_event(self, name):
   # Structure definition
   _ts_setlevel(0)
   _ts('')
+  if hasattr(self, 'doc') and self.doc:
+    _ts('/**')
+    if hasattr(self.doc, 'brief') and self.doc.brief:
+      _ts(' *  ')
+      _ts(' * %s', self.doc.brief.replace('\n', '\n * '))
+    if hasattr(self.doc, 'description') and self.doc.description:
+      _ts(' *  ')
+      _ts(' * %s', self.doc.description.replace('\n', '\n * '))
+    if hasattr(self.doc, 'see') and self.doc.see:
+      _ts(' *  ')
+      _ts(' * See:  ')
+      for type_name, xtype in self.doc.see.items():
+        if xtype == 'request':
+          _ts(' *  ')
+          _ts(' * {@link XConnection.%s}  ', type_name[0].lower() + type_name[1:])
+        if xtype == 'event':
+          _ts(' *  ')
+          _ts(' * {@link %sEvent}  ', type_name)
+    _ts(' */')
+
   _ts('export type %s = {', self.ts_event_name)
   _ts_type_fields(self)
   _ts('}')
