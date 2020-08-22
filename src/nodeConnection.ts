@@ -4,7 +4,7 @@ import { homedir, hostname } from 'os'
 import * as path from 'path'
 import * as util from 'util'
 import { authenticate } from './auth'
-import { XConnection, XConnectionOptions, XConnectionSocket } from './connection'
+import { connectGeneric, XConnection, XConnectionOptions, XConnectionSocket } from './connection'
 
 const fsReadFile = util.promisify(fs.readFile)
 
@@ -31,7 +31,7 @@ const connectionTypeToName: ConnectionTypeToName = {
   1: 'DECnet',
   2: 'Chaos',
   5: 'ServerInterpreted',
-  6: 'Internet6',
+  6: 'Internet6'
 }
 
 interface Cookie {
@@ -73,7 +73,7 @@ function parseXauth(buf: Uint8Array): Cookie[] {
     'address',
     'display',
     'authName',
-    'authData',
+    'authData'
   ]
 
   while (offset < buf.length) {
@@ -82,7 +82,7 @@ function parseXauth(buf: Uint8Array): Cookie[] {
       throw new Error('Unknown address type')
     }
     const cookie: Partial<Cookie> = {
-      type: type as keyof ConnectionTypeToName,
+      type: type as keyof ConnectionTypeToName
     }
 
     offset += 2
@@ -156,7 +156,7 @@ export async function getAuthenticationCookie(
   if (!data) {
     return {
       authName: '',
-      authData: '',
+      authData: ''
     }
   }
   const auth = parseXauth(data)
@@ -173,62 +173,66 @@ export async function getAuthenticationCookie(
   // If no cookie is found, proceed without authentication
   return {
     authName: '',
-    authData: '',
+    authData: ''
   }
 }
 
 export async function connect(options?: XConnectionOptions): Promise<XConnection> {
-  const display = options?.display ?? process.env.DISPLAY ?? ':0'
-  const xAuthority = options?.xAuthority
+  const connectionSetup = async () => {
+    const display = options?.display ?? process.env.DISPLAY ?? ':0'
+    const xAuthority = options?.xAuthority
 
-  const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
-  if (!displayMatch) {
-    throw new Error('Cannot parse display')
-  }
-
-  const host = displayMatch[1]
-  const displayNum = displayMatch[2] ?? '0'
-  const screenNum = displayMatch[3] ?? '0'
-
-  let socketPath: string | undefined
-  // try local socket on non-windows platforms
-  if (['cygwin', 'win32', 'win64'].indexOf(process.platform) < 0) {
-    // FIXME check if mac is ok?
-    // @ts-ignore
-    if (process.platform === 'darwin' || process.platform === 'mac') {
-      // socket path on OSX is /tmp/launch-(some id)/org.x:0
-      if (display[0] === '/') {
-        socketPath = display
-      }
-    } else if (!host) {
-      socketPath = '/tmp/.X11-unix/X' + displayNum
+    const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
+    if (!displayMatch) {
+      throw new Error('Cannot parse display')
     }
+
+    const host = displayMatch[1]
+    const displayNum = displayMatch[2] ?? '0'
+    const screenNum = displayMatch[3] ?? '0'
+
+    let socketPath: string | undefined
+    // try local socket on non-windows platforms
+    if (['cygwin', 'win32', 'win64'].indexOf(process.platform) < 0) {
+      // FIXME check if mac is ok?
+      // @ts-ignore
+      if (process.platform === 'darwin' || process.platform === 'mac') {
+        // socket path on OSX is /tmp/launch-(some id)/org.x:0
+        if (display[0] === '/') {
+          socketPath = display
+        }
+      } else if (!host) {
+        socketPath = '/tmp/.X11-unix/X' + displayNum
+      }
+    }
+
+    const socket = await connectSocket(host, displayNum, socketPath)
+    const xConnectionSocket: XConnectionSocket = {
+      write(data: Uint8Array) {
+        socket.write(data)
+      },
+
+      close() {
+        socket.end()
+      }
+    }
+    socket.on('data', (data) => xConnectionSocket.onData?.(data))
+
+    let authHost = socket.remoteAddress
+    let socketFamily = socket.remoteFamily as 'IPv4' | 'IPv6' | undefined
+
+    if (!authHost || authHost === '127.0.0.1' || authHost === '::1') {
+      authHost = hostname()
+      socketFamily = undefined
+    }
+
+    // tslint:disable-next-line:no-floating-promises
+    const cookie = await getAuthenticationCookie(displayNum, authHost, socketFamily, xAuthority)
+    const setup = await authenticate(xConnectionSocket, displayNum, authHost, socketFamily, cookie)
+
+    return { setup, xConnectionSocket }
   }
 
-  const socket = await connectSocket(host, displayNum, socketPath)
 
-  const xConnectionSocket: XConnectionSocket = {
-    write(data: Uint8Array) {
-      socket.write(data)
-    },
-
-    close() {
-      socket.end()
-    },
-  }
-  socket.on('data', (data) => xConnectionSocket.onData?.(data))
-
-  let authHost = socket.remoteAddress
-  let socketFamily = socket.remoteFamily as 'IPv4' | 'IPv6' | undefined
-
-  if (!authHost || authHost === '127.0.0.1' || authHost === '::1') {
-    authHost = hostname()
-    socketFamily = undefined
-  }
-
-  // tslint:disable-next-line:no-floating-promises
-  const cookie = await getAuthenticationCookie(displayNum, authHost, socketFamily, xAuthority)
-  const setup = await authenticate(xConnectionSocket, displayNum, authHost, socketFamily, cookie)
-
-  return new XConnection(xConnectionSocket, displayNum, setup)
+  return connectGeneric(connectionSetup)
 }

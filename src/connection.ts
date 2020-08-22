@@ -38,9 +38,9 @@ const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (buffer, 
   return {
     value: {
       revertTo,
-      focus,
+      focus
     },
-    offset,
+    offset
   }
 }
 
@@ -138,7 +138,7 @@ export class XConnection {
         // tslint:disable-next-line:no-floating-promises
         this.sendRequest<GetInputFocusReply>([new ArrayBuffer(4)], 43, unmarshallGetInputFocusReply)
         return voidRequestPromise
-      },
+      }
     }
   }
 
@@ -190,4 +190,20 @@ function createRequestBuffer(requestParts: ArrayBuffer[]): Uint8Array {
     },
     { buffer: new Uint8Array(requestSize), offset: 0 }
   ).buffer
+}
+
+export interface SetupConnection {
+  (): Promise<{ setup: Setup, xConnectionSocket: XConnectionSocket }>
+}
+
+export async function connectGeneric(setupConnection: SetupConnection, options?: XConnectionOptions): Promise<XConnection> {
+  const display = options?.display ?? process.env.DISPLAY ?? ':0'
+
+  const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
+  if (!displayMatch) {
+    throw new Error('Cannot parse display')
+  }
+  const displayNum = displayMatch[2] ?? '0'
+  const { setup, xConnectionSocket } = await setupConnection()
+  return new XConnection(xConnectionSocket, displayNum, setup)
 }
