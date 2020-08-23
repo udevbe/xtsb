@@ -35,7 +35,7 @@ function createXConnectionSocket(webSocket: WebSocket): XConnectionSocket {
 
 async function auth(webSocket: WebSocket, options?: XConnectionOptions) {
   return new Promise<Setup>((resolve, reject) => {
-    webSocket.onmessage = (ev: MessageEvent<string>) => {
+    webSocket.onmessage = ev => {
       const message = JSON.parse(ev.data)
       if (message?.reply === 'connectAck' && isSetup(message?.replyArgs)) {
         resolve(message.replyArgs)
