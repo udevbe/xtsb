@@ -9,10 +9,10 @@ import { Setup } from './xproto'
 
 function isSetup(setup: any): setup is Setup {
   // TODO we could check all Setup attributes but it would be a long list...
-  return (setup as Setup).rootsLen !== undefined
-    && (setup as Setup).protocolMinorVersion !== undefined
-    && (setup as Setup).protocolMajorVersion !== undefined
-    && (setup as Setup).length !== undefined
+  return setup.rootsLen !== undefined
+    && setup.protocolMinorVersion !== undefined
+    && setup.protocolMajorVersion !== undefined
+    && setup.length !== undefined
 }
 
 function createXConnectionSocket(webSocket: WebSocket): XConnectionSocket {
