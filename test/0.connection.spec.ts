@@ -1,5 +1,12 @@
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import { BadWindow, connect, EventMask, WindowClass, XConnection } from '../src'
+import {
+  BadWindow,
+  connect,
+  EventMask,
+  nodeConnectionSetup,
+  WindowClass,
+  XConnection
+} from '../src'
 import { setupXvfb } from './setupXvfb'
 
 describe('Connection', () => {
@@ -12,7 +19,7 @@ describe('Connection', () => {
   beforeAll(async (done) => {
     const { xProc, xAuthority } = await setupXvfb(display)
     xvfbProc = xProc
-    connection = await connect({ display, xAuthority })
+    connection = await connect(nodeConnectionSetup({ display, xAuthority }))
     done()
   })
 

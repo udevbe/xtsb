@@ -1,10 +1,4 @@
-import {
-  connectGeneric,
-  SetupConnection,
-  XConnection,
-  XConnectionOptions,
-  XConnectionSocket
-} from './connection'
+import { SetupConnection, XConnectionSocket } from './connection'
 import { Setup } from './xproto'
 
 function isSetup(setup: any): setup is Setup {
@@ -33,7 +27,7 @@ function createXConnectionSocket(webSocket: WebSocket): XConnectionSocket {
   return xConnectionSocket
 }
 
-async function auth(webSocket: WebSocket, options?: XConnectionOptions) {
+async function auth(webSocket: WebSocket) {
   return new Promise<Setup>((resolve, reject) => {
     webSocket.onmessage = ev => {
       const message = JSON.parse(ev.data)
@@ -46,19 +40,12 @@ async function auth(webSocket: WebSocket, options?: XConnectionOptions) {
     webSocket.onerror = ev => {
       reject('WebSocket is in error: ' + ev)
     }
-    webSocket.send(JSON.stringify({
-      request: 'connect',
-      requestArgs: [options]
-    }))
   })
 }
 
-export async function connect(webSocket: WebSocket, options?: XConnectionOptions): Promise<XConnection> {
-  const connectionSetup: SetupConnection = async () => {
-    const setup = await auth(webSocket, options)
+export const webConnectionSetup: (webSocket: WebSocket) => SetupConnection =
+  (webSocket) => async () => {
+    const setup = await auth(webSocket)
     const xConnectionSocket = createXConnectionSocket(webSocket)
     return { setup, xConnectionSocket }
   }
-
-  return connectGeneric(connectionSetup)
-}

@@ -4,7 +4,7 @@ import { homedir, hostname } from 'os'
 import * as path from 'path'
 import * as util from 'util'
 import { authenticate } from './auth'
-import { connectGeneric, XConnection, XConnectionOptions, XConnectionSocket } from './connection'
+import { SetupConnection, XConnectionOptions, XConnectionSocket } from './connection'
 
 const fsReadFile = util.promisify(fs.readFile)
 
@@ -136,10 +136,29 @@ async function connectSocket(
   })
 }
 
+async function connectSocketFD(
+  fd: number
+): Promise<net.Socket> {
+  return new Promise((resolve, reject) => {
+    const socket = new net.Socket({ fd })
+    // TODO is ready event required?
+    socket.on('ready', () => {
+      resolve(socket)
+    })
+    socket.on('error', (err: NodeJS.ErrnoException) => {
+      if (socket.connecting) {
+        reject(err)
+      } else {
+        socket.destroy(err)
+      }
+    })
+  })
+}
+
 export async function getAuthenticationCookie(
   displayNum: string,
   authHost: string,
-  socketFamily: 'IPv4' | 'IPv6' | undefined,
+  socketFamily?: 'IPv4' | 'IPv6',
   xAuthority?: string
 ): Promise<{ authName: string; authData: string }> {
   let family: number
@@ -177,8 +196,41 @@ export async function getAuthenticationCookie(
   }
 }
 
-export async function connect(options?: XConnectionOptions): Promise<XConnection> {
-  const connectionSetup = async () => {
+export const nodeFDConnectionSetup: (fd: number) => SetupConnection =
+  fd => async () => {
+    const display = process.env.DISPLAY
+    if (display === undefined) {
+      throw new Error('No DISPLAY environment variable set.')
+    }
+
+    const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
+    if (!displayMatch) {
+      throw new Error('Cannot parse display')
+    }
+    const displayNum = displayMatch[2] ?? '0'
+
+
+    const socket = await connectSocketFD(fd)
+    const xConnectionSocket: XConnectionSocket = {
+      write(data: Uint8Array) {
+        socket.write(data)
+      },
+
+      close() {
+        socket.end()
+      }
+    }
+    socket.on('data', (data) => xConnectionSocket.onData?.(data))
+
+    const authHost = hostname()
+    const cookie = await getAuthenticationCookie(displayNum, authHost)
+    const setup = await authenticate(xConnectionSocket, displayNum, authHost, undefined, cookie)
+
+    return { setup, xConnectionSocket }
+  }
+
+export const nodeConnectionSetup: (options: XConnectionOptions) => SetupConnection =
+  options => async () => {
     const display = options?.display ?? process.env.DISPLAY ?? ':0'
     const xAuthority = options?.xAuthority
 
@@ -226,13 +278,8 @@ export async function connect(options?: XConnectionOptions): Promise<XConnection
       socketFamily = undefined
     }
 
-    // tslint:disable-next-line:no-floating-promises
     const cookie = await getAuthenticationCookie(displayNum, authHost, socketFamily, xAuthority)
     const setup = await authenticate(xConnectionSocket, displayNum, authHost, socketFamily, cookie)
 
     return { setup, xConnectionSocket }
   }
-
-
-  return connectGeneric(connectionSetup)
-}

@@ -46,7 +46,6 @@ const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (buffer, 
 
 export class XConnection {
   readonly socket: XConnectionSocket
-  readonly displayNum: string
   readonly setup: Setup
 
   private readonly unusedIds: number[] = []
@@ -56,7 +55,7 @@ export class XConnection {
   private requestSequenceNumber: number = 0
   private readonly replyResolvers: ReplyResolver[] = []
 
-  constructor(socket: XConnectionSocket, displayNum: string, setup: Setup) {
+  constructor(socket: XConnectionSocket, setup: Setup) {
     this.nextResourceId = 0
     this.resourceIdShift = 0
     this.setup = setup
@@ -66,8 +65,6 @@ export class XConnection {
     }
 
     this.socket = socket
-    this.displayNum = displayNum
-
     socket.onData = (data) => this.onData(data)
   }
 
@@ -196,14 +193,7 @@ export interface SetupConnection {
   (): Promise<{ setup: Setup, xConnectionSocket: XConnectionSocket }>
 }
 
-export async function connectGeneric(setupConnection: SetupConnection, options?: XConnectionOptions): Promise<XConnection> {
-  const display = options?.display ?? process.env.DISPLAY ?? ':0'
-
-  const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
-  if (!displayMatch) {
-    throw new Error('Cannot parse display')
-  }
-  const displayNum = displayMatch[2] ?? '0'
+export async function connect(setupConnection: SetupConnection): Promise<XConnection> {
   const { setup, xConnectionSocket } = await setupConnection()
-  return new XConnection(xConnectionSocket, displayNum, setup)
+  return new XConnection(xConnectionSocket, setup)
 }
