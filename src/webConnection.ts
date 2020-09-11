@@ -31,8 +31,8 @@ async function auth(webSocket: WebSocket) {
   return new Promise<Setup>((resolve, reject) => {
     webSocket.onmessage = ev => {
       const message = JSON.parse(ev.data)
-      if (message?.reply === 'connectAck' && isSetup(message?.replyArgs)) {
-        resolve(message.replyArgs)
+      if (isSetup(message)) {
+        resolve(message)
       } else {
         reject('Expected connectAck, got: ' + ev)
       }

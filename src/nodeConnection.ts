@@ -135,23 +135,14 @@ async function connectSocket(
   })
 }
 
-async function connectSocketFD(
+function connectSocketFD(
   fd: number
-): Promise<net.Socket> {
-  return new Promise((resolve, reject) => {
-    const socket = new net.Socket({ fd })
-    // TODO is ready event required?
-    socket.on('ready', () => {
-      resolve(socket)
-    })
-    socket.on('error', (err: NodeJS.ErrnoException) => {
-      if (socket.connecting) {
-        reject(err)
-      } else {
-        socket.destroy(err)
-      }
-    })
+): net.Socket {
+  const socket = new net.Socket({ fd })
+  socket.on('error', (err: NodeJS.ErrnoException) => {
+    socket.destroy(err)
   })
+  return socket
 }
 
 export async function getAuthenticationCookie(
@@ -209,7 +200,7 @@ export const nodeFDConnectionSetup: (fd: number) => SetupConnection =
     const displayNum = displayMatch[2] ?? '0'
 
 
-    const socket = await connectSocketFD(fd)
+    const socket = connectSocketFD(fd)
     const xConnectionSocket: XConnectionSocket = {
       write(data: Uint8Array) {
         socket.write(data)
