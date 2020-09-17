@@ -309,8 +309,11 @@ def _ts_fields(self):
 
 
 def _ts_unmarshall_complex(self):
+  _ts('declare global {')
+  _ts('  let unmarshall%s: Unmarshaller<%s>', self.ts_type, self.ts_type)
+  _ts('}')
   _ts(
-    'const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
+    'const _unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
     self.ts_type,
     self.ts_type
   )
@@ -374,6 +377,7 @@ def _ts_unmarshall_complex(self):
   _ts('    offset')
   _ts('  }')
   _ts('}')
+  _ts('_global.unmarshall%s = _unmarshall%s', self.ts_type, self.ts_type)
 
 
 def _ts_marshall_complex(self):
@@ -394,11 +398,11 @@ def _ts_reply(self, name):
   '''
   Handles reply declarations.
   '''
-  _ts_type_setup(self, name, 'Reply')
+  _ts_type_setup(self, name)
 
   _ts_setlevel(0)
   _ts('')
-  _ts('export type %s = {', self.ts_reply_name)
+  _ts('export type %s = {', self.ts_type)
   _ts_type_fields(self)
   _ts('}')
   _ts('')
@@ -572,7 +576,7 @@ def _ts_request_helper(self, name, void):
         write_request_part(field.type.member.fields)
         _ts('  })')
       else:
-        _ts('  new Error(\'FIXME support sending this type: \')', field.field_type[-1])
+        _ts('  throw new Error(\'FIXME support sending this type: %s \')', field.field_type[-1])
 
     (format, size, list) = _ts_flush_format()
     if size > 0:
@@ -589,9 +593,9 @@ def _ts_request_helper(self, name, void):
   else:
     _ts(
       '  return this.sendRequest<%s>(requestParts, %s, %s)',
-      self.ts_reply_name if not void else 'void',
+      self.ts_type if not void else 'void',
       self.opcode,
-      f'unmarshall{self.ts_reply_name}'
+      f'unmarshall{self.ts_type}'
     )
   _ts('}')
 
@@ -610,6 +614,7 @@ def ts_open(self):
   _ts('// Edit at your peril.')
   _ts('//')
   _ts('')
+  _ts('const _global = (window /* browser */ || global /* node */) as any')
   _ts('import { XConnection } from \'./connection\'')
   _ts('import type { Unmarshaller, EventHandler, RequestChecker } from \'./xjsbInternals\'')
   _ts('// tslint:disable-next-line:no-duplicate-imports')
@@ -620,7 +625,7 @@ def ts_open(self):
 
   if _ns.is_ext:
     for (n, h) in self.imports:
-      _ts('import * as %s from \'%s\'', h)
+      _ts('import * as %s from \'./%s\'', h, h)
 
     _ts('')
     _ts('const MAJOR_VERSION = %s', _ns.major_version)
@@ -648,16 +653,18 @@ def ts_close(self):
 def ts_enum(self, name):
   _ts_setlevel(0)
   _ts('')
-  _ts('export enum %s {', _t(name))
+  _ts('declare global {')
+  _ts('  export enum %s {', _t(name))
 
   count = 0
 
   for (enam, eval) in self.values:
-    _ts('  %s= %s,', _n(enam), eval if eval != '' else count)
+    _ts('    %s = %s,', _n(enam), eval if eval != '' else count)
     if eval != '':
       count = int(eval) + 1
     else:
       count += 1
+  _ts('  }')
   _ts('}')
 
 
@@ -668,7 +675,9 @@ def ts_simple(self, name):
   '''
   _ts_type_setup(self, name, '')
   _ts('')
-  _ts(f'export type {name[-1]} = {_ts_types[self.name[-1]]}')
+  _ts('declare global {')
+  _ts(f'  export type {name[-1]} = {_ts_types[self.name[-1]]}')
+  _ts('}')
   _ts('')
 
 
@@ -681,8 +690,10 @@ def ts_struct(self, name):
   _ts_setlevel(0)
 
   _ts('')
-  _ts('export type %s  = {', self.ts_type)
+  _ts('declare global {')
+  _ts('  export type %s  = {', self.ts_type)
   _ts_type_fields(self)
+  _ts('  }')
   _ts('}')
   _ts('')
   _ts_complex(self, name)
@@ -697,12 +708,14 @@ def ts_union(self, name):
   _ts_setlevel(0)
 
   _ts('')
-  _ts('export type %s  = {', self.ts_type)
+  _ts('declare global {')
+  _ts('  export type %s  = {', self.ts_type)
   _ts_type_fields(self)
+  _ts('  }')
   _ts('}')
   _ts('')
   _ts(
-    'const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
+    'export const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
     self.ts_type,
     self.ts_type
   )
@@ -749,13 +762,13 @@ def ts_request(self, name):
   '''
   Exported function that handles request declarations.
   '''
-  _ts_type_setup(self, name, 'Request')
+  _ts_type_setup(self, name)
   _ts_setlevel(0)
 
   if self.reply:
     # Cookie class declaration
     _ts('')
-    _ts('export type %s = Promise<%s>', self.ts_cookie_name, self.ts_reply_name)
+    _ts('export type %s = Promise<%s>', self.ts_cookie_name, self.ts_type)
     # Reply class definition
     _ts_reply(self.reply, name)
     # Request prototypes
