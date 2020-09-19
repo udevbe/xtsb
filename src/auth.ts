@@ -1,7 +1,7 @@
 import { XConnectionSocket } from './connection'
 import { pack, unpackFrom } from './struct'
 import { typePad, Unmarshaller, xcbComplexList, xcbSimpleList } from './xjsbInternals'
-import { DEPTH, FORMAT, SCREEN, Setup, SetupFailed, VISUALTYPE } from './xproto'
+import { DEPTH, FORMAT, SCREEN, Setup, SetupFailed, VISUALTYPE } from './xcb'
 
 function paddedLength(len?: number): number {
   if (len) {

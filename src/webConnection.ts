@@ -1,5 +1,5 @@
 import { SetupConnection, XConnectionSocket } from './connection'
-import { Setup } from './xproto'
+import { Setup } from './xcb'
 
 function isSetup(setup: any): setup is Setup {
   // TODO we could check all Setup attributes but it would be a long list...

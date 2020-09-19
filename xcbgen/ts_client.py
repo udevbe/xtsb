@@ -56,6 +56,8 @@ _simple_list_types = {
   "'double'": 'Float64Array'
 }
 
+_ts_own_prefix = ''
+_ts_type_imports = {}
 _tslines = []
 _tslevel = 0
 _ns = None
@@ -63,6 +65,12 @@ _ns = None
 _ts_fmt_fmt = ''
 _ts_fmt_size = 0
 _ts_fmt_list = []
+
+
+def _ts_import_type(ts_type, ts_file):
+  if ts_file not in _ts_type_imports:
+    _ts_type_imports[ts_file] = set()
+  _ts_type_imports[ts_file].add(ts_type)
 
 
 def _camel(s):
@@ -205,6 +213,11 @@ def _ts_type_setup(self, name, postfix=''):
     self.ts_fixed_size = 0
 
     for field in self.fields:
+      if not field.type.is_container and len(field.field_type) > 1:
+        type_prefix = ''.join(field.field_type[:-1])
+        if _ts_own_prefix != type_prefix:
+          _ts_import_type(field.field_type[-1], type_prefix)
+
       _ts_type_setup(field.type, field.field_type)
 
       field.ts_type = _t(field.field_type)
@@ -273,9 +286,15 @@ def _ts_type_alignsize(field):
 def _ts_field_type(field):
   postfix = '[]' if field.type.is_list else ''
 
-  element_type = None
   if field.enum:
-    element_type = field.enum
+    global module
+    enum_type = module.get_type(field.enum)
+    if len(enum_type.name) > 1:
+      type_prefix = ''.join(enum_type.name[:-1])
+      if _ts_own_prefix != type_prefix:
+        _ts_import_type(enum_type.name[-1], type_prefix)
+
+    element_type = enum_type.name[-1]
   elif field.type.is_switch:
     ts_switch_type = ', '.join(
       [f'{_n(switch_field.field_name)}: {_ts_field_type(switch_field)}' for switch_field in
@@ -310,7 +329,7 @@ def _ts_fields(self):
 
 def _ts_unmarshall_complex(self):
   _ts(
-    'const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
+    'export const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
     self.ts_type,
     self.ts_type
   )
@@ -337,6 +356,11 @@ def _ts_unmarshall_complex(self):
     if need_alignment:
       _ts('  offset += typePad(%d, offset)', _ts_type_alignsize(field))
     need_alignment = True
+
+    if len(field.field_type) > 1:
+      type_prefix = ''.join(field.field_type[:-1])
+      if _ts_own_prefix != type_prefix:
+        _ts_import_type('unmarshall%s' % field.field_type[-1], type_prefix)
 
     if field.type.is_list:
       _ts(
@@ -431,10 +455,11 @@ def _ts_request_helper(self, name, void):
       # We need to set the field up in the structure
       wire_fields.append(field)
 
+  global _ns
   _ts_setlevel(1)
   _ts('')
-  _ts('declare module \'./connection\' {')
-  _ts('  interface XConnection {')
+  _ts('declare module \'./%s\' {', _ts_own_prefix if _ns.is_ext else 'connection')
+  _ts('  interface %s {', _ns.ext_name or 'XConnection')
   if hasattr(self, 'doc') and self.doc:
     _ts('    /**')
     if hasattr(self.doc, 'brief') and self.doc.brief:
@@ -453,7 +478,8 @@ def _ts_request_helper(self, name, void):
       pass
     if hasattr(self.doc, 'fields'):
       for param_name, param_descr in self.doc.fields.items():
-        _ts('     * @param %s %s', param_name, param_descr.replace('\n\n', '\n     * ').replace('\n', '\n     * '))
+        _ts('     * @param %s %s', param_name,
+            param_descr.replace('\n\n', '\n     * ').replace('\n', '\n     * '))
     if hasattr(self.doc, 'see') and self.doc.see:
       _ts('     *  ')
       _ts('     * See also:  ')
@@ -475,7 +501,8 @@ def _ts_request_helper(self, name, void):
   _ts('}')
   _ts('')
   _ts(
-    'XConnection.prototype.%s = function(%s): %s {',
+    '%s.prototype.%s = function(%s): %s {',
+    _ns.ext_name if _ns.is_ext else 'XConnection',
     func_name,
     ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
     func_cookie
@@ -572,7 +599,7 @@ def _ts_request_helper(self, name, void):
         write_request_part(field.type.member.fields)
         _ts('  })')
       else:
-        _ts('  new Error(\'FIXME support sending this type: \')', field.field_type[-1])
+        _ts('  new Error(\'FIXME support sending this type: %s \')', field.field_type[-1])
 
     (format, size, list) = _ts_flush_format()
     if size > 0:
@@ -583,12 +610,14 @@ def _ts_request_helper(self, name, void):
 
   if void:
     _ts(
-      '  return this.sendVoidRequest(requestParts, %s)',
+      '  return this.%ssendVoidRequest(requestParts, %s)',
+      'xConnection.' if _ns.is_ext else '',
       self.opcode
     )
   else:
     _ts(
-      '  return this.sendRequest<%s>(requestParts, %s, %s)',
+      '  return this.%ssendRequest<%s>(requestParts, %s, %s)',
+      'xConnection.' if _ns.is_ext else '',
       self.ts_reply_name if not void else 'void',
       self.opcode,
       f'unmarshall{self.ts_reply_name}'
@@ -604,6 +633,9 @@ def ts_open(self):
   global _ns
   _ns = self.namespace
 
+  global _ts_own_prefix
+  _ts_own_prefix = ''.join(_ns.prefix)
+
   _ts_setlevel(0)
   _ts('//')
   _ts('// This file generated automatically from %s by ts_client.py.', _ns.file)
@@ -611,6 +643,7 @@ def ts_open(self):
   _ts('//')
   _ts('')
   _ts('import { XConnection } from \'./connection\'')
+  _ts("import Protocol from './Protocol'")
   _ts('import type { Unmarshaller, EventHandler, RequestChecker } from \'./xjsbInternals\'')
   _ts('// tslint:disable-next-line:no-duplicate-imports')
   _ts(
@@ -618,15 +651,18 @@ def ts_open(self):
   _ts('import { unpackFrom, pack } from \'./struct\'')
   _ts('')
 
-  if _ns.is_ext:
-    for (n, h) in self.imports:
-      _ts('import * as %s from \'%s\'', h)
+  # for (n, h) in self.imports:
+  #   _ts('import * as %s from \'%s\'', h, h)
 
-    _ts('')
-    _ts('const MAJOR_VERSION = %s', _ns.major_version)
-    _ts('const MINOR_VERSION = %s', _ns.minor_version)
-    _ts('')
-    # _ts('key = xcb.ExtensionKey(\'%s\')', _ns.ext_xname)
+  _ts('')
+  if _ns.is_ext:
+    _ts('export class %s extends Protocol {', _ns.ext_name)
+    if _ns.is_ext:
+      _ts(' static MAJOR_VERSION = %s', _ns.major_version)
+      _ts(' static MINOR_VERSION = %s', _ns.minor_version)
+    _ts('}')
+  _ts('')
+  # _ts('key = xcb.ExtensionKey(\'%s\')', _ns.ext_xname)
 
   _ts_setlevel(1)
   _ts('')
@@ -637,7 +673,11 @@ def ts_close(self):
   Exported function that handles module close.
   Writes out all the stored content lines, then closes the file.
   '''
-  tsfile = open('./src/%s.ts' % _ns.header, 'w')
+  tsfile = open('./src/%s.ts' % _ts_own_prefix, 'w')
+
+  for ts_import_file, imports in _ts_type_imports.items():
+    tsfile.write(f'import {{{", ".join(imports)}}} from \'./{ts_import_file}\'\n')
+
   for list in _tslines:
     for line in list:
       tsfile.write(line)
@@ -805,7 +845,7 @@ def ts_event(self, name):
   _ts('')
   _ts('declare module \'./connection\' {')
   _ts('  interface XConnection {')
-  _ts('    on%s?: %sHandler', self.ts_event_name, self.ts_event_name)
+  _ts('    on%s%s?: %sHandler', _ns.ext_name, self.ts_event_name, self.ts_event_name)
   _ts('  }')
   _ts('}')
   _ts('')
@@ -814,7 +854,7 @@ def ts_event(self, name):
   _ts('events[%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
   _ts('  const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
       self.ts_event_name)
-  _ts('  xConnection.on%s?.(event)', self.ts_event_name)
+  _ts('  xConnection.on%s%s?.(event)', _ns.ext_name, self.ts_event_name)
   _ts('}')
 
 

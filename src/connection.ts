@@ -1,6 +1,6 @@
 import { unpackFrom } from './struct'
+import { GetInputFocusReply, Setup } from './xcb'
 import { errors, events, RequestChecker, Unmarshaller } from './xjsbInternals'
-import { GetInputFocusReply, Setup } from './xproto'
 
 export interface XConnectionSocketFactory {
   (xConnectionOptions?: XConnectionOptions): Promise<XConnectionSocket>
