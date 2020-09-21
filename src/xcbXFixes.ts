@@ -1,4 +1,4 @@
-import {WINDOW, ATOM, CURSOR, unmarshallRECTANGLE, RECTANGLE, PIXMAP, GCONTEXT, TIMESTAMP} from './xcb'
+import {TIMESTAMP, WINDOW, PIXMAP, CURSOR, unmarshallRECTANGLE, GCONTEXT, RECTANGLE, ATOM} from './xcb'
 import {KIND, SK} from './xcbShape'
 import {PICTURE} from './xcbRender'
 //
@@ -13,10 +13,29 @@ import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals
 import { xcbSimpleList, xcbComplexList, typePad, notUndefined, events, errors } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
-
 export class XFixes extends Protocol {
  static MAJOR_VERSION = 5
  static MINOR_VERSION = 0
+}
+
+const errorInits: ((firstError: number) => void)[] = []
+const eventInits: ((firstEvent: number) => void)[] = []
+
+let protocolExtension: XFixes | undefined = undefined
+
+export async function getXFixes(xConnection: XConnection): Promise<XFixes> {
+  if (protocolExtension) {
+    return protocolExtension
+  }
+  const queryExtensionReply = await xConnection.queryExtension(new Int8Array(new TextEncoder().encode('XFixes').buffer))
+  if (queryExtensionReply.present === 0) {
+    throw new Error('XFixes extension not present.')
+  }
+  const { firstError, firstEvent, majorOpcode } = queryExtensionReply
+  protocolExtension = new XFixes(xConnection, majorOpcode)
+  errorInits.forEach(init => init(firstError))
+  eventInits.forEach(init => init(firstEvent))
+  return protocolExtension
 }
 
 
@@ -94,9 +113,9 @@ export const unmarshallSelectionNotifyEvent: Unmarshaller<SelectionNotifyEvent> 
 }
 export interface SelectionNotifyEventHandler extends EventHandler<SelectionNotifyEvent> {}
 
-declare module './connection' {
-  interface XConnection {
-    onXFixesSelectionNotifyEvent?: SelectionNotifyEventHandler
+declare module './xcbXFixes' {
+  interface XFixes {
+    onSelectionNotifyEvent?: SelectionNotifyEventHandler
   }
 }
 
@@ -134,9 +153,9 @@ export const unmarshallCursorNotifyEvent: Unmarshaller<CursorNotifyEvent> = (buf
 }
 export interface CursorNotifyEventHandler extends EventHandler<CursorNotifyEvent> {}
 
-declare module './connection' {
-  interface XConnection {
-    onXFixesCursorNotifyEvent?: CursorNotifyEventHandler
+declare module './xcbXFixes' {
+  interface XFixes {
+    onCursorNotifyEvent?: CursorNotifyEventHandler
   }
 }
 
@@ -176,10 +195,10 @@ export const unmarshallGetCursorImageReply: Unmarshaller<GetCursorImageReply> = 
   }
 }
 
-export type RegionError = {
+export type BadRegionError = {
 }
 
-export const unmarshallBadRegionError: Unmarshaller<RegionError> = (buffer, offset=0) => {
+export const unmarshallBadRegionError: Unmarshaller<BadRegionError> = (buffer, offset=0) => {
 
   return {
     value: {
@@ -189,8 +208,8 @@ export const unmarshallBadRegionError: Unmarshaller<RegionError> = (buffer, offs
 }
 
 export class BadRegion extends Error {
-  readonly xError: RegionError
-  constructor (error: RegionError) {
+  readonly xError: BadRegionError
+  constructor (error: BadRegionError) {
     super()
     Object.setPrototypeOf(this, BadRegion.prototype)
     this.name = 'RegionError'
@@ -824,12 +843,20 @@ XFixes.prototype.deletePointerBarrier = function(barrier: BARRIER): RequestCheck
   return this.xConnection.sendVoidRequest(requestParts, 32)
 }
 
-events[0] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallSelectionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onXFixesSelectionNotifyEvent?.(event)
-}
-events[1] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallCursorNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onXFixesCursorNotifyEvent?.(event)
-}
-errors[0] = [unmarshallBadRegionError, BadRegion]
+eventInits.push((firstEvent) => {
+  events[firstEvent+0] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+    if(protocolExtension === undefined) return
+    const event = unmarshallSelectionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
+    protocolExtension.onSelectionNotifyEvent?.(event)
+  }
+})
+eventInits.push((firstEvent) => {
+  events[firstEvent+1] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+    if(protocolExtension === undefined) return
+    const event = unmarshallCursorNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
+    protocolExtension.onCursorNotifyEvent?.(event)
+  }
+})
+errorInits.push(firstError => {
+  errors[firstError+0] = [unmarshallBadRegionError, BadRegion]
+})

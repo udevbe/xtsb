@@ -2,10 +2,10 @@ import { XConnection } from './connection'
 
 export default class Protocol {
   xConnection: XConnection
+  majorOpcode: number
 
-  constructor(xConnection: XConnection, wireErrors: () => void | undefined, wireEvents: () => void | undefined) {
+  constructor(xConnection: XConnection, majorOpcode: number) {
     this.xConnection = xConnection
-    wireErrors?.()
-    wireEvents?.()
+    this.majorOpcode = majorOpcode
   }
 }

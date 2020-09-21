@@ -12,7 +12,6 @@ import { unpackFrom, pack } from './struct'
 
 
 
-
 export type CHAR2B  = {
   byte1: number
   byte2: number

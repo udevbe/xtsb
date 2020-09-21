@@ -1,4 +1,4 @@
-import {CURSOR, VISUALID, STR, PIXMAP, SubwindowMode, RECTANGLE, DRAWABLE, unmarshallSTR, COLORMAP, ATOM} from './xcb'
+import {CURSOR, SubwindowMode, RECTANGLE, PIXMAP, VISUALID, COLORMAP, DRAWABLE, STR, unmarshallSTR, ATOM} from './xcb'
 //
 // This file generated automatically from render.xml by ts_client.py.
 // Edit at your peril.
@@ -11,10 +11,29 @@ import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals
 import { xcbSimpleList, xcbComplexList, typePad, notUndefined, events, errors } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
-
 export class Render extends Protocol {
  static MAJOR_VERSION = 0
  static MINOR_VERSION = 11
+}
+
+const errorInits: ((firstError: number) => void)[] = []
+const eventInits: ((firstEvent: number) => void)[] = []
+
+let protocolExtension: Render | undefined = undefined
+
+export async function getRender(xConnection: XConnection): Promise<Render> {
+  if (protocolExtension) {
+    return protocolExtension
+  }
+  const queryExtensionReply = await xConnection.queryExtension(new Int8Array(new TextEncoder().encode('Render').buffer))
+  if (queryExtensionReply.present === 0) {
+    throw new Error('Render extension not present.')
+  }
+  const { firstError, firstEvent, majorOpcode } = queryExtensionReply
+  protocolExtension = new Render(xConnection, majorOpcode)
+  errorInits.forEach(init => init(firstError))
+  eventInits.forEach(init => init(firstEvent))
+  return protocolExtension
 }
 
 
@@ -1396,8 +1415,18 @@ Render.prototype.createConicalGradient = function(picture: PICTURE, center: POIN
   return this.xConnection.sendVoidRequest(requestParts, 36)
 }
 
-errors[0] = [unmarshallPictFormatError, BadPictFormat]
-errors[1] = [unmarshallPictureError, BadPicture]
-errors[2] = [unmarshallPictOpError, BadPictOp]
-errors[3] = [unmarshallGlyphSetError, BadGlyphSet]
-errors[4] = [unmarshallGlyphError, BadGlyph]
+errorInits.push(firstError => {
+  errors[firstError+0] = [unmarshallPictFormatError, BadPictFormat]
+})
+errorInits.push(firstError => {
+  errors[firstError+1] = [unmarshallPictureError, BadPicture]
+})
+errorInits.push(firstError => {
+  errors[firstError+2] = [unmarshallPictOpError, BadPictOp]
+})
+errorInits.push(firstError => {
+  errors[firstError+3] = [unmarshallGlyphSetError, BadGlyphSet]
+})
+errorInits.push(firstError => {
+  errors[firstError+4] = [unmarshallGlyphError, BadGlyph]
+})

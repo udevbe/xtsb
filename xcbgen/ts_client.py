@@ -651,18 +651,36 @@ def ts_open(self):
   _ts('import { unpackFrom, pack } from \'./struct\'')
   _ts('')
 
-  # for (n, h) in self.imports:
-  #   _ts('import * as %s from \'%s\'', h, h)
-
-  _ts('')
   if _ns.is_ext:
     _ts('export class %s extends Protocol {', _ns.ext_name)
-    if _ns.is_ext:
-      _ts(' static MAJOR_VERSION = %s', _ns.major_version)
-      _ts(' static MINOR_VERSION = %s', _ns.minor_version)
+    _ts(' static MAJOR_VERSION = %s', _ns.major_version)
+    _ts(' static MINOR_VERSION = %s', _ns.minor_version)
     _ts('}')
+    _ts('')
+    _ts('const errorInits: ((firstError: number) => void)[] = []')
+    _ts('const eventInits: ((firstEvent: number) => void)[] = []')
+    _ts('')
+    _ts('let protocolExtension: %s | undefined = undefined', _ns.ext_name)
+    _ts('')
+    _ts('export async function get%s(xConnection: XConnection): Promise<%s> {', _ns.ext_name,
+        _ns.ext_name)
+    _ts('  if (protocolExtension) {')
+    _ts('    return protocolExtension')
+    _ts('  }')
+    _ts(
+      "  const queryExtensionReply = await xConnection.queryExtension(new Int8Array(new TextEncoder().encode('%s').buffer))",
+      _ns.ext_name)
+    _ts('  if (queryExtensionReply.present === 0) {')
+    _ts("    throw new Error('%s extension not present.')", _ns.ext_name)
+    _ts('  }')
+    _ts('  const { firstError, firstEvent, majorOpcode } = queryExtensionReply')
+    _ts('  protocolExtension = new %s(xConnection, majorOpcode)', _ns.ext_name)
+    _ts('  errorInits.forEach(init => init(firstError))')
+    _ts('  eventInits.forEach(init => init(firstEvent))')
+    _ts('  return protocolExtension')
+    _ts('}')
+
   _ts('')
-  # _ts('key = xcb.ExtensionKey(\'%s\')', _ns.ext_xname)
 
   _ts_setlevel(1)
   _ts('')
@@ -843,19 +861,29 @@ def ts_event(self, name):
   _ts('export interface %sHandler extends EventHandler<%s> {}', self.ts_event_name,
       self.ts_event_name)
   _ts('')
-  _ts('declare module \'./connection\' {')
-  _ts('  interface XConnection {')
-  _ts('    on%s%s?: %sHandler', _ns.ext_name, self.ts_event_name, self.ts_event_name)
+  _ts('declare module \'./%s\' {', _ts_own_prefix if _ns.is_ext else 'connection')
+  _ts('  interface %s {', _ns.ext_name if _ns.is_ext else 'XConnection')
+  _ts('    on%s?: %sHandler', self.ts_event_name, self.ts_event_name)
   _ts('  }')
   _ts('}')
   _ts('')
   # Opcode define
   _ts_setlevel(2)
-  _ts('events[%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
-  _ts('  const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
-      self.ts_event_name)
-  _ts('  xConnection.on%s%s?.(event)', _ns.ext_name, self.ts_event_name)
-  _ts('}')
+  if _ns.is_ext:
+    _ts('eventInits.push((firstEvent) => {')
+    _ts('  events[firstEvent+%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
+    _ts('    if(protocolExtension === undefined) return')
+    _ts('    const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
+        self.ts_event_name)
+    _ts('    protocolExtension.on%s?.(event)', self.ts_event_name)
+    _ts('  }')
+    _ts('})')
+  else:
+    _ts('events[%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
+    _ts('  const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
+        self.ts_event_name)
+    _ts('  xConnection.on%s?.(event)', self.ts_event_name)
+    _ts('}')
 
 
 def ts_eventstruct(self, name):
@@ -907,8 +935,14 @@ def ts_error(self, name):
 
   # Opcode define
   _ts_setlevel(3)
-  _ts('errors[%s] = [unmarshall%s, %s]', self.opcodes[name], self.ts_error_name,
-      self.ts_except_name)
+  if _ns.is_ext:
+    _ts('errorInits.push(firstError => {')
+    _ts('  errors[firstError+%s] = [unmarshall%s, %s]', self.opcodes[name], self.ts_error_name,
+        self.ts_except_name)
+    _ts('})')
+  else:
+    _ts('errors[%s] = [unmarshall%s, %s]', self.opcodes[name], self.ts_error_name,
+        self.ts_except_name)
 
 
 # Main routine starts here

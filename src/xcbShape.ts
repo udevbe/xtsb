@@ -1,4 +1,4 @@
-import {WINDOW, TIMESTAMP, PIXMAP, unmarshallRECTANGLE, RECTANGLE, ClipOrdering} from './xcb'
+import {TIMESTAMP, RECTANGLE, WINDOW, unmarshallRECTANGLE, ClipOrdering, PIXMAP} from './xcb'
 //
 // This file generated automatically from shape.xml by ts_client.py.
 // Edit at your peril.
@@ -11,10 +11,29 @@ import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals
 import { xcbSimpleList, xcbComplexList, typePad, notUndefined, events, errors } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
-
 export class Shape extends Protocol {
  static MAJOR_VERSION = 1
  static MINOR_VERSION = 1
+}
+
+const errorInits: ((firstError: number) => void)[] = []
+const eventInits: ((firstEvent: number) => void)[] = []
+
+let protocolExtension: Shape | undefined = undefined
+
+export async function getShape(xConnection: XConnection): Promise<Shape> {
+  if (protocolExtension) {
+    return protocolExtension
+  }
+  const queryExtensionReply = await xConnection.queryExtension(new Int8Array(new TextEncoder().encode('Shape').buffer))
+  if (queryExtensionReply.present === 0) {
+    throw new Error('Shape extension not present.')
+  }
+  const { firstError, firstEvent, majorOpcode } = queryExtensionReply
+  protocolExtension = new Shape(xConnection, majorOpcode)
+  errorInits.forEach(init => init(firstError))
+  eventInits.forEach(init => init(firstEvent))
+  return protocolExtension
 }
 
 
@@ -63,9 +82,9 @@ export const unmarshallNotifyEvent: Unmarshaller<NotifyEvent> = (buffer, offset=
 }
 export interface NotifyEventHandler extends EventHandler<NotifyEvent> {}
 
-declare module './connection' {
-  interface XConnection {
-    onShapeNotifyEvent?: NotifyEventHandler
+declare module './xcbShape' {
+  interface Shape {
+    onNotifyEvent?: NotifyEventHandler
   }
 }
 
@@ -314,7 +333,10 @@ Shape.prototype.getRectangles = function(window: WINDOW, sourceKind: SK): GetRec
   return this.xConnection.sendRequest<GetRectanglesReply>(requestParts, 8, unmarshallGetRectanglesReply)
 }
 
-events[0] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onShapeNotifyEvent?.(event)
-}
+eventInits.push((firstEvent) => {
+  events[firstEvent+0] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+    if(protocolExtension === undefined) return
+    const event = unmarshallNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
+    protocolExtension.onNotifyEvent?.(event)
+  }
+})
