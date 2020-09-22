@@ -129,12 +129,13 @@ def _b(bool):
   return 'true' if bool else 'false'
 
 
-def _ts_push_format(field):
+def _ts_push_format(field, name_prefix=''):
   global _ts_fmt_fmt, _ts_fmt_size, _ts_fmt_list
 
   _ts_fmt_fmt += field.type.ts_format_str
   _ts_fmt_size += field.type.size
-  _ts_fmt_list.append(_n(field.field_name))
+
+  _ts_fmt_list.append(f'{name_prefix}{_n(field.field_name)}')
 
 
 def _ts_push_format_simple(field):
@@ -507,20 +508,23 @@ def _ts_request_helper(self, name, void):
     ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
     func_cookie
   )
+
+  len_helper_fields = set()
   for field in param_fields:
-    if field.type.is_list and field.type.expr.lenfield:
+    if field.type.is_list and field.type.expr.lenfield and field.type.expr.lenfield.field_name not in len_helper_fields:
+      len_helper_fields.add(field.type.expr.lenfield.field_name)
       _ts('  const %s = %s.length', _n(field.type.expr.lenfield.field_name), _n(field.field_name))
 
   _ts('  const requestParts: ArrayBuffer[] = []')
   _ts('')
 
-  def write_request_part(fields):
+  def write_request_part(fields, name_prefix=''):
     for field in fields:
       if field.auto:
         _ts_push_pad(field.type.size)
         continue
       if field.type.is_simple:
-        _ts_push_format(field)
+        _ts_push_format(field, name_prefix)
         continue
       if field.type.is_pad:
         _ts_push_pad(field.type.nmemb)
@@ -594,10 +598,12 @@ def _ts_request_helper(self, name, void):
         _ts('  requestParts.push(%s.buffer)', _n(field.field_name))
       elif field.type.is_list:
         _ts('  %s.forEach(({%s}) => {', _n(field.field_name), ', '.join(
-          [f'{_n(x.field_name)}' for x in field.type.member.fields if not x.type.is_pad]
+          [f'  {_n(x.field_name)}' for x in field.type.member.fields if not x.type.is_pad]
         ))
         write_request_part(field.type.member.fields)
         _ts('  })')
+      elif field.type.is_container:
+        write_request_part(field.type.fields, name_prefix+f'{field.field_name}.')
       else:
         _ts('  new Error(\'FIXME support sending this type: %s \')', field.field_type[-1])
 
