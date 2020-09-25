@@ -1,21 +1,21 @@
 import {
-  TIMESTAMP,
-  WINDOW,
   PIXMAP,
-  CURSOR,
-  unmarshallRECTANGLE,
-  GCONTEXT,
   RECTANGLE,
-  ATOM
+  CURSOR,
+  WINDOW,
+  ATOM,
+  TIMESTAMP,
+  GCONTEXT,
+  unmarshallRECTANGLE
 } from './xcb'
-import { KIND, SK } from './xcbShape'
+import { SK } from './xcbShape'
 import { PICTURE } from './xcbRender'
 //
 // This file generated automatically from xfixes.xml by ts_client.py.
 // Edit at your peril.
 //
 
-import { XConnection } from './connection'
+import { XConnection, chars, pad } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
 // tslint:disable-next-line:no-duplicate-imports
@@ -43,7 +43,7 @@ export async function getXFixes(xConnection: XConnection): Promise<XFixes> {
   if (protocolExtension) {
     return protocolExtension
   }
-  const queryExtensionReply = await xConnection.queryExtension(new Int8Array(new TextEncoder().encode('XFixes').buffer))
+  const queryExtensionReply = await xConnection.queryExtension(chars('XFIXES'))
   if (queryExtensionReply.present === 0) {
     throw new Error('XFixes extension not present.')
   }
@@ -215,9 +215,9 @@ export const unmarshallGetCursorImageReply: Unmarshaller<GetCursorImageReply> = 
   }
 }
 
-export type BadRegionError = {}
+export type RegionError = {}
 
-export const unmarshallBadRegionError: Unmarshaller<BadRegionError> = (buffer, offset = 0) => {
+export const unmarshallBadRegionError: Unmarshaller<RegionError> = (buffer, offset = 0) => {
 
   return {
     value: {},
@@ -226,9 +226,9 @@ export const unmarshallBadRegionError: Unmarshaller<BadRegionError> = (buffer, o
 }
 
 export class BadRegion extends Error {
-  readonly xError: BadRegionError
+  readonly xError: RegionError
 
-  constructor(error: BadRegionError) {
+  constructor(error: RegionError) {
     super()
     Object.setPrototypeOf(this, BadRegion.prototype)
     this.name = 'RegionError'
@@ -608,7 +608,8 @@ XFixes.prototype.invertRegion = function(source: REGION, bounds: RECTANGLE, dest
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', source))
-  new Error('FIXME support sending this type: RECTANGLE ')
+  requestParts.push(pack('<hhHH', bounds.x, bounds.y, bounds.width, bounds.height))
+
   requestParts.push(pack('<I', destination))
 
   return this.xConnection.sendVoidRequest(requestParts, 16)
@@ -716,7 +717,7 @@ XFixes.prototype.setCursorName = function(cursor: CURSOR, name: Int8Array): Requ
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIH2x', cursor, nbytes))
-  requestParts.push(name.buffer)
+  requestParts.push(pad(name))
 
   return this.xConnection.sendVoidRequest(requestParts, 23)
 }
@@ -778,7 +779,7 @@ XFixes.prototype.changeCursorByName = function(src: CURSOR, name: Int8Array): Re
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIH2x', src, nbytes))
-  requestParts.push(name.buffer)
+  requestParts.push(pad(name))
 
   return this.xConnection.sendVoidRequest(requestParts, 27)
 }
@@ -843,7 +844,7 @@ XFixes.prototype.createPointerBarrier = function(barrier: BARRIER, window: WINDO
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIIHHHHI2xH', barrier, window, x1, y1, x2, y2, directions, numDevices))
-  requestParts.push(devices.buffer)
+  requestParts.push(pad(devices))
 
   return this.xConnection.sendVoidRequest(requestParts, 31)
 }

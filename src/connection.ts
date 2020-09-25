@@ -2,6 +2,33 @@ import { unpackFrom } from './struct'
 import { GetInputFocusReply, Setup } from './xcb'
 import { errors, events, RequestChecker, Unmarshaller } from './xjsbInternals'
 
+const textEncoder = new TextEncoder()
+const textDecoder = new TextDecoder()
+
+export function chars(chars: string): Int8Array {
+  return new Int8Array(textEncoder.encode(chars).buffer)
+}
+
+declare global {
+  interface Int8Array {
+    chars(): string
+  }
+}
+
+Int8Array.prototype.chars = function() {
+  return textDecoder.decode(this)
+}
+
+export function pad(buffer: ArrayBuffer) {
+  if (buffer.byteLength % 4 === 0) {
+    return buffer
+  }
+
+  const paddedBuffer = new ArrayBuffer((buffer.byteLength + 3) & ~0x3)
+  new Uint8Array(paddedBuffer).set(new Uint8Array(buffer))
+  return paddedBuffer
+}
+
 export interface XConnectionSocketFactory {
   (xConnectionOptions?: XConnectionOptions): Promise<XConnectionSocket>
 }
@@ -146,10 +173,11 @@ export class XConnection {
   ): Promise<T> {
     const requestBuffer = createRequestBuffer(requestParts)
     requestBuffer[0] = opcode
-    new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(
-      requestBuffer.buffer,
-      requestBuffer.byteOffset
-    ).length
+    new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] =
+      new Uint32Array(
+        requestBuffer.buffer,
+        requestBuffer.byteOffset
+      ).length
 
     const promise = new Promise<Uint8Array>((resolve, reject) => {
       this.replyResolvers.push({ resolve, resolveWithError: resolveWithError(reject) })

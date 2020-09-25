@@ -1,30 +1,29 @@
 import {
-  PIXMAP,
-  VISUALID,
-  RECTANGLE,
-  DRAWABLE,
-  SubwindowMode,
-  ATOM,
-  CURSOR,
   unmarshallSTR,
+  VISUALID,
+  ATOM,
+  SubwindowMode,
+  CURSOR,
+  STR,
+  PIXMAP,
+  RECTANGLE,
   COLORMAP,
-  STR
+  DRAWABLE
 } from './xcb'
 //
 // This file generated automatically from render.xml by ts_client.py.
 // Edit at your peril.
 //
 
-import { XConnection } from './connection'
+import { XConnection, chars, pad } from './connection'
 import Protocol from './Protocol'
-import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
+import type { Unmarshaller, RequestChecker } from './xjsbInternals'
 // tslint:disable-next-line:no-duplicate-imports
 import {
   xcbSimpleList,
   xcbComplexList,
   typePad,
   notUndefined,
-  events,
   errors
 } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
@@ -43,7 +42,7 @@ export async function getRender(xConnection: XConnection): Promise<Render> {
   if (protocolExtension) {
     return protocolExtension
   }
-  const queryExtensionReply = await xConnection.queryExtension(new Int8Array(new TextEncoder().encode('Render').buffer))
+  const queryExtensionReply = await xConnection.queryExtension(chars('RENDER'))
   if (queryExtensionReply.present === 0) {
     throw new Error('Render extension not present.')
   }
@@ -1158,12 +1157,12 @@ Render.prototype.addGlyphs = function(glyphset: GLYPHSET, glyphids: Uint32Array,
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', glyphset, glyphsLen))
-  requestParts.push(glyphids.buffer)
+  requestParts.push(pad(glyphids))
   glyphs.forEach(({ width, height, x, y, xOff, yOff }) => {
     requestParts.push(pack('<HHhhhh', width, height, x, y, xOff, yOff))
 
   })
-  requestParts.push(data.buffer)
+  requestParts.push(pad(data))
 
   return this.xConnection.sendVoidRequest(requestParts, 20)
 }
@@ -1179,7 +1178,7 @@ Render.prototype.freeGlyphs = function(glyphset: GLYPHSET, glyphsLen: number, gl
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', glyphset))
-  requestParts.push(glyphs.buffer)
+  requestParts.push(pad(glyphs))
 
   return this.xConnection.sendVoidRequest(requestParts, 22)
 }
@@ -1195,7 +1194,7 @@ Render.prototype.compositeGlyphs8 = function(op: PictOp, src: PICTURE, dst: PICT
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xB3xIIIIhh', op, src, dst, maskFormat, glyphset, srcX, srcY))
-  requestParts.push(glyphcmds.buffer)
+  requestParts.push(pad(glyphcmds))
 
   return this.xConnection.sendVoidRequest(requestParts, 23)
 }
@@ -1211,7 +1210,7 @@ Render.prototype.compositeGlyphs16 = function(op: PictOp, src: PICTURE, dst: PIC
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xB3xIIIIhh', op, src, dst, maskFormat, glyphset, srcX, srcY))
-  requestParts.push(glyphcmds.buffer)
+  requestParts.push(pad(glyphcmds))
 
   return this.xConnection.sendVoidRequest(requestParts, 24)
 }
@@ -1227,7 +1226,7 @@ Render.prototype.compositeGlyphs32 = function(op: PictOp, src: PICTURE, dst: PIC
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xB3xIIIIhh', op, src, dst, maskFormat, glyphset, srcX, srcY))
-  requestParts.push(glyphcmds.buffer)
+  requestParts.push(pad(glyphcmds))
 
   return this.xConnection.sendVoidRequest(requestParts, 25)
 }
@@ -1312,9 +1311,9 @@ Render.prototype.setPictureFilter = function(picture: PICTURE, filter: Int8Array
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIH2x', picture, filterLen))
-  requestParts.push(filter.buffer)
+  requestParts.push(pad(filter))
   requestParts.push(pack('<x'))
-  requestParts.push(values.buffer)
+  requestParts.push(pad(values))
 
   return this.xConnection.sendVoidRequest(requestParts, 30)
 }
@@ -1394,7 +1393,7 @@ Render.prototype.createLinearGradient = function(picture: PICTURE, p1: POINTFIX,
   requestParts.push(pack('<ii', p2.x, p2.y))
 
   requestParts.push(pack('<I', numStops))
-  requestParts.push(stops.buffer)
+  requestParts.push(pad(stops))
   colors.forEach(({ red, green, blue, alpha }) => {
     requestParts.push(pack('<HHHH', red, green, blue, alpha))
 
@@ -1420,7 +1419,7 @@ Render.prototype.createRadialGradient = function(picture: PICTURE, inner: POINTF
   requestParts.push(pack('<ii', outer.x, outer.y))
 
   requestParts.push(pack('<iiI', innerRadius, outerRadius, numStops))
-  requestParts.push(stops.buffer)
+  requestParts.push(pad(stops))
   colors.forEach(({ red, green, blue, alpha }) => {
     requestParts.push(pack('<HHHH', red, green, blue, alpha))
 
@@ -1444,7 +1443,7 @@ Render.prototype.createConicalGradient = function(picture: PICTURE, center: POIN
   requestParts.push(pack('<ii', center.x, center.y))
 
   requestParts.push(pack('<iI', angle, numStops))
-  requestParts.push(stops.buffer)
+  requestParts.push(pad(stops))
   colors.forEach(({ red, green, blue, alpha }) => {
     requestParts.push(pack('<HHHH', red, green, blue, alpha))
 

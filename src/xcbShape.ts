@@ -1,21 +1,14 @@
-import { TIMESTAMP, RECTANGLE, WINDOW, unmarshallRECTANGLE, ClipOrdering, PIXMAP } from './xcb'
+import { RECTANGLE, PIXMAP, unmarshallRECTANGLE, TIMESTAMP, ClipOrdering, WINDOW } from './xcb'
 //
 // This file generated automatically from shape.xml by ts_client.py.
 // Edit at your peril.
 //
 
-import { XConnection } from './connection'
+import { XConnection, chars } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
 // tslint:disable-next-line:no-duplicate-imports
-import {
-  xcbSimpleList,
-  xcbComplexList,
-  typePad,
-  notUndefined,
-  events,
-  errors
-} from './xjsbInternals'
+import { xcbComplexList, events } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 export class Shape extends Protocol {
@@ -32,7 +25,7 @@ export async function getShape(xConnection: XConnection): Promise<Shape> {
   if (protocolExtension) {
     return protocolExtension
   }
-  const queryExtensionReply = await xConnection.queryExtension(new Int8Array(new TextEncoder().encode('Shape').buffer))
+  const queryExtensionReply = await xConnection.queryExtension(chars('SHAPE'))
   if (queryExtensionReply.present === 0) {
     throw new Error('Shape extension not present.')
   }

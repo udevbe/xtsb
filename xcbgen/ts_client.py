@@ -595,7 +595,7 @@ def _ts_request_helper(self, name, void):
           _n(field.field_name),
           _n(field.field_name))
       elif field.type.is_list and field.type.member.is_simple:
-        _ts('  requestParts.push(%s.buffer)', _n(field.field_name))
+        _ts('  requestParts.push(pad(%s))', _n(field.field_name))
       elif field.type.is_list:
         _ts('  %s.forEach(({%s}) => {', _n(field.field_name), ', '.join(
           [f'  {_n(x.field_name)}' for x in field.type.member.fields if not x.type.is_pad]
@@ -648,7 +648,7 @@ def ts_open(self):
   _ts('// Edit at your peril.')
   _ts('//')
   _ts('')
-  _ts('import { XConnection } from \'./connection\'')
+  _ts('import { XConnection, chars, pad } from \'./connection\'')
   _ts("import Protocol from './Protocol'")
   _ts('import type { Unmarshaller, EventHandler, RequestChecker } from \'./xjsbInternals\'')
   _ts('// tslint:disable-next-line:no-duplicate-imports')
@@ -674,8 +674,8 @@ def ts_open(self):
     _ts('    return protocolExtension')
     _ts('  }')
     _ts(
-      "  const queryExtensionReply = await xConnection.queryExtension(new Int8Array(new TextEncoder().encode('%s').buffer))",
-      _ns.ext_name)
+      "  const queryExtensionReply = await xConnection.queryExtension(chars('%s'))",
+      _ns.ext_xname)
     _ts('  if (queryExtensionReply.present === 0) {')
     _ts("    throw new Error('%s extension not present.')", _ns.ext_name)
     _ts('  }')
