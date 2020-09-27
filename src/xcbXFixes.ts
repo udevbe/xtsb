@@ -1,12 +1,12 @@
 import {
-  PIXMAP,
-  RECTANGLE,
-  CURSOR,
-  WINDOW,
-  ATOM,
-  TIMESTAMP,
+  unmarshallRECTANGLE,
   GCONTEXT,
-  unmarshallRECTANGLE
+  PIXMAP,
+  WINDOW,
+  CURSOR,
+  RECTANGLE,
+  TIMESTAMP,
+  ATOM
 } from './xcb'
 import { SK } from './xcbShape'
 import { PICTURE } from './xcbRender'
@@ -23,7 +23,6 @@ import {
   xcbSimpleList,
   xcbComplexList,
   typePad,
-  notUndefined,
   events,
   errors
 } from './xjsbInternals'

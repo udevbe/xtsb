@@ -1,14 +1,14 @@
 import {
-  unmarshallSTR,
-  VISUALID,
   ATOM,
-  SubwindowMode,
-  CURSOR,
-  STR,
   PIXMAP,
   RECTANGLE,
+  unmarshallSTR,
+  STR,
+  SubwindowMode,
+  VISUALID,
   COLORMAP,
-  DRAWABLE
+  DRAWABLE,
+  CURSOR
 } from './xcb'
 //
 // This file generated automatically from render.xml by ts_client.py.
@@ -24,6 +24,7 @@ import {
   xcbComplexList,
   typePad,
   notUndefined,
+  events,
   errors
 } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'

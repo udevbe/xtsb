@@ -21,11 +21,12 @@
   "scripts": {
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "rimraf dist",
-    "build:protocol": "yarn build:protocol:core && yarn build:protocol:shape && yarn build:protocol:render && yarn build:protocol:xfixes",
+    "build:protocol": "yarn build:protocol:core && yarn build:protocol:shape && yarn build:protocol:render && yarn build:protocol:xfixes && yarn build:protocol:composite",
     "build:protocol:core": "PYTHONPATH='.' python3.7 xcbgen/ts_client.py ./protocol/xproto.xml",
     "build:protocol:shape": "PYTHONPATH='.' python3.7 xcbgen/ts_client.py ./protocol/shape.xml",
     "build:protocol:xfixes": "PYTHONPATH='.' python3.7 xcbgen/ts_client.py ./protocol/xfixes.xml",
     "build:protocol:render": "PYTHONPATH='.' python3.7 xcbgen/ts_client.py ./protocol/render.xml",
+    "build:protocol:composite": "PYTHONPATH='.' python3.7 xcbgen/ts_client.py ./protocol/composite.xml",
     "build": "tsc -p tsconfig.node.json && tsc && typedoc --includeDeclarations --excludeExternals --excludeNotExported --excludePrivate --out docs --target es6 --theme minimal --mode modules --inputFiles src/xproto.ts --inputFiles src/connection.ts --inputFiles src/nodeConnection.ts --inputFiles src/webConnection.ts",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",

@@ -1,4 +1,4 @@
-import { RECTANGLE, PIXMAP, unmarshallRECTANGLE, TIMESTAMP, ClipOrdering, WINDOW } from './xcb'
+import { WINDOW, ClipOrdering, TIMESTAMP, RECTANGLE, PIXMAP, unmarshallRECTANGLE } from './xcb'
 //
 // This file generated automatically from shape.xml by ts_client.py.
 // Edit at your peril.
