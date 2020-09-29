@@ -1,19 +1,19 @@
-import {WINDOW, unmarshallRECTANGLE, PIXMAP, RECTANGLE, ClipOrdering, TIMESTAMP} from './xcb'
+import { TIMESTAMP, ClipOrdering, PIXMAP, WINDOW, unmarshallRECTANGLE, RECTANGLE } from './xcb'
 //
 // This file generated automatically from shape.xml by ts_client.py.
 // Edit at your peril.
 //
 
-import { XConnection, chars} from './connection'
+import { XConnection, chars } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
 // tslint:disable-next-line:no-duplicate-imports
-import { xcbComplexList, events} from './xjsbInternals'
+import { xcbComplexList, events } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 export class Shape extends Protocol {
- static MAJOR_VERSION = 1
- static MINOR_VERSION = 1
+  static MAJOR_VERSION = 1
+  static MINOR_VERSION = 1
 }
 
 const errorInits: ((firstError: number) => void)[] = []
@@ -38,17 +38,17 @@ export async function getShape(xConnection: XConnection): Promise<Shape> {
 
 
 export enum SO {
-  Set= 0,
-  Union= 1,
-  Intersect= 2,
-  Subtract= 3,
-  Invert= 4,
+  Set = 0,
+  Union = 1,
+  Intersect = 2,
+  Subtract = 3,
+  Invert = 4,
 }
 
 export enum SK {
-  Bounding= 0,
-  Clip= 1,
-  Input= 2,
+  Bounding = 0,
+  Clip = 1,
+  Input = 2,
 }
 
 export type NotifyEvent = {
@@ -62,8 +62,8 @@ export type NotifyEvent = {
   shaped: number
 }
 
-export const unmarshallNotifyEvent: Unmarshaller<NotifyEvent> = (buffer, offset=0) => {
-  const [ shapeKind, affectedWindow, extentsX, extentsY, extentsWidth, extentsHeight, serverTime, shaped ] = unpackFrom('<xB2xIhhHHIB11x', buffer, offset)
+export const unmarshallNotifyEvent: Unmarshaller<NotifyEvent> = (buffer, offset = 0) => {
+  const [shapeKind, affectedWindow, extentsX, extentsY, extentsWidth, extentsHeight, serverTime, shaped] = unpackFrom('<xB2xIhhHHIB11x', buffer, offset)
   offset += 32
 
   return {
@@ -75,12 +75,14 @@ export const unmarshallNotifyEvent: Unmarshaller<NotifyEvent> = (buffer, offset=
       extentsWidth,
       extentsHeight,
       serverTime,
-      shaped,
+      shaped
     },
     offset
   }
 }
-export interface NotifyEventHandler extends EventHandler<NotifyEvent> {}
+
+export interface NotifyEventHandler extends EventHandler<NotifyEvent> {
+}
 
 declare module './xcbShape' {
   interface Shape {
@@ -96,14 +98,14 @@ export type QueryVersionReply = {
   minorVersion: number
 }
 
-export const unmarshallQueryVersionReply: Unmarshaller<QueryVersionReply> = (buffer, offset=0) => {
-  const [ majorVersion, minorVersion ] = unpackFrom('<xx2x4xHH', buffer, offset)
+export const unmarshallQueryVersionReply: Unmarshaller<QueryVersionReply> = (buffer, offset = 0) => {
+  const [majorVersion, minorVersion] = unpackFrom('<xx2x4xHH', buffer, offset)
   offset += 12
 
   return {
     value: {
       majorVersion,
-      minorVersion,
+      minorVersion
     },
     offset
   }
@@ -124,8 +126,8 @@ export type QueryExtentsReply = {
   clipShapeExtentsHeight: number
 }
 
-export const unmarshallQueryExtentsReply: Unmarshaller<QueryExtentsReply> = (buffer, offset=0) => {
-  const [ boundingShaped, clipShaped, boundingShapeExtentsX, boundingShapeExtentsY, boundingShapeExtentsWidth, boundingShapeExtentsHeight, clipShapeExtentsX, clipShapeExtentsY, clipShapeExtentsWidth, clipShapeExtentsHeight ] = unpackFrom('<xx2x4xBB2xhhHHhhHH', buffer, offset)
+export const unmarshallQueryExtentsReply: Unmarshaller<QueryExtentsReply> = (buffer, offset = 0) => {
+  const [boundingShaped, clipShaped, boundingShapeExtentsX, boundingShapeExtentsY, boundingShapeExtentsWidth, boundingShapeExtentsHeight, clipShapeExtentsX, clipShapeExtentsY, clipShapeExtentsWidth, clipShapeExtentsHeight] = unpackFrom('<xx2x4xBB2xhhHHhhHH', buffer, offset)
   offset += 28
 
   return {
@@ -139,7 +141,7 @@ export const unmarshallQueryExtentsReply: Unmarshaller<QueryExtentsReply> = (buf
       clipShapeExtentsX,
       clipShapeExtentsY,
       clipShapeExtentsWidth,
-      clipShapeExtentsHeight,
+      clipShapeExtentsHeight
     },
     offset
   }
@@ -151,13 +153,13 @@ export type InputSelectedReply = {
   enabled: number
 }
 
-export const unmarshallInputSelectedReply: Unmarshaller<InputSelectedReply> = (buffer, offset=0) => {
-  const [ enabled ] = unpackFrom('<xB2x4x', buffer, offset)
+export const unmarshallInputSelectedReply: Unmarshaller<InputSelectedReply> = (buffer, offset = 0) => {
+  const [enabled] = unpackFrom('<xB2x4x', buffer, offset)
   offset += 8
 
   return {
     value: {
-      enabled,
+      enabled
     },
     offset
   }
@@ -171,8 +173,8 @@ export type GetRectanglesReply = {
   rectangles: RECTANGLE[]
 }
 
-export const unmarshallGetRectanglesReply: Unmarshaller<GetRectanglesReply> = (buffer, offset=0) => {
-  const [ ordering, rectanglesLen ] = unpackFrom('<xB2x4xI20x', buffer, offset)
+export const unmarshallGetRectanglesReply: Unmarshaller<GetRectanglesReply> = (buffer, offset = 0) => {
+  const [ordering, rectanglesLen] = unpackFrom('<xB2x4xI20x', buffer, offset)
   offset += 32
   const rectanglesWithOffset = xcbComplexList(buffer, offset, rectanglesLen, unmarshallRECTANGLE)
   offset = rectanglesWithOffset.offset
@@ -182,7 +184,7 @@ export const unmarshallGetRectanglesReply: Unmarshaller<GetRectanglesReply> = (b
     value: {
       ordering,
       rectanglesLen,
-      rectangles,
+      rectangles
     },
     offset
   }
@@ -197,14 +199,14 @@ export type KIND = number
 
 declare module './xcbShape' {
   interface Shape {
-    queryVersion (): QueryVersionCookie
+    queryVersion(): QueryVersionCookie
   }
 }
 
 Shape.prototype.queryVersion = function(): QueryVersionCookie {
   const requestParts: ArrayBuffer[] = []
 
-  requestParts.push(pack('<xx2x', ))
+  requestParts.push(pack('<xx2x'))
 
   return this.xConnection.sendRequest<QueryVersionReply>(requestParts, 0, unmarshallQueryVersionReply)
 }
@@ -212,7 +214,7 @@ Shape.prototype.queryVersion = function(): QueryVersionCookie {
 
 declare module './xcbShape' {
   interface Shape {
-    rectangles (operation: SO, destinationKind: SK, ordering: ClipOrdering, destinationWindow: WINDOW, xOffset: number, yOffset: number, rectanglesLen: number, rectangles: RECTANGLE[]): RequestChecker
+    rectangles(operation: SO, destinationKind: SK, ordering: ClipOrdering, destinationWindow: WINDOW, xOffset: number, yOffset: number, rectanglesLen: number, rectangles: RECTANGLE[]): RequestChecker
   }
 }
 
@@ -220,8 +222,8 @@ Shape.prototype.rectangles = function(operation: SO, destinationKind: SK, orderi
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xBBBxIhh', operation, destinationKind, ordering, destinationWindow, xOffset, yOffset))
-  rectangles.forEach(({  x,   y,   width,   height}) => {
-  requestParts.push(pack('<hhHH', x, y, width, height))
+  rectangles.forEach(({ x, y, width, height }) => {
+    requestParts.push(pack('<hhHH', x, y, width, height))
 
   })
 
@@ -231,7 +233,7 @@ Shape.prototype.rectangles = function(operation: SO, destinationKind: SK, orderi
 
 declare module './xcbShape' {
   interface Shape {
-    mask (operation: SO, destinationKind: SK, destinationWindow: WINDOW, xOffset: number, yOffset: number, sourceBitmap: PIXMAP): RequestChecker
+    mask(operation: SO, destinationKind: SK, destinationWindow: WINDOW, xOffset: number, yOffset: number, sourceBitmap: PIXMAP): RequestChecker
   }
 }
 
@@ -246,7 +248,7 @@ Shape.prototype.mask = function(operation: SO, destinationKind: SK, destinationW
 
 declare module './xcbShape' {
   interface Shape {
-    combine (operation: SO, destinationKind: SK, sourceKind: SK, destinationWindow: WINDOW, xOffset: number, yOffset: number, sourceWindow: WINDOW): RequestChecker
+    combine(operation: SO, destinationKind: SK, sourceKind: SK, destinationWindow: WINDOW, xOffset: number, yOffset: number, sourceWindow: WINDOW): RequestChecker
   }
 }
 
@@ -261,7 +263,7 @@ Shape.prototype.combine = function(operation: SO, destinationKind: SK, sourceKin
 
 declare module './xcbShape' {
   interface Shape {
-    offset (destinationKind: SK, destinationWindow: WINDOW, xOffset: number, yOffset: number): RequestChecker
+    offset(destinationKind: SK, destinationWindow: WINDOW, xOffset: number, yOffset: number): RequestChecker
   }
 }
 
@@ -276,7 +278,7 @@ Shape.prototype.offset = function(destinationKind: SK, destinationWindow: WINDOW
 
 declare module './xcbShape' {
   interface Shape {
-    queryExtents (destinationWindow: WINDOW): QueryExtentsCookie
+    queryExtents(destinationWindow: WINDOW): QueryExtentsCookie
   }
 }
 
@@ -291,7 +293,7 @@ Shape.prototype.queryExtents = function(destinationWindow: WINDOW): QueryExtents
 
 declare module './xcbShape' {
   interface Shape {
-    selectInput (destinationWindow: WINDOW, enable: number): RequestChecker
+    selectInput(destinationWindow: WINDOW, enable: number): RequestChecker
   }
 }
 
@@ -306,7 +308,7 @@ Shape.prototype.selectInput = function(destinationWindow: WINDOW, enable: number
 
 declare module './xcbShape' {
   interface Shape {
-    inputSelected (destinationWindow: WINDOW): InputSelectedCookie
+    inputSelected(destinationWindow: WINDOW): InputSelectedCookie
   }
 }
 
@@ -321,7 +323,7 @@ Shape.prototype.inputSelected = function(destinationWindow: WINDOW): InputSelect
 
 declare module './xcbShape' {
   interface Shape {
-    getRectangles (window: WINDOW, sourceKind: SK): GetRectanglesCookie
+    getRectangles(window: WINDOW, sourceKind: SK): GetRectanglesCookie
   }
 }
 
@@ -334,8 +336,8 @@ Shape.prototype.getRectangles = function(window: WINDOW, sourceKind: SK): GetRec
 }
 
 eventInits.push((firstEvent) => {
-  events[firstEvent+0] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-    if(protocolExtension === undefined) return
+  events[firstEvent + 0] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+    if (protocolExtension === undefined) return
     const event = unmarshallNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
     protocolExtension.onNotifyEvent?.(event)
   }

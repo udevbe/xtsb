@@ -498,7 +498,7 @@ def _ts_request_helper(self, name, void):
   _ts(
     '    %s (%s): %s',
     func_name,
-    ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
+    ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x, True)}' for x in param_fields]),
     func_cookie
   )
   _ts('  }')

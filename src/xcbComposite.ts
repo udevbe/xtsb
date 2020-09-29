@@ -5,7 +5,7 @@ import { REGION } from './xcbXFixes'
 // Edit at your peril.
 //
 
-import { XConnection, chars} from './connection'
+import { XConnection, chars } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, RequestChecker } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'

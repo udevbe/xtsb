@@ -1,12 +1,12 @@
 import {
+  CURSOR,
+  PIXMAP,
+  GCONTEXT,
   RECTANGLE,
+  WINDOW,
   ATOM,
   TIMESTAMP,
-  WINDOW,
-  GCONTEXT,
-  unmarshallRECTANGLE,
-  CURSOR,
-  PIXMAP
+  unmarshallRECTANGLE
 } from './xcb'
 import { SK } from './xcbShape'
 import { PICTURE } from './xcbRender'
