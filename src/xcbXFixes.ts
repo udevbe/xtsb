@@ -1,12 +1,12 @@
 import {
-  unmarshallRECTANGLE,
-  GCONTEXT,
-  PIXMAP,
-  WINDOW,
-  CURSOR,
   RECTANGLE,
+  ATOM,
   TIMESTAMP,
-  ATOM
+  WINDOW,
+  GCONTEXT,
+  unmarshallRECTANGLE,
+  CURSOR,
+  PIXMAP
 } from './xcb'
 import { SK } from './xcbShape'
 import { PICTURE } from './xcbRender'
@@ -19,13 +19,7 @@ import { XConnection, chars, pad } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
 // tslint:disable-next-line:no-duplicate-imports
-import {
-  xcbSimpleList,
-  xcbComplexList,
-  typePad,
-  events,
-  errors
-} from './xjsbInternals'
+import { xcbSimpleList, xcbComplexList, typePad, events, errors } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 export class XFixes extends Protocol {
@@ -716,7 +710,7 @@ XFixes.prototype.setCursorName = function(cursor: CURSOR, name: Int8Array): Requ
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIH2x', cursor, nbytes))
-  requestParts.push(pad(name))
+  requestParts.push(pad(name.buffer))
 
   return this.xConnection.sendVoidRequest(requestParts, 23)
 }
@@ -778,7 +772,7 @@ XFixes.prototype.changeCursorByName = function(src: CURSOR, name: Int8Array): Re
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIH2x', src, nbytes))
-  requestParts.push(pad(name))
+  requestParts.push(pad(name.buffer))
 
   return this.xConnection.sendVoidRequest(requestParts, 27)
 }
@@ -843,7 +837,7 @@ XFixes.prototype.createPointerBarrier = function(barrier: BARRIER, window: WINDO
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIIHHHHI2xH', barrier, window, x1, y1, x2, y2, directions, numDevices))
-  requestParts.push(pad(devices))
+  requestParts.push(pad(devices.buffer))
 
   return this.xConnection.sendVoidRequest(requestParts, 31)
 }

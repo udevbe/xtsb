@@ -1,11 +1,11 @@
-import { WINDOW, PIXMAP } from './xcb'
+import { PIXMAP, WINDOW } from './xcb'
 import { REGION } from './xcbXFixes'
 //
 // This file generated automatically from composite.xml by ts_client.py.
 // Edit at your peril.
 //
 
-import { XConnection, chars, pad } from './connection'
+import { XConnection, chars} from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, RequestChecker } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'

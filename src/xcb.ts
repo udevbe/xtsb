@@ -3,7 +3,7 @@
 // Edit at your peril.
 //
 
-import { XConnection, chars, pad } from './connection'
+import { XConnection, chars, pad, TypedArray } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
 // tslint:disable-next-line:no-duplicate-imports
@@ -5300,7 +5300,7 @@ XConnection.prototype.internAtom = function(onlyIfExists: number, name: Int8Arra
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xB2xH2x', onlyIfExists, nameLen))
-  requestParts.push(pad(name))
+  requestParts.push(pad(name.buffer))
 
   return this.sendRequest<InternAtomReply>(requestParts, 16, unmarshallInternAtomReply)
 }
@@ -5348,12 +5348,12 @@ declare module './connection' {
   }
 }
 
-XConnection.prototype.changeProperty = function(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: Uint8Array): RequestChecker {
+XConnection.prototype.changeProperty = function(mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: TypedArray): RequestChecker {
   const dataLen = data.length
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xB2xIIIB3xI', mode, window, property, _type, format, dataLen))
-  requestParts.push(pad(data))
+  requestParts.push(pad(data.buffer))
 
   return this.sendVoidRequest(requestParts, 18)
 }
@@ -5551,7 +5551,7 @@ XConnection.prototype.sendEvent = function(propagate: number, destination: WINDO
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xB2xII', propagate, destination, eventMask))
-  requestParts.push(pad(event))
+  requestParts.push(pad(event.buffer))
 
   return this.sendVoidRequest(requestParts, 25)
 }
@@ -6141,7 +6141,7 @@ XConnection.prototype.openFont = function(fid: FONT, name: Int8Array): RequestCh
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIH2x', fid, nameLen))
-  requestParts.push(pad(name))
+  requestParts.push(pad(name.buffer))
 
   return this.sendVoidRequest(requestParts, 45)
 }
@@ -6254,7 +6254,7 @@ XConnection.prototype.listFonts = function(maxNames: number, pattern: Int8Array)
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xHH', maxNames, patternLen))
-  requestParts.push(pad(pattern))
+  requestParts.push(pad(pattern.buffer))
 
   return this.sendRequest<ListFontsReply>(requestParts, 49, unmarshallListFontsReply)
 }
@@ -6282,7 +6282,7 @@ XConnection.prototype.listFontsWithInfo = function(maxNames: number, pattern: In
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xHH', maxNames, patternLen))
-  requestParts.push(pad(pattern))
+  requestParts.push(pad(pattern.buffer))
 
   return this.sendRequest<ListFontsWithInfoReply>(requestParts, 50, unmarshallListFontsWithInfoReply)
 }
@@ -6301,7 +6301,7 @@ XConnection.prototype.setFontPath = function(font: STR[]): RequestChecker {
   requestParts.push(pack('<xx2xH2x', fontQty))
   font.forEach(({  nameLen,   name}) => {
   requestParts.push(pack('<B', nameLen))
-  requestParts.push(pad(name))
+  requestParts.push(pad(name.buffer))
 
   })
 
@@ -6572,7 +6572,7 @@ XConnection.prototype.setDashes = function(gc: GCONTEXT, dashOffset: number, das
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIHH', gc, dashOffset, dashesLen))
-  requestParts.push(pad(dashes))
+  requestParts.push(pad(dashes.buffer))
 
   return this.sendVoidRequest(requestParts, 58)
 }
@@ -6890,7 +6890,7 @@ XConnection.prototype.putImage = function(format: ImageFormat, drawable: DRAWABL
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xB2xIIHHhhBB2x', format, drawable, gc, width, height, dstX, dstY, leftPad, depth))
-  requestParts.push(pad(data))
+  requestParts.push(pad(data.buffer))
 
   return this.sendVoidRequest(requestParts, 72)
 }
@@ -6921,7 +6921,7 @@ XConnection.prototype.polyText8 = function(drawable: DRAWABLE, gc: GCONTEXT, x: 
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIIhh', drawable, gc, x, y))
-  requestParts.push(pad(items))
+  requestParts.push(pad(items.buffer))
 
   return this.sendVoidRequest(requestParts, 74)
 }
@@ -6937,7 +6937,7 @@ XConnection.prototype.polyText16 = function(drawable: DRAWABLE, gc: GCONTEXT, x:
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIIhh', drawable, gc, x, y))
-  requestParts.push(pad(items))
+  requestParts.push(pad(items.buffer))
 
   return this.sendVoidRequest(requestParts, 75)
 }
@@ -6980,7 +6980,7 @@ XConnection.prototype.imageText8 = function(drawable: DRAWABLE, gc: GCONTEXT, x:
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xB2xIIhh', stringLen, drawable, gc, x, y))
-  requestParts.push(pad(_string))
+  requestParts.push(pad(_string.buffer))
 
   return this.sendVoidRequest(requestParts, 76)
 }
@@ -7162,7 +7162,7 @@ XConnection.prototype.allocNamedColor = function(cmap: COLORMAP, name: Int8Array
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIH2x', cmap, nameLen))
-  requestParts.push(pad(name))
+  requestParts.push(pad(name.buffer))
 
   return this.sendRequest<AllocNamedColorReply>(requestParts, 85, unmarshallAllocNamedColorReply)
 }
@@ -7208,7 +7208,7 @@ XConnection.prototype.freeColors = function(cmap: COLORMAP, planeMask: number, p
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', cmap, planeMask))
-  requestParts.push(pad(pixels))
+  requestParts.push(pad(pixels.buffer))
 
   return this.sendVoidRequest(requestParts, 88)
 }
@@ -7244,7 +7244,7 @@ XConnection.prototype.storeNamedColor = function(flags: number, cmap: COLORMAP, 
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xB2xIIH2x', flags, cmap, pixel, nameLen))
-  requestParts.push(pad(name))
+  requestParts.push(pad(name.buffer))
 
   return this.sendVoidRequest(requestParts, 90)
 }
@@ -7260,7 +7260,7 @@ XConnection.prototype.queryColors = function(cmap: COLORMAP, pixelsLen: number, 
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', cmap))
-  requestParts.push(pad(pixels))
+  requestParts.push(pad(pixels.buffer))
 
   return this.sendRequest<QueryColorsReply>(requestParts, 91, unmarshallQueryColorsReply)
 }
@@ -7277,7 +7277,7 @@ XConnection.prototype.lookupColor = function(cmap: COLORMAP, name: Int8Array): L
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIH2x', cmap, nameLen))
-  requestParts.push(pad(name))
+  requestParts.push(pad(name.buffer))
 
   return this.sendRequest<LookupColorReply>(requestParts, 92, unmarshallLookupColorReply)
 }
@@ -7420,7 +7420,7 @@ XConnection.prototype.queryExtension = function(name: Int8Array): QueryExtension
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xH2x', nameLen))
-  requestParts.push(pad(name))
+  requestParts.push(pad(name.buffer))
 
   return this.sendRequest<QueryExtensionReply>(requestParts, 98, unmarshallQueryExtensionReply)
 }
@@ -7452,7 +7452,7 @@ XConnection.prototype.changeKeyboardMapping = function(firstKeycode: KEYCODE, ke
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xB2xBB2x', keycodeCount, firstKeycode, keysymsPerKeycode))
-  requestParts.push(pad(keysyms))
+  requestParts.push(pad(keysyms.buffer))
 
   return this.sendVoidRequest(requestParts, 100)
 }
@@ -7619,7 +7619,7 @@ XConnection.prototype.changeHosts = function(mode: HostMode, family: Family, add
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xB2xBxH', mode, family, addressLen))
-  requestParts.push(pad(address))
+  requestParts.push(pad(address.buffer))
 
   return this.sendVoidRequest(requestParts, 109)
 }
@@ -7707,7 +7707,7 @@ XConnection.prototype.rotateProperties = function(window: WINDOW, delta: number,
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIHh', window, atomsLen, delta))
-  requestParts.push(pad(atoms))
+  requestParts.push(pad(atoms.buffer))
 
   return this.sendVoidRequest(requestParts, 114)
 }
@@ -7739,7 +7739,7 @@ XConnection.prototype.setPointerMapping = function(map: Uint8Array): SetPointerM
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xB2x', mapLen))
-  requestParts.push(pad(map))
+  requestParts.push(pad(map.buffer))
 
   return this.sendRequest<SetPointerMappingReply>(requestParts, 116, unmarshallSetPointerMappingReply)
 }
@@ -7771,7 +7771,7 @@ XConnection.prototype.setModifierMapping = function(keycodes: Uint8Array): SetMo
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xB2x', keycodesPerModifier))
-  requestParts.push(pad(keycodes))
+  requestParts.push(pad(keycodes.buffer))
 
   return this.sendRequest<SetModifierMappingReply>(requestParts, 118, unmarshallSetModifierMappingReply)
 }

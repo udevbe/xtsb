@@ -284,7 +284,7 @@ def _ts_type_alignsize(field):
   return field.type.size
 
 
-def _ts_field_type(field):
+def _ts_field_type(field, is_request_param = False):
   postfix = '[]' if field.type.is_list else ''
 
   if field.enum:
@@ -303,7 +303,10 @@ def _ts_field_type(field):
     element_type = f'Partial<{{ {ts_switch_type} }}>'
   elif field.type.is_list and field.type.member.is_simple:
     postfix = ''
-    element_type = _simple_list_types[field.ts_listtype]
+    if is_request_param and field.field_type[0] == 'void':
+      element_type = 'TypedArray'
+    else:
+      element_type = _simple_list_types[field.ts_listtype]
   else:
     element_type = _ts_types.get(field.ts_type, field.ts_type)
 
@@ -505,7 +508,7 @@ def _ts_request_helper(self, name, void):
     '%s.prototype.%s = function(%s): %s {',
     _ns.ext_name if _ns.is_ext else 'XConnection',
     func_name,
-    ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
+    ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x, True)}' for x in param_fields]),
     func_cookie
   )
 
@@ -595,7 +598,7 @@ def _ts_request_helper(self, name, void):
           _n(field.field_name),
           _n(field.field_name))
       elif field.type.is_list and field.type.member.is_simple:
-        _ts('  requestParts.push(pad(%s))', _n(field.field_name))
+        _ts('  requestParts.push(pad(%s.buffer))', _n(field.field_name))
       elif field.type.is_list:
         _ts('  %s.forEach(({%s}) => {', _n(field.field_name), ', '.join(
           [f'  {_n(x.field_name)}' for x in field.type.member.fields if not x.type.is_pad]
@@ -648,7 +651,7 @@ def ts_open(self):
   _ts('// Edit at your peril.')
   _ts('//')
   _ts('')
-  _ts('import { XConnection, chars, pad } from \'./connection\'')
+  _ts('import { XConnection, chars, pad, TypedArray } from \'./connection\'')
   _ts("import Protocol from './Protocol'")
   _ts('import type { Unmarshaller, EventHandler, RequestChecker } from \'./xjsbInternals\'')
   _ts('// tslint:disable-next-line:no-duplicate-imports')
