@@ -1,11 +1,11 @@
 import {
+  RECTANGLE,
   CURSOR,
   PIXMAP,
-  GCONTEXT,
-  RECTANGLE,
-  WINDOW,
   ATOM,
+  GCONTEXT,
   TIMESTAMP,
+  WINDOW,
   unmarshallRECTANGLE
 } from './xcb'
 import { SK } from './xcbShape'
@@ -68,28 +68,28 @@ export const unmarshallQueryVersionReply: Unmarshaller<QueryVersionReply> = (buf
   }
 }
 
-export enum SaveSetMode {
+export const enum SaveSetMode {
   Insert = 0,
   Delete = 1,
 }
 
-export enum SaveSetTarget {
+export const enum SaveSetTarget {
   Nearest = 0,
   Root = 1,
 }
 
-export enum SaveSetMapping {
+export const enum SaveSetMapping {
   Map = 0,
   Unmap = 1,
 }
 
-export enum SelectionEvent {
+export const enum SelectionEvent {
   SetSelectionOwner = 0,
   SelectionWindowDestroy = 1,
   SelectionClientClose = 2,
 }
 
-export enum SelectionEventMask {
+export const enum SelectionEventMask {
   SetSelectionOwner = 1,
   SelectionWindowDestroy = 2,
   SelectionClientClose = 4,
@@ -131,11 +131,11 @@ declare module './xcbXFixes' {
 }
 
 
-export enum CursorNotify {
+export const enum CursorNotify {
   DisplayCursor = 0,
 }
 
-export enum CursorNotifyMask {
+export const enum CursorNotifyMask {
   DisplayCursor = 1,
 }
 
@@ -233,7 +233,7 @@ export class BadRegion extends Error {
   }
 }
 
-export enum Region {
+export const enum Region {
   None = 0,
 }
 
@@ -332,7 +332,7 @@ export const unmarshallGetCursorImageAndNameReply: Unmarshaller<GetCursorImageAn
   }
 }
 
-export enum BarrierDirections {
+export const enum BarrierDirections {
   PositiveX = 1,
   PositiveY = 2,
   NegativeX = 4,

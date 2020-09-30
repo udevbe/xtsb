@@ -169,7 +169,7 @@ export const unmarshallFORMAT: Unmarshaller<FORMAT> = (buffer, offset = 0) => {
   }
 }
 
-export enum VisualClass {
+export const enum VisualClass {
   StaticGray = 0,
   GrayScale = 1,
   StaticColor = 2,
@@ -229,7 +229,7 @@ export const unmarshallDEPTH: Unmarshaller<DEPTH> = (buffer, offset = 0) => {
   }
 }
 
-export enum EventMask {
+export const enum EventMask {
   NoEvent = 0,
   KeyPress = 1,
   KeyRelease = 2,
@@ -258,7 +258,7 @@ export enum EventMask {
   OwnerGrabButton = 16777216,
 }
 
-export enum BackingStore {
+export const enum BackingStore {
   NotUseful = 0,
   WhenMapped = 1,
   Always = 2,
@@ -402,7 +402,7 @@ export const unmarshallSetupAuthenticate: Unmarshaller<SetupAuthenticate> = (buf
   }
 }
 
-export enum ImageOrder {
+export const enum ImageOrder {
   LSBFirst = 0,
   MSBFirst = 1,
 }
@@ -474,7 +474,7 @@ export const unmarshallSetup: Unmarshaller<Setup> = (buffer, offset = 0) => {
   }
 }
 
-export enum ModMask {
+export const enum ModMask {
   Shift = 1,
   Lock = 2,
   Control = 4,
@@ -486,7 +486,7 @@ export enum ModMask {
   Any = 32768,
 }
 
-export enum KeyButMask {
+export const enum KeyButMask {
   Shift = 1,
   Lock = 2,
   Control = 4,
@@ -502,7 +502,7 @@ export enum KeyButMask {
   Button5 = 4096,
 }
 
-export enum Window {
+export const enum Window {
   None = 0,
 }
 
@@ -684,7 +684,7 @@ declare module './connection' {
 }
 
 
-export enum ButtonMask {
+export const enum ButtonMask {
   _1 = 256,
   _2 = 512,
   _3 = 1024,
@@ -871,7 +871,7 @@ declare module './connection' {
 }
 
 
-export enum Motion {
+export const enum Motion {
   Normal = 0,
   Hint = 1,
 }
@@ -965,7 +965,7 @@ declare module './connection' {
 }
 
 
-export enum NotifyDetail {
+export const enum NotifyDetail {
   Ancestor = 0,
   Virtual = 1,
   Inferior = 2,
@@ -976,7 +976,7 @@ export enum NotifyDetail {
   None = 7,
 }
 
-export enum NotifyMode {
+export const enum NotifyMode {
   Normal = 0,
   Grab = 1,
   Ungrab = 2,
@@ -1389,7 +1389,7 @@ declare module './connection' {
 }
 
 
-export enum Visibility {
+export const enum Visibility {
   Unobscured = 0,
   PartiallyObscured = 1,
   FullyObscured = 2,
@@ -1869,7 +1869,7 @@ declare module './connection' {
 }
 
 
-export enum Place {
+export const enum Place {
   OnTop = 0,
   OnBottom = 1,
 }
@@ -1970,7 +1970,7 @@ declare module './connection' {
 }
 
 
-export enum Property {
+export const enum Property {
   NewValue = 0,
   Delete = 1,
 }
@@ -2057,11 +2057,11 @@ declare module './connection' {
 }
 
 
-export enum Time {
+export const enum Time {
   CurrentTime = 0,
 }
 
-export enum Atom {
+export const enum Atom {
   None = 0,
   Any = 0,
   PRIMARY = 1,
@@ -2204,12 +2204,12 @@ declare module './connection' {
 }
 
 
-export enum ColormapState {
+export const enum ColormapState {
   Uninstalled = 0,
   Installed = 1,
 }
 
-export enum Colormap {
+export const enum Colormap {
   None = 0,
 }
 
@@ -2351,7 +2351,7 @@ declare module './connection' {
 }
 
 
-export enum Mapping {
+export const enum Mapping {
   Modifier = 0,
   Keyboard = 1,
   Pointer = 2,
@@ -3019,13 +3019,13 @@ export class BadImplementation extends Error {
   }
 }
 
-export enum WindowClass {
+export const enum WindowClass {
   CopyFromParent = 0,
   InputOutput = 1,
   InputOnly = 2,
 }
 
-export enum CW {
+export const enum CW {
   BackPixmap = 1,
   BackPixel = 2,
   BorderPixmap = 4,
@@ -3043,12 +3043,12 @@ export enum CW {
   Cursor = 16384,
 }
 
-export enum BackPixmap {
+export const enum BackPixmap {
   None = 0,
   ParentRelative = 1,
 }
 
-export enum Gravity {
+export const enum Gravity {
   BitForget = 0,
   WinUnmap = 0,
   NorthWest = 1,
@@ -3063,7 +3063,7 @@ export enum Gravity {
   Static = 10,
 }
 
-export enum MapState {
+export const enum MapState {
   Unmapped = 0,
   Unviewable = 1,
   Viewable = 2,
@@ -3157,12 +3157,12 @@ export const unmarshallGetWindowAttributesReply: Unmarshaller<GetWindowAttribute
   }
 }
 
-export enum SetMode {
+export const enum SetMode {
   Insert = 0,
   Delete = 1,
 }
 
-export enum ConfigWindow {
+export const enum ConfigWindow {
   X = 1,
   Y = 2,
   Width = 4,
@@ -3172,7 +3172,7 @@ export enum ConfigWindow {
   StackMode = 64,
 }
 
-export enum StackMode {
+export const enum StackMode {
   Above = 0,
   Below = 1,
   TopIf = 2,
@@ -3180,7 +3180,7 @@ export enum StackMode {
   Opposite = 4,
 }
 
-export enum Circulate {
+export const enum Circulate {
   RaiseLowest = 0,
   LowerHighest = 1,
 }
@@ -3317,13 +3317,13 @@ export const unmarshallGetAtomNameReply: Unmarshaller<GetAtomNameReply> = (buffe
   }
 }
 
-export enum PropMode {
+export const enum PropMode {
   Replace = 0,
   Prepend = 1,
   Append = 2,
 }
 
-export enum GetPropertyType {
+export const enum GetPropertyType {
   Any = 0,
 }
 
@@ -3416,17 +3416,17 @@ export const unmarshallGetSelectionOwnerReply: Unmarshaller<GetSelectionOwnerRep
   }
 }
 
-export enum SendEventDest {
+export const enum SendEventDest {
   PointerWindow = 0,
   ItemFocus = 1,
 }
 
-export enum GrabMode {
+export const enum GrabMode {
   Sync = 0,
   Async = 1,
 }
 
-export enum GrabStatus {
+export const enum GrabStatus {
   Success = 0,
   AlreadyGrabbed = 1,
   InvalidTime = 2,
@@ -3434,7 +3434,7 @@ export enum GrabStatus {
   Frozen = 4,
 }
 
-export enum Cursor {
+export const enum Cursor {
   None = 0,
 }
 
@@ -3456,7 +3456,7 @@ export const unmarshallGrabPointerReply: Unmarshaller<GrabPointerReply> = (buffe
   }
 }
 
-export enum ButtonIndex {
+export const enum ButtonIndex {
   Any = 0,
   _1 = 1,
   _2 = 2,
@@ -3483,11 +3483,11 @@ export const unmarshallGrabKeyboardReply: Unmarshaller<GrabKeyboardReply> = (buf
   }
 }
 
-export enum Grab {
+export const enum Grab {
   Any = 0,
 }
 
-export enum Allow {
+export const enum Allow {
   AsyncPointer = 0,
   SyncPointer = 1,
   ReplayPointer = 2,
@@ -3630,7 +3630,7 @@ export const unmarshallTranslateCoordinatesReply: Unmarshaller<TranslateCoordina
   }
 }
 
-export enum InputFocus {
+export const enum InputFocus {
   None = 0,
   PointerRoot = 1,
   Parent = 2,
@@ -3676,7 +3676,7 @@ export const unmarshallQueryKeymapReply: Unmarshaller<QueryKeymapReply> = (buffe
   }
 }
 
-export enum FontDraw {
+export const enum FontDraw {
   LeftToRight = 0,
   RightToLeft = 1,
 }
@@ -4021,7 +4021,7 @@ export const unmarshallGetFontPathReply: Unmarshaller<GetFontPathReply> = (buffe
   }
 }
 
-export enum GC {
+export const enum GC {
   Function = 1,
   PlaneMask = 2,
   Foreground = 4,
@@ -4047,7 +4047,7 @@ export enum GC {
   ArcMode = 4194304,
 }
 
-export enum GX {
+export const enum GX {
   clear = 0,
   and = 1,
   andReverse = 2,
@@ -4066,55 +4066,55 @@ export enum GX {
   set = 15,
 }
 
-export enum LineStyle {
+export const enum LineStyle {
   Solid = 0,
   OnOffDash = 1,
   DoubleDash = 2,
 }
 
-export enum CapStyle {
+export const enum CapStyle {
   NotLast = 0,
   Butt = 1,
   Round = 2,
   Projecting = 3,
 }
 
-export enum JoinStyle {
+export const enum JoinStyle {
   Miter = 0,
   Round = 1,
   Bevel = 2,
 }
 
-export enum FillStyle {
+export const enum FillStyle {
   Solid = 0,
   Tiled = 1,
   Stippled = 2,
   OpaqueStippled = 3,
 }
 
-export enum FillRule {
+export const enum FillRule {
   EvenOdd = 0,
   Winding = 1,
 }
 
-export enum SubwindowMode {
+export const enum SubwindowMode {
   ClipByChildren = 0,
   IncludeInferiors = 1,
 }
 
-export enum ArcMode {
+export const enum ArcMode {
   Chord = 0,
   PieSlice = 1,
 }
 
-export enum ClipOrdering {
+export const enum ClipOrdering {
   Unsorted = 0,
   YSorted = 1,
   YXSorted = 2,
   YXBanded = 3,
 }
 
-export enum CoordMode {
+export const enum CoordMode {
   Origin = 0,
   Previous = 1,
 }
@@ -4141,13 +4141,13 @@ export const unmarshallSEGMENT: Unmarshaller<SEGMENT> = (buffer, offset = 0) => 
   }
 }
 
-export enum PolyShape {
+export const enum PolyShape {
   Complex = 0,
   Nonconvex = 1,
   Convex = 2,
 }
 
-export enum ImageFormat {
+export const enum ImageFormat {
   XYBitmap = 0,
   XYPixmap = 1,
   ZPixmap = 2,
@@ -4178,7 +4178,7 @@ export const unmarshallGetImageReply: Unmarshaller<GetImageReply> = (buffer, off
   }
 }
 
-export enum ColormapAlloc {
+export const enum ColormapAlloc {
   None = 0,
   All = 1,
 }
@@ -4320,7 +4320,7 @@ export const unmarshallAllocColorPlanesReply: Unmarshaller<AllocColorPlanesReply
   }
 }
 
-export enum ColorFlag {
+export const enum ColorFlag {
   Red = 1,
   Green = 2,
   Blue = 4,
@@ -4421,15 +4421,15 @@ export const unmarshallLookupColorReply: Unmarshaller<LookupColorReply> = (buffe
   }
 }
 
-export enum Pixmap {
+export const enum Pixmap {
   None = 0,
 }
 
-export enum Font {
+export const enum Font {
   None = 0,
 }
 
-export enum QueryShapeOf {
+export const enum QueryShapeOf {
   LargestCursor = 0,
   FastestTile = 1,
   FastestStipple = 2,
@@ -4537,7 +4537,7 @@ export const unmarshallGetKeyboardMappingReply: Unmarshaller<GetKeyboardMappingR
   }
 }
 
-export enum KB {
+export const enum KB {
   KeyClickPercent = 1,
   BellPercent = 2,
   BellPitch = 4,
@@ -4548,12 +4548,12 @@ export enum KB {
   AutoRepeatMode = 128,
 }
 
-export enum LedMode {
+export const enum LedMode {
   Off = 0,
   On = 1,
 }
 
-export enum AutoRepeatMode {
+export const enum AutoRepeatMode {
   Off = 0,
   On = 1,
   Default = 2,
@@ -4614,13 +4614,13 @@ export const unmarshallGetPointerControlReply: Unmarshaller<GetPointerControlRep
   }
 }
 
-export enum Blanking {
+export const enum Blanking {
   NotPreferred = 0,
   Preferred = 1,
   Default = 2,
 }
 
-export enum Exposures {
+export const enum Exposures {
   NotAllowed = 0,
   Allowed = 1,
   Default = 2,
@@ -4650,12 +4650,12 @@ export const unmarshallGetScreenSaverReply: Unmarshaller<GetScreenSaverReply> = 
   }
 }
 
-export enum HostMode {
+export const enum HostMode {
   Insert = 0,
   Delete = 1,
 }
 
-export enum Family {
+export const enum Family {
   Internet = 0,
   DECnet = 1,
   Chaos = 2,
@@ -4711,27 +4711,27 @@ export const unmarshallListHostsReply: Unmarshaller<ListHostsReply> = (buffer, o
   }
 }
 
-export enum AccessControl {
+export const enum AccessControl {
   Disable = 0,
   Enable = 1,
 }
 
-export enum CloseDown {
+export const enum CloseDown {
   DestroyAll = 0,
   RetainPermanent = 1,
   RetainTemporary = 2,
 }
 
-export enum Kill {
+export const enum Kill {
   AllTemporary = 0,
 }
 
-export enum ScreenSaver {
+export const enum ScreenSaver {
   Reset = 0,
   Active = 1,
 }
 
-export enum MappingStatus {
+export const enum MappingStatus {
   Success = 0,
   Busy = 1,
   Failure = 2,
@@ -4778,7 +4778,7 @@ export const unmarshallGetPointerMappingReply: Unmarshaller<GetPointerMappingRep
   }
 }
 
-export enum MapIndex {
+export const enum MapIndex {
   Shift = 0,
   Lock = 1,
   Control = 2,

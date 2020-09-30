@@ -1,4 +1,4 @@
-import { TIMESTAMP, ClipOrdering, PIXMAP, WINDOW, unmarshallRECTANGLE, RECTANGLE } from './xcb'
+import { ClipOrdering, TIMESTAMP, RECTANGLE, PIXMAP, WINDOW, unmarshallRECTANGLE } from './xcb'
 //
 // This file generated automatically from shape.xml by ts_client.py.
 // Edit at your peril.
@@ -37,7 +37,7 @@ export async function getShape(xConnection: XConnection): Promise<Shape> {
 }
 
 
-export enum SO {
+export const enum SO {
   Set = 0,
   Union = 1,
   Intersect = 2,
@@ -45,7 +45,7 @@ export enum SO {
   Invert = 4,
 }
 
-export enum SK {
+export const enum SK {
   Bounding = 0,
   Clip = 1,
   Input = 2,

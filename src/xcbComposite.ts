@@ -1,4 +1,4 @@
-import { PIXMAP, WINDOW } from './xcb'
+import { WINDOW, PIXMAP } from './xcb'
 import { REGION } from './xcbXFixes'
 //
 // This file generated automatically from composite.xml by ts_client.py.
@@ -8,6 +8,7 @@ import { REGION } from './xcbXFixes'
 import { XConnection, chars } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, RequestChecker } from './xjsbInternals'
+// tslint:disable-next-line:no-duplicate-imports
 import { unpackFrom, pack } from './struct'
 
 export class Composite extends Protocol {
@@ -36,7 +37,7 @@ export async function getComposite(xConnection: XConnection): Promise<Composite>
 }
 
 
-export enum Redirect {
+export const enum Redirect {
   Automatic = 0,
   Manual = 1,
 }

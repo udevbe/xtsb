@@ -1,14 +1,14 @@
 import {
+  VISUALID,
   COLORMAP,
   ATOM,
-  VISUALID,
-  SubwindowMode,
-  CURSOR,
   STR,
+  RECTANGLE,
   unmarshallSTR,
+  CURSOR,
+  SubwindowMode,
   PIXMAP,
-  DRAWABLE,
-  RECTANGLE
+  DRAWABLE
 } from './xcb'
 //
 // This file generated automatically from render.xml by ts_client.py.
@@ -48,16 +48,16 @@ export async function getRender(xConnection: XConnection): Promise<Render> {
 }
 
 
-export enum PictType {
+export const enum PictType {
   Indexed = 0,
   Direct = 1,
 }
 
-export enum Picture {
+export const enum Picture {
   None = 0,
 }
 
-export enum PictOp {
+export const enum PictOp {
   Clear = 0,
   Src = 1,
   Dst = 2,
@@ -113,17 +113,17 @@ export enum PictOp {
   HSLLuminosity = 62,
 }
 
-export enum PolyEdge {
+export const enum PolyEdge {
   Sharp = 0,
   Smooth = 1,
 }
 
-export enum PolyMode {
+export const enum PolyMode {
   Precise = 0,
   Imprecise = 1,
 }
 
-export enum CP {
+export const enum CP {
   Repeat = 1,
   AlphaMap = 2,
   AlphaXOrigin = 4,
@@ -139,7 +139,7 @@ export enum CP {
   ComponentAlpha = 4096,
 }
 
-export enum SubPixel {
+export const enum SubPixel {
   Unknown = 0,
   HorizontalRGB = 1,
   HorizontalBGR = 2,
@@ -148,7 +148,7 @@ export enum SubPixel {
   None = 5,
 }
 
-export enum Repeat {
+export const enum Repeat {
   None = 0,
   Normal = 1,
   Pad = 2,
