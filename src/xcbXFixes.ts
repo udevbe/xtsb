@@ -1,12 +1,12 @@
 import {
   RECTANGLE,
-  CURSOR,
-  PIXMAP,
   ATOM,
-  GCONTEXT,
-  TIMESTAMP,
   WINDOW,
-  unmarshallRECTANGLE
+  PIXMAP,
+  unmarshallRECTANGLE,
+  TIMESTAMP,
+  CURSOR,
+  GCONTEXT
 } from './xcb'
 import { SK } from './xcbShape'
 import { PICTURE } from './xcbRender'
@@ -19,7 +19,13 @@ import { XConnection, chars, pad } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
 // tslint:disable-next-line:no-duplicate-imports
-import { xcbSimpleList, xcbComplexList, typePad, events, errors } from './xjsbInternals'
+import {
+  xcbSimpleList,
+  xcbComplexList,
+  typePad,
+  events,
+  errors
+} from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 export class XFixes extends Protocol {
@@ -351,7 +357,7 @@ XFixes.prototype.queryVersion = function(clientMajorVersion: number, clientMinor
 
   requestParts.push(pack('<xx2xII', clientMajorVersion, clientMinorVersion))
 
-  return this.xConnection.sendRequest<QueryVersionReply>(requestParts, 0, unmarshallQueryVersionReply)
+  return this.xConnection.sendRequest<QueryVersionReply>(requestParts, this.majorOpcode, unmarshallQueryVersionReply, 0)
 }
 
 
@@ -366,7 +372,7 @@ XFixes.prototype.changeSaveSet = function(mode: SaveSetMode, target: SaveSetTarg
 
   requestParts.push(pack('<xx2xBBBxI', mode, target, map, window))
 
-  return this.xConnection.sendVoidRequest(requestParts, 1)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 1)
 }
 
 
@@ -381,7 +387,7 @@ XFixes.prototype.selectSelectionInput = function(window: WINDOW, selection: ATOM
 
   requestParts.push(pack('<xx2xIII', window, selection, eventMask))
 
-  return this.xConnection.sendVoidRequest(requestParts, 2)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 2)
 }
 
 
@@ -396,7 +402,7 @@ XFixes.prototype.selectCursorInput = function(window: WINDOW, eventMask: number)
 
   requestParts.push(pack('<xx2xII', window, eventMask))
 
-  return this.xConnection.sendVoidRequest(requestParts, 3)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 3)
 }
 
 
@@ -411,7 +417,7 @@ XFixes.prototype.getCursorImage = function(): GetCursorImageCookie {
 
   requestParts.push(pack('<xx2x'))
 
-  return this.xConnection.sendRequest<GetCursorImageReply>(requestParts, 4, unmarshallGetCursorImageReply)
+  return this.xConnection.sendRequest<GetCursorImageReply>(requestParts, this.majorOpcode, unmarshallGetCursorImageReply, 4)
 }
 
 
@@ -433,7 +439,7 @@ XFixes.prototype.createRegion = function(region: REGION, rectanglesLen: number, 
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 5)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 5)
 }
 
 
@@ -448,7 +454,7 @@ XFixes.prototype.createRegionFromBitmap = function(region: REGION, bitmap: PIXMA
 
   requestParts.push(pack('<xx2xII', region, bitmap))
 
-  return this.xConnection.sendVoidRequest(requestParts, 6)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 6)
 }
 
 
@@ -463,7 +469,7 @@ XFixes.prototype.createRegionFromWindow = function(region: REGION, window: WINDO
 
   requestParts.push(pack('<xx2xIIB3x', region, window, kind))
 
-  return this.xConnection.sendVoidRequest(requestParts, 7)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 7)
 }
 
 
@@ -478,7 +484,7 @@ XFixes.prototype.createRegionFromGC = function(region: REGION, gc: GCONTEXT): Re
 
   requestParts.push(pack('<xx2xII', region, gc))
 
-  return this.xConnection.sendVoidRequest(requestParts, 8)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 8)
 }
 
 
@@ -493,7 +499,7 @@ XFixes.prototype.createRegionFromPicture = function(region: REGION, picture: PIC
 
   requestParts.push(pack('<xx2xII', region, picture))
 
-  return this.xConnection.sendVoidRequest(requestParts, 9)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 9)
 }
 
 
@@ -508,7 +514,7 @@ XFixes.prototype.destroyRegion = function(region: REGION): RequestChecker {
 
   requestParts.push(pack('<xx2xI', region))
 
-  return this.xConnection.sendVoidRequest(requestParts, 10)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 10)
 }
 
 
@@ -527,7 +533,7 @@ XFixes.prototype.setRegion = function(region: REGION, rectanglesLen: number, rec
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 11)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 11)
 }
 
 
@@ -542,7 +548,7 @@ XFixes.prototype.copyRegion = function(source: REGION, destination: REGION): Req
 
   requestParts.push(pack('<xx2xII', source, destination))
 
-  return this.xConnection.sendVoidRequest(requestParts, 12)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 12)
 }
 
 
@@ -557,7 +563,7 @@ XFixes.prototype.unionRegion = function(source1: REGION, source2: REGION, destin
 
   requestParts.push(pack('<xx2xIII', source1, source2, destination))
 
-  return this.xConnection.sendVoidRequest(requestParts, 13)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 13)
 }
 
 
@@ -572,7 +578,7 @@ XFixes.prototype.intersectRegion = function(source1: REGION, source2: REGION, de
 
   requestParts.push(pack('<xx2xIII', source1, source2, destination))
 
-  return this.xConnection.sendVoidRequest(requestParts, 14)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 14)
 }
 
 
@@ -587,7 +593,7 @@ XFixes.prototype.subtractRegion = function(source1: REGION, source2: REGION, des
 
   requestParts.push(pack('<xx2xIII', source1, source2, destination))
 
-  return this.xConnection.sendVoidRequest(requestParts, 15)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 15)
 }
 
 
@@ -605,7 +611,7 @@ XFixes.prototype.invertRegion = function(source: REGION, bounds: RECTANGLE, dest
 
   requestParts.push(pack('<I', destination))
 
-  return this.xConnection.sendVoidRequest(requestParts, 16)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 16)
 }
 
 
@@ -620,7 +626,7 @@ XFixes.prototype.translateRegion = function(region: REGION, dx: number, dy: numb
 
   requestParts.push(pack('<xx2xIhh', region, dx, dy))
 
-  return this.xConnection.sendVoidRequest(requestParts, 17)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 17)
 }
 
 
@@ -635,7 +641,7 @@ XFixes.prototype.regionExtents = function(source: REGION, destination: REGION): 
 
   requestParts.push(pack('<xx2xII', source, destination))
 
-  return this.xConnection.sendVoidRequest(requestParts, 18)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 18)
 }
 
 
@@ -650,7 +656,7 @@ XFixes.prototype.fetchRegion = function(region: REGION): FetchRegionCookie {
 
   requestParts.push(pack('<xx2xI', region))
 
-  return this.xConnection.sendRequest<FetchRegionReply>(requestParts, 19, unmarshallFetchRegionReply)
+  return this.xConnection.sendRequest<FetchRegionReply>(requestParts, this.majorOpcode, unmarshallFetchRegionReply, 19)
 }
 
 
@@ -665,7 +671,7 @@ XFixes.prototype.setGCClipRegion = function(gc: GCONTEXT, region: REGION, xOrigi
 
   requestParts.push(pack('<xx2xIIhh', gc, region, xOrigin, yOrigin))
 
-  return this.xConnection.sendVoidRequest(requestParts, 20)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 20)
 }
 
 
@@ -680,7 +686,7 @@ XFixes.prototype.setWindowShapeRegion = function(dest: WINDOW, destKind: SK, xOf
 
   requestParts.push(pack('<xx2xIB3xhhI', dest, destKind, xOffset, yOffset, region))
 
-  return this.xConnection.sendVoidRequest(requestParts, 21)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 21)
 }
 
 
@@ -695,7 +701,7 @@ XFixes.prototype.setPictureClipRegion = function(picture: PICTURE, region: REGIO
 
   requestParts.push(pack('<xx2xIIhh', picture, region, xOrigin, yOrigin))
 
-  return this.xConnection.sendVoidRequest(requestParts, 22)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 22)
 }
 
 
@@ -712,7 +718,7 @@ XFixes.prototype.setCursorName = function(cursor: CURSOR, name: Int8Array): Requ
   requestParts.push(pack('<xx2xIH2x', cursor, nbytes))
   requestParts.push(pad(name.buffer))
 
-  return this.xConnection.sendVoidRequest(requestParts, 23)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 23)
 }
 
 
@@ -727,7 +733,7 @@ XFixes.prototype.getCursorName = function(cursor: CURSOR): GetCursorNameCookie {
 
   requestParts.push(pack('<xx2xI', cursor))
 
-  return this.xConnection.sendRequest<GetCursorNameReply>(requestParts, 24, unmarshallGetCursorNameReply)
+  return this.xConnection.sendRequest<GetCursorNameReply>(requestParts, this.majorOpcode, unmarshallGetCursorNameReply, 24)
 }
 
 
@@ -742,7 +748,7 @@ XFixes.prototype.getCursorImageAndName = function(): GetCursorImageAndNameCookie
 
   requestParts.push(pack('<xx2x'))
 
-  return this.xConnection.sendRequest<GetCursorImageAndNameReply>(requestParts, 25, unmarshallGetCursorImageAndNameReply)
+  return this.xConnection.sendRequest<GetCursorImageAndNameReply>(requestParts, this.majorOpcode, unmarshallGetCursorImageAndNameReply, 25)
 }
 
 
@@ -757,7 +763,7 @@ XFixes.prototype.changeCursor = function(source: CURSOR, destination: CURSOR): R
 
   requestParts.push(pack('<xx2xII', source, destination))
 
-  return this.xConnection.sendVoidRequest(requestParts, 26)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 26)
 }
 
 
@@ -774,7 +780,7 @@ XFixes.prototype.changeCursorByName = function(src: CURSOR, name: Int8Array): Re
   requestParts.push(pack('<xx2xIH2x', src, nbytes))
   requestParts.push(pad(name.buffer))
 
-  return this.xConnection.sendVoidRequest(requestParts, 27)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 27)
 }
 
 
@@ -789,7 +795,7 @@ XFixes.prototype.expandRegion = function(source: REGION, destination: REGION, le
 
   requestParts.push(pack('<xx2xIIHHHH', source, destination, left, right, top, bottom))
 
-  return this.xConnection.sendVoidRequest(requestParts, 28)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 28)
 }
 
 
@@ -804,7 +810,7 @@ XFixes.prototype.hideCursor = function(window: WINDOW): RequestChecker {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.xConnection.sendVoidRequest(requestParts, 29)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 29)
 }
 
 
@@ -819,7 +825,7 @@ XFixes.prototype.showCursor = function(window: WINDOW): RequestChecker {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.xConnection.sendVoidRequest(requestParts, 30)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 30)
 }
 
 
@@ -839,7 +845,7 @@ XFixes.prototype.createPointerBarrier = function(barrier: BARRIER, window: WINDO
   requestParts.push(pack('<xx2xIIHHHHI2xH', barrier, window, x1, y1, x2, y2, directions, numDevices))
   requestParts.push(pad(devices.buffer))
 
-  return this.xConnection.sendVoidRequest(requestParts, 31)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 31)
 }
 
 
@@ -854,7 +860,7 @@ XFixes.prototype.deletePointerBarrier = function(barrier: BARRIER): RequestCheck
 
   requestParts.push(pack('<xx2xI', barrier))
 
-  return this.xConnection.sendVoidRequest(requestParts, 32)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 32)
 }
 
 eventInits.push((firstEvent) => {

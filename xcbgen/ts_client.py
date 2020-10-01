@@ -619,17 +619,19 @@ def _ts_request_helper(self, name, void):
 
   if void:
     _ts(
-      '  return this.%ssendVoidRequest(requestParts, %s)',
+      '  return this.%ssendVoidRequest(requestParts, %s, %s)',
       'xConnection.' if _ns.is_ext else '',
-      self.opcode
+      'this.majorOpcode' if _ns.is_ext else self.opcode,
+      self.opcode if _ns.is_ext else '0'
     )
   else:
     _ts(
-      '  return this.%ssendRequest<%s>(requestParts, %s, %s)',
+      '  return this.%ssendRequest<%s>(requestParts, %s, %s, %s)',
       'xConnection.' if _ns.is_ext else '',
       self.ts_reply_name if not void else 'void',
-      self.opcode,
-      f'unmarshall{self.ts_reply_name}'
+      'this.majorOpcode' if _ns.is_ext else self.opcode,
+      f'unmarshall{self.ts_reply_name}',
+      self.opcode if _ns.is_ext else '0'
     )
   _ts('}')
 

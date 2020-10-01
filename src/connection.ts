@@ -126,34 +126,40 @@ export class XConnection {
     let offset = 0
 
     while (data.byteOffset + offset < data.byteLength) {
-      const packet = new Uint8Array(data.buffer, data.byteOffset + offset)
+      const header = new Uint8Array(data.buffer, data.byteOffset + offset, 32)
+      const type = header[0]
 
-      const type = packet[0]
       if (type === 0) {
+        const length = 32
+        const packet = new Uint8Array(data.buffer, data.byteOffset + offset, length)
         const replySequenceNumber = packet[2] | (packet[3] << 8)
         this.resolvePreviousReplyResolvers(replySequenceNumber)
         const replyResolver = this.findReplyResolver(replySequenceNumber)
         replyResolver.resolveWithError(packet)
-        offset += 32
+        offset += length
       } else if (type === 1) {
-        const replySequenceNumber = packet[2] | (packet[3] << 8)
+        const replySequenceNumber = header[2] | (header[3] << 8)
         const length =
-          32 + 4 * (packet[4] | (packet[5] << 8) | (packet[6] << 16) | (packet[7] << 24))
+          32 + 4 * (header[4] | (header[5] << 8) | (header[6] << 16) | (header[7] << 24))
         this.resolvePreviousReplyResolvers(replySequenceNumber)
         const replyResolver = this.findReplyResolver(replySequenceNumber)
+        const packet = new Uint8Array(data.buffer, data.byteOffset + offset, length)
         replyResolver.resolve(packet)
         offset += length
       } else {
         // Event
+        const length = 32
+        const packet = new Uint8Array(data.buffer, data.byteOffset + offset, length)
         events[type](this, packet)
-        offset += 32
+        offset += length
       }
     }
   }
 
-  sendVoidRequest(requestParts: ArrayBuffer[], opcode: number): RequestChecker {
+  sendVoidRequest(requestParts: ArrayBuffer[], opcode: number, minorOpcode: number): RequestChecker {
     const requestBuffer = createRequestBuffer(requestParts)
     requestBuffer[0] = opcode
+    requestBuffer[1] = minorOpcode
     new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(
       requestBuffer.buffer,
       requestBuffer.byteOffset
@@ -171,7 +177,7 @@ export class XConnection {
       check: (): Promise<void> => {
         // fire a poor man 'sync' call to ensure the xserver has processed our previous actual call.
         // tslint:disable-next-line:no-floating-promises
-        this.sendRequest<GetInputFocusReply>([new ArrayBuffer(4)], 43, unmarshallGetInputFocusReply)
+        this.sendRequest<GetInputFocusReply>([new ArrayBuffer(4)], 43, unmarshallGetInputFocusReply, 0)
         return voidRequestPromise
       }
     }
@@ -180,10 +186,12 @@ export class XConnection {
   sendRequest<T>(
     requestParts: ArrayBuffer[],
     opcode: number,
-    replyUnmarshaller: Unmarshaller<T>
+    replyUnmarshaller: Unmarshaller<T>,
+    minorOpcode: number
   ): Promise<T> {
     const requestBuffer = createRequestBuffer(requestParts)
     requestBuffer[0] = opcode
+    requestBuffer[1] = minorOpcode
     new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] =
       new Uint32Array(
         requestBuffer.buffer,

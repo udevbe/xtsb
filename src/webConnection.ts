@@ -11,7 +11,7 @@ function isSetup(setup: any): setup is Setup {
 
 function createXConnectionSocket(webSocket: WebSocket): XConnectionSocket {
   webSocket.binaryType = 'arraybuffer'
-  const xConnectionSocket = {
+  const xConnectionSocket: XConnectionSocket = {
     close() {
       webSocket.close()
     },
@@ -19,7 +19,7 @@ function createXConnectionSocket(webSocket: WebSocket): XConnectionSocket {
       webSocket.send(data)
     }
   }
-  webSocket.onmessage = ev => xConnectionSocket?.write(ev.data)
+  webSocket.onmessage = (ev: MessageEvent<ArrayBuffer>) => xConnectionSocket.onData?.(new Uint8Array(ev.data, 0, ev.data.byteLength))
   webSocket.onerror = ev => {
     xConnectionSocket.close()
     console.error('XConnection is in error: ' + ev)
@@ -34,7 +34,7 @@ async function auth(webSocket: WebSocket) {
       if (isSetup(message)) {
         resolve(message)
       } else {
-        reject('Expected connectAck, got: ' + ev)
+        reject('Expected xcb Setup, got: ' + ev)
       }
     }
     webSocket.onerror = ev => {

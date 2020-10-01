@@ -1,4 +1,4 @@
-import { ClipOrdering, TIMESTAMP, RECTANGLE, PIXMAP, WINDOW, unmarshallRECTANGLE } from './xcb'
+import { RECTANGLE, ClipOrdering, TIMESTAMP, PIXMAP, unmarshallRECTANGLE, WINDOW } from './xcb'
 //
 // This file generated automatically from shape.xml by ts_client.py.
 // Edit at your peril.
@@ -208,7 +208,7 @@ Shape.prototype.queryVersion = function(): QueryVersionCookie {
 
   requestParts.push(pack('<xx2x'))
 
-  return this.xConnection.sendRequest<QueryVersionReply>(requestParts, 0, unmarshallQueryVersionReply)
+  return this.xConnection.sendRequest<QueryVersionReply>(requestParts, this.majorOpcode, unmarshallQueryVersionReply, 0)
 }
 
 
@@ -227,7 +227,7 @@ Shape.prototype.rectangles = function(operation: SO, destinationKind: SK, orderi
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 1)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 1)
 }
 
 
@@ -242,7 +242,7 @@ Shape.prototype.mask = function(operation: SO, destinationKind: SK, destinationW
 
   requestParts.push(pack('<xx2xBB2xIhhI', operation, destinationKind, destinationWindow, xOffset, yOffset, sourceBitmap))
 
-  return this.xConnection.sendVoidRequest(requestParts, 2)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 2)
 }
 
 
@@ -257,7 +257,7 @@ Shape.prototype.combine = function(operation: SO, destinationKind: SK, sourceKin
 
   requestParts.push(pack('<xx2xBBBxIhhI', operation, destinationKind, sourceKind, destinationWindow, xOffset, yOffset, sourceWindow))
 
-  return this.xConnection.sendVoidRequest(requestParts, 3)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 3)
 }
 
 
@@ -272,7 +272,7 @@ Shape.prototype.offset = function(destinationKind: SK, destinationWindow: WINDOW
 
   requestParts.push(pack('<xx2xB3xIhh', destinationKind, destinationWindow, xOffset, yOffset))
 
-  return this.xConnection.sendVoidRequest(requestParts, 4)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 4)
 }
 
 
@@ -287,7 +287,7 @@ Shape.prototype.queryExtents = function(destinationWindow: WINDOW): QueryExtents
 
   requestParts.push(pack('<xx2xI', destinationWindow))
 
-  return this.xConnection.sendRequest<QueryExtentsReply>(requestParts, 5, unmarshallQueryExtentsReply)
+  return this.xConnection.sendRequest<QueryExtentsReply>(requestParts, this.majorOpcode, unmarshallQueryExtentsReply, 5)
 }
 
 
@@ -302,7 +302,7 @@ Shape.prototype.selectInput = function(destinationWindow: WINDOW, enable: number
 
   requestParts.push(pack('<xx2xIB3x', destinationWindow, enable))
 
-  return this.xConnection.sendVoidRequest(requestParts, 6)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 6)
 }
 
 
@@ -317,7 +317,7 @@ Shape.prototype.inputSelected = function(destinationWindow: WINDOW): InputSelect
 
   requestParts.push(pack('<xx2xI', destinationWindow))
 
-  return this.xConnection.sendRequest<InputSelectedReply>(requestParts, 7, unmarshallInputSelectedReply)
+  return this.xConnection.sendRequest<InputSelectedReply>(requestParts, this.majorOpcode, unmarshallInputSelectedReply, 7)
 }
 
 
@@ -332,7 +332,7 @@ Shape.prototype.getRectangles = function(window: WINDOW, sourceKind: SK): GetRec
 
   requestParts.push(pack('<xx2xIB3x', window, sourceKind))
 
-  return this.xConnection.sendRequest<GetRectanglesReply>(requestParts, 8, unmarshallGetRectanglesReply)
+  return this.xConnection.sendRequest<GetRectanglesReply>(requestParts, this.majorOpcode, unmarshallGetRectanglesReply, 8)
 }
 
 eventInits.push((firstEvent) => {

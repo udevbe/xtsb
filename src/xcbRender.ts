@@ -1,14 +1,14 @@
 import {
   VISUALID,
-  COLORMAP,
-  ATOM,
+  CURSOR,
   STR,
   RECTANGLE,
-  unmarshallSTR,
-  CURSOR,
-  SubwindowMode,
+  DRAWABLE,
   PIXMAP,
-  DRAWABLE
+  unmarshallSTR,
+  SubwindowMode,
+  COLORMAP,
+  ATOM
 } from './xcb'
 //
 // This file generated automatically from render.xml by ts_client.py.
@@ -19,7 +19,14 @@ import { XConnection, chars, pad } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, RequestChecker } from './xjsbInternals'
 // tslint:disable-next-line:no-duplicate-imports
-import { xcbSimpleList, xcbComplexList, typePad, notUndefined, errors } from './xjsbInternals'
+import {
+  xcbSimpleList,
+  xcbComplexList,
+  typePad,
+  notUndefined,
+  events,
+  errors
+} from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 export class Render extends Protocol {
@@ -812,7 +819,7 @@ Render.prototype.queryVersion = function(clientMajorVersion: number, clientMinor
 
   requestParts.push(pack('<xx2xII', clientMajorVersion, clientMinorVersion))
 
-  return this.xConnection.sendRequest<QueryVersionReply>(requestParts, 0, unmarshallQueryVersionReply)
+  return this.xConnection.sendRequest<QueryVersionReply>(requestParts, this.majorOpcode, unmarshallQueryVersionReply, 0)
 }
 
 
@@ -827,7 +834,7 @@ Render.prototype.queryPictFormats = function(): QueryPictFormatsCookie {
 
   requestParts.push(pack('<xx2x'))
 
-  return this.xConnection.sendRequest<QueryPictFormatsReply>(requestParts, 1, unmarshallQueryPictFormatsReply)
+  return this.xConnection.sendRequest<QueryPictFormatsReply>(requestParts, this.majorOpcode, unmarshallQueryPictFormatsReply, 1)
 }
 
 
@@ -842,7 +849,7 @@ Render.prototype.queryPictIndexValues = function(format: PICTFORMAT): QueryPictI
 
   requestParts.push(pack('<xx2xI', format))
 
-  return this.xConnection.sendRequest<QueryPictIndexValuesReply>(requestParts, 2, unmarshallQueryPictIndexValuesReply)
+  return this.xConnection.sendRequest<QueryPictIndexValuesReply>(requestParts, this.majorOpcode, unmarshallQueryPictIndexValuesReply, 2)
 }
 
 
@@ -897,7 +904,7 @@ Render.prototype.createPicture = function(pid: PICTURE, drawable: DRAWABLE, form
   requestParts.push(pack('<xx2xIIII', pid, drawable, format, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key => valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return this.xConnection.sendVoidRequest(requestParts, 4)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 4)
 }
 
 
@@ -952,7 +959,7 @@ Render.prototype.changePicture = function(picture: PICTURE, valueList: Partial<{
   requestParts.push(pack('<xx2xII', picture, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key => valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return this.xConnection.sendVoidRequest(requestParts, 5)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 5)
 }
 
 
@@ -971,7 +978,7 @@ Render.prototype.setPictureClipRectangles = function(picture: PICTURE, clipXOrig
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 6)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 6)
 }
 
 
@@ -986,7 +993,7 @@ Render.prototype.freePicture = function(picture: PICTURE): RequestChecker {
 
   requestParts.push(pack('<xx2xI', picture))
 
-  return this.xConnection.sendVoidRequest(requestParts, 7)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 7)
 }
 
 
@@ -1001,7 +1008,7 @@ Render.prototype.composite = function(op: PictOp, src: PICTURE, mask: PICTURE, d
 
   requestParts.push(pack('<xx2xB3xIIIhhhhhhHH', op, src, mask, dst, srcX, srcY, maskX, maskY, dstX, dstY, width, height))
 
-  return this.xConnection.sendVoidRequest(requestParts, 8)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 8)
 }
 
 
@@ -1029,7 +1036,7 @@ Render.prototype.trapezoids = function(op: PictOp, src: PICTURE, dst: PICTURE, m
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 10)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 10)
 }
 
 
@@ -1053,7 +1060,7 @@ Render.prototype.triangles = function(op: PictOp, src: PICTURE, dst: PICTURE, ma
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 11)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 11)
 }
 
 
@@ -1072,7 +1079,7 @@ Render.prototype.triStrip = function(op: PictOp, src: PICTURE, dst: PICTURE, mas
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 12)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 12)
 }
 
 
@@ -1091,7 +1098,7 @@ Render.prototype.triFan = function(op: PictOp, src: PICTURE, dst: PICTURE, maskF
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 13)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 13)
 }
 
 
@@ -1106,7 +1113,7 @@ Render.prototype.createGlyphSet = function(gsid: GLYPHSET, format: PICTFORMAT): 
 
   requestParts.push(pack('<xx2xII', gsid, format))
 
-  return this.xConnection.sendVoidRequest(requestParts, 17)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 17)
 }
 
 
@@ -1121,7 +1128,7 @@ Render.prototype.referenceGlyphSet = function(gsid: GLYPHSET, existing: GLYPHSET
 
   requestParts.push(pack('<xx2xII', gsid, existing))
 
-  return this.xConnection.sendVoidRequest(requestParts, 18)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 18)
 }
 
 
@@ -1136,7 +1143,7 @@ Render.prototype.freeGlyphSet = function(glyphset: GLYPHSET): RequestChecker {
 
   requestParts.push(pack('<xx2xI', glyphset))
 
-  return this.xConnection.sendVoidRequest(requestParts, 19)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 19)
 }
 
 
@@ -1158,7 +1165,7 @@ Render.prototype.addGlyphs = function(glyphset: GLYPHSET, glyphids: Uint32Array,
   })
   requestParts.push(pad(data.buffer))
 
-  return this.xConnection.sendVoidRequest(requestParts, 20)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 20)
 }
 
 
@@ -1174,7 +1181,7 @@ Render.prototype.freeGlyphs = function(glyphset: GLYPHSET, glyphsLen: number, gl
   requestParts.push(pack('<xx2xI', glyphset))
   requestParts.push(pad(glyphs.buffer))
 
-  return this.xConnection.sendVoidRequest(requestParts, 22)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 22)
 }
 
 
@@ -1190,7 +1197,7 @@ Render.prototype.compositeGlyphs8 = function(op: PictOp, src: PICTURE, dst: PICT
   requestParts.push(pack('<xx2xB3xIIIIhh', op, src, dst, maskFormat, glyphset, srcX, srcY))
   requestParts.push(pad(glyphcmds.buffer))
 
-  return this.xConnection.sendVoidRequest(requestParts, 23)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 23)
 }
 
 
@@ -1206,7 +1213,7 @@ Render.prototype.compositeGlyphs16 = function(op: PictOp, src: PICTURE, dst: PIC
   requestParts.push(pack('<xx2xB3xIIIIhh', op, src, dst, maskFormat, glyphset, srcX, srcY))
   requestParts.push(pad(glyphcmds.buffer))
 
-  return this.xConnection.sendVoidRequest(requestParts, 24)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 24)
 }
 
 
@@ -1222,7 +1229,7 @@ Render.prototype.compositeGlyphs32 = function(op: PictOp, src: PICTURE, dst: PIC
   requestParts.push(pack('<xx2xB3xIIIIhh', op, src, dst, maskFormat, glyphset, srcX, srcY))
   requestParts.push(pad(glyphcmds.buffer))
 
-  return this.xConnection.sendVoidRequest(requestParts, 25)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 25)
 }
 
 
@@ -1243,7 +1250,7 @@ Render.prototype.fillRectangles = function(op: PictOp, dst: PICTURE, color: COLO
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 26)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 26)
 }
 
 
@@ -1258,7 +1265,7 @@ Render.prototype.createCursor = function(cid: CURSOR, source: PICTURE, x: number
 
   requestParts.push(pack('<xx2xIIHH', cid, source, x, y))
 
-  return this.xConnection.sendVoidRequest(requestParts, 27)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 27)
 }
 
 
@@ -1275,7 +1282,7 @@ Render.prototype.setPictureTransform = function(picture: PICTURE, transform: TRA
   requestParts.push(pack('<iiiiiiiii', transform.matrix11, transform.matrix12, transform.matrix13, transform.matrix21, transform.matrix22, transform.matrix23, transform.matrix31, transform.matrix32, transform.matrix33))
 
 
-  return this.xConnection.sendVoidRequest(requestParts, 28)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 28)
 }
 
 
@@ -1290,7 +1297,7 @@ Render.prototype.queryFilters = function(drawable: DRAWABLE): QueryFiltersCookie
 
   requestParts.push(pack('<xx2xI', drawable))
 
-  return this.xConnection.sendRequest<QueryFiltersReply>(requestParts, 29, unmarshallQueryFiltersReply)
+  return this.xConnection.sendRequest<QueryFiltersReply>(requestParts, this.majorOpcode, unmarshallQueryFiltersReply, 29)
 }
 
 
@@ -1309,7 +1316,7 @@ Render.prototype.setPictureFilter = function(picture: PICTURE, filter: Int8Array
   requestParts.push(pack('<x'))
   requestParts.push(pad(values.buffer))
 
-  return this.xConnection.sendVoidRequest(requestParts, 30)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 30)
 }
 
 
@@ -1328,7 +1335,7 @@ Render.prototype.createAnimCursor = function(cid: CURSOR, cursorsLen: number, cu
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 31)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 31)
 }
 
 
@@ -1350,7 +1357,7 @@ Render.prototype.addTraps = function(picture: PICTURE, xOff: number, yOff: numbe
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 32)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 32)
 }
 
 
@@ -1367,7 +1374,7 @@ Render.prototype.createSolidFill = function(picture: PICTURE, color: COLOR): Req
   requestParts.push(pack('<HHHH', color.red, color.green, color.blue, color.alpha))
 
 
-  return this.xConnection.sendVoidRequest(requestParts, 33)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 33)
 }
 
 
@@ -1393,7 +1400,7 @@ Render.prototype.createLinearGradient = function(picture: PICTURE, p1: POINTFIX,
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 34)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 34)
 }
 
 
@@ -1419,7 +1426,7 @@ Render.prototype.createRadialGradient = function(picture: PICTURE, inner: POINTF
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 35)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 35)
 }
 
 
@@ -1443,7 +1450,7 @@ Render.prototype.createConicalGradient = function(picture: PICTURE, center: POIN
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, 36)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 36)
 }
 
 errorInits.push(firstError => {
