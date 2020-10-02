@@ -13,6 +13,10 @@ declare global {
   interface Int8Array {
     chars(): string
   }
+
+  interface Uint8Array {
+    chars(): string
+  }
 }
 
 export type TypedArray =
@@ -27,6 +31,10 @@ export type TypedArray =
   | Float64Array
 
 Int8Array.prototype.chars = function() {
+  return textDecoder.decode(this)
+}
+
+Uint8Array.prototype.chars = function() {
   return textDecoder.decode(this)
 }
 
