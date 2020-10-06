@@ -1,5 +1,15 @@
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import { BadWindow, connect, EventMask, WindowClass, XConnection } from '../src'
+import {
+  BadWindow,
+  connect,
+  EventMask,
+  nodeConnectionSetup,
+  WindowClass,
+  XConnection,
+  getShape,
+  getXFixes,
+  getRender
+} from '../src'
 import { setupXvfb } from './setupXvfb'
 
 describe('Connection', () => {
@@ -12,7 +22,7 @@ describe('Connection', () => {
   beforeAll(async (done) => {
     const { xProc, xAuthority } = await setupXvfb(display)
     xvfbProc = xProc
-    connection = await connect({ display, xAuthority })
+    connection = await connect(nodeConnectionSetup({ display, xAuthority }))
     done()
   })
 
@@ -157,6 +167,24 @@ describe('Connection', () => {
     expect(queryTreeReply.root).toBe(connection.setup.roots[0].root)
     expect(queryTreeReply.childrenLen).toBe(0)
     expect(queryTreeReply.children.length).toBe(0)
+    done()
+  })
+
+  it('can query extensions', async (done) => {
+    const listExtensionsReply = await connection.listExtensions()
+    listExtensionsReply.names.forEach(value => {
+      expect(value).not.toBeUndefined()
+      expect(typeof value.name.chars()).toBe('string')
+    })
+
+    const xFixes = await getXFixes(connection)
+    const render = await getRender(connection)
+    const shape = await getShape(connection)
+
+    expect(xFixes).not.toBeUndefined()
+    expect(render).not.toBeUndefined()
+    expect(shape).not.toBeUndefined()
+
     done()
   })
 })

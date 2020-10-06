@@ -1,12 +1,10 @@
 import * as fs from 'fs'
 import * as net from 'net'
-import { homedir, hostname } from 'os'
+import * as os from 'os'
 import * as path from 'path'
 import * as util from 'util'
 import { authenticate } from './auth'
-import { connectGeneric, XConnection, XConnectionOptions, XConnectionSocket } from './connection'
-
-const fsReadFile = util.promisify(fs.readFile)
+import { SetupConnection, XConnectionOptions, XConnectionSocket } from './connection'
 
 interface ConnectionTypeToName {
   256: 'Local'
@@ -43,14 +41,15 @@ interface Cookie {
 }
 
 async function readXauthority(xAuthority?: string): Promise<Uint8Array | null> {
-  const nixFilename = xAuthority || process.env.XAUTHORITY || path.join(homedir(), '.Xauthority')
+  const fsReadFile = util.promisify(fs.readFile)
+  const nixFilename = xAuthority || process.env.XAUTHORITY || path.join(os.homedir(), '.Xauthority')
   try {
     return await fsReadFile(nixFilename)
   } catch (err) {
     if (err.code === 'ENOENT') {
       // TODO we could solve this with recursion instead of c/p the readFile logic here from before
       // Xming/windows uses %HOME%/Xauthority ( .Xauthority with no dot ) - try with this name
-      const winFilename = process.env.XAUTHORITY ?? path.join(homedir(), 'Xauthority')
+      const winFilename = process.env.XAUTHORITY ?? path.join(os.homedir(), 'Xauthority')
       try {
         return await fsReadFile(winFilename)
       } catch (err) {
@@ -136,10 +135,20 @@ async function connectSocket(
   })
 }
 
+function connectSocketFD(
+  fd: number
+): net.Socket {
+  const socket = new net.Socket({ fd })
+  socket.on('error', (err: NodeJS.ErrnoException) => {
+    socket.destroy(err)
+  })
+  return socket
+}
+
 export async function getAuthenticationCookie(
   displayNum: string,
   authHost: string,
-  socketFamily: 'IPv4' | 'IPv6' | undefined,
+  socketFamily?: 'IPv4' | 'IPv6',
   xAuthority?: string
 ): Promise<{ authName: string; authData: string }> {
   let family: number
@@ -177,8 +186,41 @@ export async function getAuthenticationCookie(
   }
 }
 
-export async function connect(options?: XConnectionOptions): Promise<XConnection> {
-  const connectionSetup = async () => {
+export const nodeFDConnectionSetup: (fd: number) => SetupConnection =
+  fd => async () => {
+    const display = process.env.DISPLAY
+    if (display === undefined) {
+      throw new Error('No DISPLAY environment variable set.')
+    }
+
+    const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
+    if (!displayMatch) {
+      throw new Error('Cannot parse display')
+    }
+    const displayNum = displayMatch[2] ?? '0'
+
+
+    const socket = connectSocketFD(fd)
+    const xConnectionSocket: XConnectionSocket = {
+      write(data: Uint8Array) {
+        socket.write(data)
+      },
+
+      close() {
+        socket.end()
+      }
+    }
+    socket.on('data', (data) => xConnectionSocket.onData?.(data))
+
+    const authHost = os.hostname()
+    const cookie = await getAuthenticationCookie(displayNum, authHost)
+    const setup = await authenticate(xConnectionSocket, displayNum, authHost, undefined, cookie)
+
+    return { setup, xConnectionSocket }
+  }
+
+export const nodeConnectionSetup: (options: XConnectionOptions) => SetupConnection =
+  options => async () => {
     const display = options?.display ?? process.env.DISPLAY ?? ':0'
     const xAuthority = options?.xAuthority
 
@@ -222,17 +264,12 @@ export async function connect(options?: XConnectionOptions): Promise<XConnection
     let socketFamily = socket.remoteFamily as 'IPv4' | 'IPv6' | undefined
 
     if (!authHost || authHost === '127.0.0.1' || authHost === '::1') {
-      authHost = hostname()
+      authHost = os.hostname()
       socketFamily = undefined
     }
 
-    // tslint:disable-next-line:no-floating-promises
     const cookie = await getAuthenticationCookie(displayNum, authHost, socketFamily, xAuthority)
     const setup = await authenticate(xConnectionSocket, displayNum, authHost, socketFamily, cookie)
 
     return { setup, xConnectionSocket }
   }
-
-
-  return connectGeneric(connectionSetup)
-}

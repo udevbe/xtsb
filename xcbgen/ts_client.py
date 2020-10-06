@@ -56,6 +56,8 @@ _simple_list_types = {
   "'double'": 'Float64Array'
 }
 
+_ts_own_prefix = ''
+_ts_type_imports = {}
 _tslines = []
 _tslevel = 0
 _ns = None
@@ -63,6 +65,12 @@ _ns = None
 _ts_fmt_fmt = ''
 _ts_fmt_size = 0
 _ts_fmt_list = []
+
+
+def _ts_import_type(ts_type, ts_file):
+  if ts_file not in _ts_type_imports:
+    _ts_type_imports[ts_file] = set()
+  _ts_type_imports[ts_file].add(ts_type)
 
 
 def _camel(s):
@@ -121,12 +129,13 @@ def _b(bool):
   return 'true' if bool else 'false'
 
 
-def _ts_push_format(field):
+def _ts_push_format(field, name_prefix=''):
   global _ts_fmt_fmt, _ts_fmt_size, _ts_fmt_list
 
   _ts_fmt_fmt += field.type.ts_format_str
   _ts_fmt_size += field.type.size
-  _ts_fmt_list.append(_n(field.field_name))
+
+  _ts_fmt_list.append(f'{name_prefix}{_n(field.field_name)}')
 
 
 def _ts_push_format_simple(field):
@@ -205,6 +214,11 @@ def _ts_type_setup(self, name, postfix=''):
     self.ts_fixed_size = 0
 
     for field in self.fields:
+      if not field.type.is_container and len(field.field_type) > 1:
+        type_prefix = ''.join(field.field_type[:-1])
+        if _ts_own_prefix != type_prefix:
+          _ts_import_type(field.field_type[-1], type_prefix)
+
       _ts_type_setup(field.type, field.field_type)
 
       field.ts_type = _t(field.field_type)
@@ -270,12 +284,18 @@ def _ts_type_alignsize(field):
   return field.type.size
 
 
-def _ts_field_type(field):
+def _ts_field_type(field, is_request_param = False):
   postfix = '[]' if field.type.is_list else ''
 
-  element_type = None
   if field.enum:
-    element_type = field.enum
+    global module
+    enum_type = module.get_type(field.enum)
+    if len(enum_type.name) > 1:
+      type_prefix = ''.join(enum_type.name[:-1])
+      if _ts_own_prefix != type_prefix:
+        _ts_import_type(enum_type.name[-1], type_prefix)
+
+    element_type = enum_type.name[-1]
   elif field.type.is_switch:
     ts_switch_type = ', '.join(
       [f'{_n(switch_field.field_name)}: {_ts_field_type(switch_field)}' for switch_field in
@@ -283,7 +303,10 @@ def _ts_field_type(field):
     element_type = f'Partial<{{ {ts_switch_type} }}>'
   elif field.type.is_list and field.type.member.is_simple:
     postfix = ''
-    element_type = _simple_list_types[field.ts_listtype]
+    if is_request_param and field.field_type[0] == 'void':
+      element_type = 'TypedArray'
+    else:
+      element_type = _simple_list_types[field.ts_listtype]
   else:
     element_type = _ts_types.get(field.ts_type, field.ts_type)
 
@@ -310,7 +333,7 @@ def _ts_fields(self):
 
 def _ts_unmarshall_complex(self):
   _ts(
-    'const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
+    'export const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
     self.ts_type,
     self.ts_type
   )
@@ -337,6 +360,11 @@ def _ts_unmarshall_complex(self):
     if need_alignment:
       _ts('  offset += typePad(%d, offset)', _ts_type_alignsize(field))
     need_alignment = True
+
+    if len(field.field_type) > 1:
+      type_prefix = ''.join(field.field_type[:-1])
+      if _ts_own_prefix != type_prefix:
+        _ts_import_type('unmarshall%s' % field.field_type[-1], type_prefix)
 
     if field.type.is_list:
       _ts(
@@ -431,10 +459,11 @@ def _ts_request_helper(self, name, void):
       # We need to set the field up in the structure
       wire_fields.append(field)
 
+  global _ns
   _ts_setlevel(1)
   _ts('')
-  _ts('declare module \'./connection\' {')
-  _ts('  interface XConnection {')
+  _ts('declare module \'./%s\' {', _ts_own_prefix if _ns.is_ext else 'connection')
+  _ts('  interface %s {', _ns.ext_name or 'XConnection')
   if hasattr(self, 'doc') and self.doc:
     _ts('    /**')
     if hasattr(self.doc, 'brief') and self.doc.brief:
@@ -453,7 +482,8 @@ def _ts_request_helper(self, name, void):
       pass
     if hasattr(self.doc, 'fields'):
       for param_name, param_descr in self.doc.fields.items():
-        _ts('     * @param %s %s', param_name, param_descr.replace('\n\n', '\n     * ').replace('\n', '\n     * '))
+        _ts('     * @param %s %s', param_name,
+            param_descr.replace('\n\n', '\n     * ').replace('\n', '\n     * '))
     if hasattr(self.doc, 'see') and self.doc.see:
       _ts('     *  ')
       _ts('     * See also:  ')
@@ -468,32 +498,36 @@ def _ts_request_helper(self, name, void):
   _ts(
     '    %s (%s): %s',
     func_name,
-    ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
+    ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x, True)}' for x in param_fields]),
     func_cookie
   )
   _ts('  }')
   _ts('}')
   _ts('')
   _ts(
-    'XConnection.prototype.%s = function(%s): %s {',
+    '%s.prototype.%s = function(%s): %s {',
+    _ns.ext_name if _ns.is_ext else 'XConnection',
     func_name,
-    ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x)}' for x in param_fields]),
+    ', '.join([f'{_n(x.field_name)}: {_ts_field_type(x, True)}' for x in param_fields]),
     func_cookie
   )
+
+  len_helper_fields = set()
   for field in param_fields:
-    if field.type.is_list and field.type.expr.lenfield:
+    if field.type.is_list and field.type.expr.lenfield and field.type.expr.lenfield.field_name not in len_helper_fields:
+      len_helper_fields.add(field.type.expr.lenfield.field_name)
       _ts('  const %s = %s.length', _n(field.type.expr.lenfield.field_name), _n(field.field_name))
 
   _ts('  const requestParts: ArrayBuffer[] = []')
   _ts('')
 
-  def write_request_part(fields):
+  def write_request_part(fields, name_prefix=''):
     for field in fields:
       if field.auto:
         _ts_push_pad(field.type.size)
         continue
       if field.type.is_simple:
-        _ts_push_format(field)
+        _ts_push_format(field, name_prefix)
         continue
       if field.type.is_pad:
         _ts_push_pad(field.type.nmemb)
@@ -564,15 +598,17 @@ def _ts_request_helper(self, name, void):
           _n(field.field_name),
           _n(field.field_name))
       elif field.type.is_list and field.type.member.is_simple:
-        _ts('  requestParts.push(%s.buffer)', _n(field.field_name))
+        _ts('  requestParts.push(pad(%s.buffer))', _n(field.field_name))
       elif field.type.is_list:
         _ts('  %s.forEach(({%s}) => {', _n(field.field_name), ', '.join(
-          [f'{_n(x.field_name)}' for x in field.type.member.fields if not x.type.is_pad]
+          [f'  {_n(x.field_name)}' for x in field.type.member.fields if not x.type.is_pad]
         ))
         write_request_part(field.type.member.fields)
         _ts('  })')
+      elif field.type.is_container:
+        write_request_part(field.type.fields, name_prefix+f'{field.field_name}.')
       else:
-        _ts('  new Error(\'FIXME support sending this type: \')', field.field_type[-1])
+        _ts('  new Error(\'FIXME support sending this type: %s \')', field.field_type[-1])
 
     (format, size, list) = _ts_flush_format()
     if size > 0:
@@ -583,15 +619,19 @@ def _ts_request_helper(self, name, void):
 
   if void:
     _ts(
-      '  return this.sendVoidRequest(requestParts, %s)',
-      self.opcode
+      '  return this.%ssendVoidRequest(requestParts, %s, %s)',
+      'xConnection.' if _ns.is_ext else '',
+      'this.majorOpcode' if _ns.is_ext else self.opcode,
+      self.opcode if _ns.is_ext else '0'
     )
   else:
     _ts(
-      '  return this.sendRequest<%s>(requestParts, %s, %s)',
+      '  return this.%ssendRequest<%s>(requestParts, %s, %s, %s)',
+      'xConnection.' if _ns.is_ext else '',
       self.ts_reply_name if not void else 'void',
-      self.opcode,
-      f'unmarshall{self.ts_reply_name}'
+      'this.majorOpcode' if _ns.is_ext else self.opcode,
+      f'unmarshall{self.ts_reply_name}',
+      self.opcode if _ns.is_ext else '0'
     )
   _ts('}')
 
@@ -604,13 +644,17 @@ def ts_open(self):
   global _ns
   _ns = self.namespace
 
+  global _ts_own_prefix
+  _ts_own_prefix = ''.join(_ns.prefix)
+
   _ts_setlevel(0)
   _ts('//')
   _ts('// This file generated automatically from %s by ts_client.py.', _ns.file)
   _ts('// Edit at your peril.')
   _ts('//')
   _ts('')
-  _ts('import { XConnection } from \'./connection\'')
+  _ts('import { XConnection, chars, pad, TypedArray } from \'./connection\'')
+  _ts("import Protocol from './Protocol'")
   _ts('import type { Unmarshaller, EventHandler, RequestChecker } from \'./xjsbInternals\'')
   _ts('// tslint:disable-next-line:no-duplicate-imports')
   _ts(
@@ -619,14 +663,35 @@ def ts_open(self):
   _ts('')
 
   if _ns.is_ext:
-    for (n, h) in self.imports:
-      _ts('import * as %s from \'%s\'', h)
+    _ts('export class %s extends Protocol {', _ns.ext_name)
+    _ts(' static MAJOR_VERSION = %s', _ns.major_version)
+    _ts(' static MINOR_VERSION = %s', _ns.minor_version)
+    _ts('}')
+    _ts('')
+    _ts('const errorInits: ((firstError: number) => void)[] = []')
+    _ts('const eventInits: ((firstEvent: number) => void)[] = []')
+    _ts('')
+    _ts('let protocolExtension: %s | undefined = undefined', _ns.ext_name)
+    _ts('')
+    _ts('export async function get%s(xConnection: XConnection): Promise<%s> {', _ns.ext_name,
+        _ns.ext_name)
+    _ts('  if (protocolExtension) {')
+    _ts('    return protocolExtension')
+    _ts('  }')
+    _ts(
+      "  const queryExtensionReply = await xConnection.queryExtension(chars('%s'))",
+      _ns.ext_xname)
+    _ts('  if (queryExtensionReply.present === 0) {')
+    _ts("    throw new Error('%s extension not present.')", _ns.ext_name)
+    _ts('  }')
+    _ts('  const { firstError, firstEvent, majorOpcode } = queryExtensionReply')
+    _ts('  protocolExtension = new %s(xConnection, majorOpcode)', _ns.ext_name)
+    _ts('  errorInits.forEach(init => init(firstError))')
+    _ts('  eventInits.forEach(init => init(firstEvent))')
+    _ts('  return protocolExtension')
+    _ts('}')
 
-    _ts('')
-    _ts('const MAJOR_VERSION = %s', _ns.major_version)
-    _ts('const MINOR_VERSION = %s', _ns.minor_version)
-    _ts('')
-    # _ts('key = xcb.ExtensionKey(\'%s\')', _ns.ext_xname)
+  _ts('')
 
   _ts_setlevel(1)
   _ts('')
@@ -637,7 +702,11 @@ def ts_close(self):
   Exported function that handles module close.
   Writes out all the stored content lines, then closes the file.
   '''
-  tsfile = open('./src/%s.ts' % _ns.header, 'w')
+  tsfile = open('./src/%s.ts' % _ts_own_prefix, 'w')
+
+  for ts_import_file, imports in _ts_type_imports.items():
+    tsfile.write(f'import {{{", ".join(imports)}}} from \'./{ts_import_file}\'\n')
+
   for list in _tslines:
     for line in list:
       tsfile.write(line)
@@ -648,7 +717,7 @@ def ts_close(self):
 def ts_enum(self, name):
   _ts_setlevel(0)
   _ts('')
-  _ts('export enum %s {', _t(name))
+  _ts('export const enum %s {', _t(name))
 
   count = 0
 
@@ -803,19 +872,29 @@ def ts_event(self, name):
   _ts('export interface %sHandler extends EventHandler<%s> {}', self.ts_event_name,
       self.ts_event_name)
   _ts('')
-  _ts('declare module \'./connection\' {')
-  _ts('  interface XConnection {')
+  _ts('declare module \'./%s\' {', _ts_own_prefix if _ns.is_ext else 'connection')
+  _ts('  interface %s {', _ns.ext_name if _ns.is_ext else 'XConnection')
   _ts('    on%s?: %sHandler', self.ts_event_name, self.ts_event_name)
   _ts('  }')
   _ts('}')
   _ts('')
   # Opcode define
   _ts_setlevel(2)
-  _ts('events[%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
-  _ts('  const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
-      self.ts_event_name)
-  _ts('  xConnection.on%s?.(event)', self.ts_event_name)
-  _ts('}')
+  if _ns.is_ext:
+    _ts('eventInits.push((firstEvent) => {')
+    _ts('  events[firstEvent+%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
+    _ts('    if(protocolExtension === undefined) return')
+    _ts('    const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
+        self.ts_event_name)
+    _ts('    protocolExtension.on%s?.(event)', self.ts_event_name)
+    _ts('  }')
+    _ts('})')
+  else:
+    _ts('events[%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
+    _ts('  const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
+        self.ts_event_name)
+    _ts('  xConnection.on%s?.(event)', self.ts_event_name)
+    _ts('}')
 
 
 def ts_eventstruct(self, name):
@@ -867,8 +946,14 @@ def ts_error(self, name):
 
   # Opcode define
   _ts_setlevel(3)
-  _ts('errors[%s] = [unmarshall%s, %s]', self.opcodes[name], self.ts_error_name,
-      self.ts_except_name)
+  if _ns.is_ext:
+    _ts('errorInits.push(firstError => {')
+    _ts('  errors[firstError+%s] = [unmarshall%s, %s]', self.opcodes[name], self.ts_error_name,
+        self.ts_except_name)
+    _ts('})')
+  else:
+    _ts('errors[%s] = [unmarshall%s, %s]', self.opcodes[name], self.ts_error_name,
+        self.ts_except_name)
 
 
 # Main routine starts here

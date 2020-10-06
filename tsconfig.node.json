@@ -2,7 +2,7 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "target": "ES2017",
-    "module": "ES6",
+    "module": "CommonJS",
     "lib": [
       "es2015",
       "es2016",
@@ -19,7 +19,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "declarationDir": "dist/types",
-    "outDir": "dist/module",
+    "outDir": "dist/main",
     "typeRoots": [
       "node_modules/@types"
     ]

@@ -36,8 +36,8 @@ export function xcbComplexList<T>(buffer: ArrayBuffer, offset: number, listLengt
 }
 
 export function xcbSimpleList<T extends TypedArray>(buffer: ArrayBuffer, offset: number, listLength: number, typedArrayConstructor: new (buffer: ArrayBuffer, offset: number, listLength: number) => T, primitiveLength: number): UnmarshallResult<T> {
-  offset += (listLength * primitiveLength)
   const value = new typedArrayConstructor(buffer, offset, listLength)
+  offset += (listLength * primitiveLength)
   return { value, offset }
 }
 
