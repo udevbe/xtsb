@@ -1,4 +1,4 @@
-export * as xcb from './xcb'
+export * from './xcb'
 export { getRender } from './xcbRender'
 export * as Render from './xcbRender'
 export { getShape } from './xcbShape'
