@@ -45,7 +45,29 @@ export function typePad(alignSize: number, offset: number): number {
   return -offset & (alignSize > 4 ? 3 : alignSize - 1)
 }
 
+export function concatArrayBuffers(buffers: ArrayBuffer[], totalByteLength: number): ArrayBuffer {
+  if (buffers.length === 1) {
+    return buffers[0]
+  }
 
+  const concat = new Uint8Array(totalByteLength)
+  let offset = 0
+  buffers.forEach(value => {
+    concat.set(new Uint8Array(value), offset)
+    offset += value.byteLength
+  })
+  return concat.buffer
+}
+
+export function marshallXcbComplexList<T>(buffer: ArrayBuffer, offset: number, listLength: number, unmarshall: Unmarshaller<T>): UnmarshallResult<T[]> {
+  const value: T[] = []
+  for (let i = 0; i < listLength; i++) {
+    const valueWithOffset = unmarshall(buffer, offset)
+    offset = valueWithOffset.offset
+    value.push(valueWithOffset.value)
+  }
+  return { value, offset }
+}
 
 export function notUndefined<T>(x: T | undefined): x is T {
   return x !== undefined

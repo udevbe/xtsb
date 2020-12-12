@@ -8,9 +8,34 @@ import {
   XConnection,
   getShape,
   getXFixes,
-  getRender
+  getRender, ColormapAlloc
 } from '../src'
 import { setupXvfb } from './setupXvfb'
+
+interface VisualAndColormap {
+  visualId: number,
+  colormap: number
+}
+
+async function setupVisualAndColormap(xConnection: XConnection): Promise<VisualAndColormap> {
+  const visuals = xConnection.setup.roots.map(screen => {
+    const depth = screen.allowedDepths.find(depth => depth.depth === 32)
+    return depth?.visuals
+  })?.[0]
+
+  if (visuals === undefined) {
+    throw new Error('no 32 bit visualtype\n')
+  }
+  const visualId = visuals[0].visualId
+
+  const colormap = xConnection.allocateID()
+  await xConnection.createColormap(ColormapAlloc.None, colormap, xConnection.setup.roots[0].root, visualId).check()
+
+  return {
+    visualId,
+    colormap
+  }
+}
 
 describe('Connection', () => {
   const displayNum = '0'
@@ -100,22 +125,36 @@ describe('Connection', () => {
 
   it('can receive events.', async (done) => {
     // Given
+    const { colormap, visualId } = await setupVisualAndColormap(connection)
     const windowId = connection.allocateID()
 
     // When
-    connection.createWindow(
-      0,
+    await connection.createWindow(
+      32,
       windowId,
       connection.setup.roots[0].root,
       0,
       0,
-      1,
-      1,
+      484,
+      341,
       0,
       WindowClass.InputOutput,
-      0,
-      { eventMask: EventMask.StructureNotify }
-    )
+      visualId,
+      {
+        colormap,
+        eventMask: EventMask.KeyPress |
+          EventMask.KeyRelease |
+          EventMask.ButtonPress |
+          EventMask.ButtonRelease |
+          EventMask.PointerMotion |
+          EventMask.EnterWindow |
+          EventMask.LeaveWindow |
+          EventMask.SubstructureNotify |
+          EventMask.SubstructureRedirect |
+          EventMask.StructureNotify,
+        borderPixel: connection.setup.roots[0].blackPixel
+      }
+    ).check()
     connection.onDestroyNotifyEvent = (event) => {
       connection.onDestroyNotifyEvent = undefined
       expect(event.window).toBe(windowId)

@@ -1,15 +1,14 @@
-import { RECTANGLE, ClipOrdering, TIMESTAMP, PIXMAP, unmarshallRECTANGLE, WINDOW } from './xcb'
 //
 // This file generated automatically from shape.xml by ts_client.py.
 // Edit at your peril.
 //
-
-import { XConnection, chars } from './connection'
+import { chars, XConnection } from './connection'
 import Protocol from './Protocol'
-import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
+import { pack, unpackFrom } from './struct'
+import { ClipOrdering, PIXMAP, RECTANGLE, TIMESTAMP, unmarshallRECTANGLE, WINDOW } from './xcb'
+import type { EventHandler, RequestChecker, Unmarshaller } from './xjsbInternals'
 // tslint:disable-next-line:no-duplicate-imports
-import { xcbComplexList, events } from './xjsbInternals'
-import { unpackFrom, pack } from './struct'
+import { concatArrayBuffers, events, xcbComplexList } from './xjsbInternals'
 
 export class Shape extends Protocol {
   static MAJOR_VERSION = 1
@@ -20,16 +19,20 @@ const errorInits: ((firstError: number) => void)[] = []
 const eventInits: ((firstEvent: number) => void)[] = []
 
 let protocolExtension: Shape | undefined = undefined
+let firstEvent: number
+let firstError: number
 
 export async function getShape(xConnection: XConnection): Promise<Shape> {
-  if (protocolExtension) {
+  if (protocolExtension && protocolExtension.xConnection === xConnection) {
     return protocolExtension
   }
   const queryExtensionReply = await xConnection.queryExtension(chars('SHAPE'))
   if (queryExtensionReply.present === 0) {
     throw new Error('Shape extension not present.')
   }
-  const { firstError, firstEvent, majorOpcode } = queryExtensionReply
+  const { majorOpcode } = queryExtensionReply
+  firstEvent = queryExtensionReply.firstEvent
+  firstError = queryExtensionReply.firstError
   protocolExtension = new Shape(xConnection, majorOpcode)
   errorInits.forEach(init => init(firstError))
   eventInits.forEach(init => init(firstEvent))
@@ -52,6 +55,7 @@ export const enum SK {
 }
 
 export type NotifyEvent = {
+  responseType: number
   shapeKind: SK
   affectedWindow: WINDOW
   extentsX: number
@@ -63,11 +67,12 @@ export type NotifyEvent = {
 }
 
 export const unmarshallNotifyEvent: Unmarshaller<NotifyEvent> = (buffer, offset = 0) => {
-  const [shapeKind, affectedWindow, extentsX, extentsY, extentsWidth, extentsHeight, serverTime, shaped] = unpackFrom('<xB2xIhhHHIB11x', buffer, offset)
+  const [responseType, shapeKind, affectedWindow, extentsX, extentsY, extentsWidth, extentsHeight, serverTime, shaped] = unpackFrom('<BB2xIhhHHIB11x', buffer, offset)
   offset += 32
 
   return {
     value: {
+      responseType,
       shapeKind,
       affectedWindow,
       extentsX,
@@ -79,6 +84,16 @@ export const unmarshallNotifyEvent: Unmarshaller<NotifyEvent> = (buffer, offset 
     },
     offset
   }
+}
+export const marshallNotifyEvent = (instance: NotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { shapeKind, affectedWindow, extentsX, extentsY, extentsWidth, extentsHeight, serverTime, shaped } = instance
+    buffers.push(pack('<xB2xIhhHHIB11x', shapeKind, affectedWindow, extentsX, extentsY, extentsWidth, extentsHeight, serverTime, shaped))
+  }
+  new Uint8Array(buffers[0])[0] = firstEvent + 0
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export interface NotifyEventHandler extends EventHandler<NotifyEvent> {
@@ -94,16 +109,18 @@ declare module './xcbShape' {
 export type QueryVersionCookie = Promise<QueryVersionReply>
 
 export type QueryVersionReply = {
+  responseType: number
   majorVersion: number
   minorVersion: number
 }
 
 export const unmarshallQueryVersionReply: Unmarshaller<QueryVersionReply> = (buffer, offset = 0) => {
-  const [majorVersion, minorVersion] = unpackFrom('<xx2x4xHH', buffer, offset)
+  const [responseType, majorVersion, minorVersion] = unpackFrom('<Bx2x4xHH', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       majorVersion,
       minorVersion
     },
@@ -114,6 +131,7 @@ export const unmarshallQueryVersionReply: Unmarshaller<QueryVersionReply> = (buf
 export type QueryExtentsCookie = Promise<QueryExtentsReply>
 
 export type QueryExtentsReply = {
+  responseType: number
   boundingShaped: number
   clipShaped: number
   boundingShapeExtentsX: number
@@ -127,11 +145,12 @@ export type QueryExtentsReply = {
 }
 
 export const unmarshallQueryExtentsReply: Unmarshaller<QueryExtentsReply> = (buffer, offset = 0) => {
-  const [boundingShaped, clipShaped, boundingShapeExtentsX, boundingShapeExtentsY, boundingShapeExtentsWidth, boundingShapeExtentsHeight, clipShapeExtentsX, clipShapeExtentsY, clipShapeExtentsWidth, clipShapeExtentsHeight] = unpackFrom('<xx2x4xBB2xhhHHhhHH', buffer, offset)
+  const [responseType, boundingShaped, clipShaped, boundingShapeExtentsX, boundingShapeExtentsY, boundingShapeExtentsWidth, boundingShapeExtentsHeight, clipShapeExtentsX, clipShapeExtentsY, clipShapeExtentsWidth, clipShapeExtentsHeight] = unpackFrom('<Bx2x4xBB2xhhHHhhHH', buffer, offset)
   offset += 28
 
   return {
     value: {
+      responseType,
       boundingShaped,
       clipShaped,
       boundingShapeExtentsX,
@@ -150,15 +169,17 @@ export const unmarshallQueryExtentsReply: Unmarshaller<QueryExtentsReply> = (buf
 export type InputSelectedCookie = Promise<InputSelectedReply>
 
 export type InputSelectedReply = {
+  responseType: number
   enabled: number
 }
 
 export const unmarshallInputSelectedReply: Unmarshaller<InputSelectedReply> = (buffer, offset = 0) => {
-  const [enabled] = unpackFrom('<xB2x4x', buffer, offset)
+  const [responseType, enabled] = unpackFrom('<BB2x4x', buffer, offset)
   offset += 8
 
   return {
     value: {
+      responseType,
       enabled
     },
     offset
@@ -168,13 +189,14 @@ export const unmarshallInputSelectedReply: Unmarshaller<InputSelectedReply> = (b
 export type GetRectanglesCookie = Promise<GetRectanglesReply>
 
 export type GetRectanglesReply = {
+  responseType: number
   ordering: ClipOrdering
   rectanglesLen: number
   rectangles: RECTANGLE[]
 }
 
 export const unmarshallGetRectanglesReply: Unmarshaller<GetRectanglesReply> = (buffer, offset = 0) => {
-  const [ordering, rectanglesLen] = unpackFrom('<xB2x4xI20x', buffer, offset)
+  const [responseType, ordering, rectanglesLen] = unpackFrom('<BB2x4xI20x', buffer, offset)
   offset += 32
   const rectanglesWithOffset = xcbComplexList(buffer, offset, rectanglesLen, unmarshallRECTANGLE)
   offset = rectanglesWithOffset.offset
@@ -182,6 +204,7 @@ export const unmarshallGetRectanglesReply: Unmarshaller<GetRectanglesReply> = (b
 
   return {
     value: {
+      responseType,
       ordering,
       rectanglesLen,
       rectangles
@@ -208,7 +231,7 @@ Shape.prototype.queryVersion = function(): QueryVersionCookie {
 
   requestParts.push(pack('<xx2x'))
 
-  return this.xConnection.sendRequest<QueryVersionReply>(requestParts, this.majorOpcode, unmarshallQueryVersionReply, 0)
+  return this.xConnection.sendRequest<QueryVersionReply>(requestParts, this.majorOpcode, unmarshallQueryVersionReply, 0, 'queryVersion')
 }
 
 
@@ -227,7 +250,7 @@ Shape.prototype.rectangles = function(operation: SO, destinationKind: SK, orderi
 
   })
 
-  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 1)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 1, 'rectangles')
 }
 
 
@@ -242,7 +265,7 @@ Shape.prototype.mask = function(operation: SO, destinationKind: SK, destinationW
 
   requestParts.push(pack('<xx2xBB2xIhhI', operation, destinationKind, destinationWindow, xOffset, yOffset, sourceBitmap))
 
-  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 2)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 2, 'mask')
 }
 
 
@@ -257,7 +280,7 @@ Shape.prototype.combine = function(operation: SO, destinationKind: SK, sourceKin
 
   requestParts.push(pack('<xx2xBBBxIhhI', operation, destinationKind, sourceKind, destinationWindow, xOffset, yOffset, sourceWindow))
 
-  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 3)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 3, 'combine')
 }
 
 
@@ -272,7 +295,7 @@ Shape.prototype.offset = function(destinationKind: SK, destinationWindow: WINDOW
 
   requestParts.push(pack('<xx2xB3xIhh', destinationKind, destinationWindow, xOffset, yOffset))
 
-  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 4)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 4, 'offset')
 }
 
 
@@ -287,7 +310,7 @@ Shape.prototype.queryExtents = function(destinationWindow: WINDOW): QueryExtents
 
   requestParts.push(pack('<xx2xI', destinationWindow))
 
-  return this.xConnection.sendRequest<QueryExtentsReply>(requestParts, this.majorOpcode, unmarshallQueryExtentsReply, 5)
+  return this.xConnection.sendRequest<QueryExtentsReply>(requestParts, this.majorOpcode, unmarshallQueryExtentsReply, 5, 'queryExtents')
 }
 
 
@@ -302,7 +325,7 @@ Shape.prototype.selectInput = function(destinationWindow: WINDOW, enable: number
 
   requestParts.push(pack('<xx2xIB3x', destinationWindow, enable))
 
-  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 6)
+  return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 6, 'selectInput')
 }
 
 
@@ -317,7 +340,7 @@ Shape.prototype.inputSelected = function(destinationWindow: WINDOW): InputSelect
 
   requestParts.push(pack('<xx2xI', destinationWindow))
 
-  return this.xConnection.sendRequest<InputSelectedReply>(requestParts, this.majorOpcode, unmarshallInputSelectedReply, 7)
+  return this.xConnection.sendRequest<InputSelectedReply>(requestParts, this.majorOpcode, unmarshallInputSelectedReply, 7, 'inputSelected')
 }
 
 
@@ -332,13 +355,13 @@ Shape.prototype.getRectangles = function(window: WINDOW, sourceKind: SK): GetRec
 
   requestParts.push(pack('<xx2xIB3x', window, sourceKind))
 
-  return this.xConnection.sendRequest<GetRectanglesReply>(requestParts, this.majorOpcode, unmarshallGetRectanglesReply, 8)
+  return this.xConnection.sendRequest<GetRectanglesReply>(requestParts, this.majorOpcode, unmarshallGetRectanglesReply, 8, 'getRectangles')
 }
 
 eventInits.push((firstEvent) => {
-  events[firstEvent + 0] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+  events[firstEvent + 0] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
     if (protocolExtension === undefined) return
     const event = unmarshallNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-    protocolExtension.onNotifyEvent?.(event)
+    await protocolExtension.onNotifyEvent?.(event)
   }
 })

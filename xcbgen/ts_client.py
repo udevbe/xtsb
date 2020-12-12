@@ -284,7 +284,7 @@ def _ts_type_alignsize(field):
   return field.type.size
 
 
-def _ts_field_type(field, is_request_param = False):
+def _ts_field_type(field, is_request_param=False):
   postfix = '[]' if field.type.is_list else ''
 
   if field.enum:
@@ -315,7 +315,7 @@ def _ts_field_type(field, is_request_param = False):
 
 def _ts_type_fields(self):
   for field in self.fields:
-    if field.type.is_pad or field.auto:
+    if (field.type.is_pad or field.auto) and field.field_name != 'response_type':
       continue
     if hasattr(self, 'doc') and hasattr(self.doc, 'fields') and field.field_name in self.doc.fields:
       _ts(' /**')
@@ -326,7 +326,7 @@ def _ts_type_fields(self):
 
 def _ts_fields(self):
   for field in self.fields:
-    if field.type.is_pad or field.auto:
+    if (field.type.is_pad or field.auto) and field.field_name != 'response_type':
       continue
     _ts(f'      {_n(field.field_name)},')
 
@@ -341,7 +341,7 @@ def _ts_unmarshall_complex(self):
   need_alignment = False
 
   for field in self.fields:
-    if field.auto:
+    if field.auto and field.field_name != 'response_type':
       _ts_push_pad(field.type.size)
       continue
     if field.type.is_simple:
@@ -404,18 +404,140 @@ def _ts_unmarshall_complex(self):
   _ts('}')
 
 
-def _ts_marshall_complex(self):
+def _ts_marshall_complex(self, name):
   _ts(
-    'const marshall%s: ArrayBuffer = (instance: %s) => {',
+    'export const marshall%s = (instance: %s): ArrayBuffer => {',
+    self.ts_type,
+    self.ts_type
+  )
+  _ts('  let byteLength = 0')
+  _ts('  const buffers: ArrayBuffer[] = []')
+
+  need_alignment = False
+
+  for field in self.fields:
+    if field.auto:
+      _ts_push_pad(field.type.size)
+      continue
+    if field.type.is_simple:
+      _ts_push_format_simple(field)
+      continue
+    if field.type.is_pad:
+      _ts_push_pad(field.type.nmemb)
+      continue
+
+    (format, size, list) = _ts_flush_format()
+    if len(list) > 0:
+      _ts('  const { %s } = instance', list)
+      _ts('  buffers.push(pack(\'<%s\', %s))', format, list)
+      if size > 0:
+        _ts('  byteLength += %s', size)
+
+    if need_alignment:
+      _ts('  {')
+      _ts('    const padding = typePad(%d, byteLength)', _ts_type_alignsize(field))
+      _ts('    buffers.push(new ArrayBuffer(padding))')
+      _ts('    byteLength += padding')
+      _ts('  }')
+    need_alignment = True
+
+    if len(field.field_type) > 1:
+      type_prefix = ''.join(field.field_type[:-1])
+      if _ts_own_prefix != type_prefix:
+        _ts_import_type('marshall%s' % field.field_type[-1], type_prefix)
+
+    if field.type.is_list:
+      if field.type.member.is_simple:
+        _ts('  {')
+        _ts('    const buffer = instance.%s.buffer', _n(field.field_name))
+        _ts('    buffers.push(buffer)')
+        _ts('    byteLength += buffer.byteLength')
+        _ts('  }')
+      else:
+        _ts('  {')
+        _ts('    instance.%s.forEach(complex => {', _n(field.field_name))
+        _ts('      const buffer = marshall%s(complex)', field.field_type[-1])
+        _ts('      buffers.push(buffer)')
+        _ts('      byteLength += buffer.byteLength')
+        _ts('    })')
+        _ts('  }')
+    else:
+      _ts('  {')
+      _ts('    const buffer = marshall%s(instance.%s)', _n(field.ts_type), _n(field.field_name))
+      _ts('    buffers.push(buffer)')
+      _ts('    byteLength += buffer.byteLength')
+      _ts('  }')
+
+  (format, size, list) = _ts_flush_format()
+  if len(list) > 0:
+    if need_alignment:
+      _ts('  {')
+      _ts('    const padding = typePad(%d, byteLength)', _ts_type_alignsize(field))
+      _ts('    buffers.push(new ArrayBuffer(padding))')
+      _ts('    byteLength += padding')
+      _ts('  }')
+    _ts('  {')
+    _ts('    const { %s } = instance', list)
+    _ts('    buffers.push(pack(\'<%s\', %s))', format, list)
+    _ts('  }')
+
+  if self.is_event:
+    _ts('  new Uint8Array(buffers[0])[0] = %s',
+        'firstEvent+%s ' % self.opcodes[name] if _ns.is_ext else self.opcodes[name])
+
+  _ts('  return concatArrayBuffers(buffers, byteLength)')
+  _ts('}')
+
+
+def _ts_marshall_union(self):
+  _ts(
+    'export const marshall%s = (instance: Partial<%s>): ArrayBuffer => {',
     self.ts_type,
     self.ts_type
   )
 
+  for field in self.fields:
+    _ts('  if(instance.%s !== undefined) {', _n(field.field_name))
+    if field.type.is_simple:
+      _ts_push_format_simple(field)
+
+    (format, size, list) = _ts_flush_format()
+    if len(list) > 0:
+      _ts('    return pack(\'<%s\', instance.%s)', format, list)
+      _ts('  }')
+      _ts('')
+      continue
+
+    if len(field.field_type) > 1:
+      type_prefix = ''.join(field.field_type[:-1])
+      if _ts_own_prefix != type_prefix:
+        _ts_import_type('marshall%s' % field.field_type[-1], type_prefix)
+
+    if field.type.is_list:
+      if field.type.member.is_simple:
+        _ts('    return instance.%s.buffer', _n(field.field_name))
+        _ts('  }')
+        _ts('')
+      else:
+        _ts('    cosnt buffers: ArrayBuffer[] = []')
+        _ts('    instance.%s.forEach(complex => {', _n(field.field_name))
+        _ts('      const buffer = marshall%s(complex)', field.field_type[-1])
+        _ts('      buffers.push(buffer)')
+        _ts('      byteLength += buffer.byteLength')
+        _ts('    })')
+        _ts('    return concatArrayBuffers(buffers, byteLength)')
+        _ts('  }')
+        _ts('')
+    else:
+      _ts('    return marshall%s(instance.%s)', _n(field.ts_type), _n(field.field_name))
+      _ts('  }')
+  _ts('  throw new Error(\'Empty union argument\')')
   _ts('}')
 
 
 def _ts_complex(self, name):
   _ts_unmarshall_complex(self)
+  _ts_marshall_complex(self, name)
 
 
 def _ts_reply(self, name):
@@ -606,7 +728,7 @@ def _ts_request_helper(self, name, void):
         write_request_part(field.type.member.fields)
         _ts('  })')
       elif field.type.is_container:
-        write_request_part(field.type.fields, name_prefix+f'{field.field_name}.')
+        write_request_part(field.type.fields, name_prefix + f'{field.field_name}.')
       else:
         _ts('  new Error(\'FIXME support sending this type: %s \')', field.field_type[-1])
 
@@ -619,19 +741,21 @@ def _ts_request_helper(self, name, void):
 
   if void:
     _ts(
-      '  return this.%ssendVoidRequest(requestParts, %s, %s)',
+      '  return this.%ssendVoidRequest(requestParts, %s, %s, \'%s\')',
       'xConnection.' if _ns.is_ext else '',
       'this.majorOpcode' if _ns.is_ext else self.opcode,
-      self.opcode if _ns.is_ext else '0'
+      self.opcode if _ns.is_ext else '0',
+      func_name
     )
   else:
     _ts(
-      '  return this.%ssendRequest<%s>(requestParts, %s, %s, %s)',
+      '  return this.%ssendRequest<%s>(requestParts, %s, %s, %s, \'%s\')',
       'xConnection.' if _ns.is_ext else '',
       self.ts_reply_name if not void else 'void',
       'this.majorOpcode' if _ns.is_ext else self.opcode,
       f'unmarshall{self.ts_reply_name}',
-      self.opcode if _ns.is_ext else '0'
+      self.opcode if _ns.is_ext else '0',
+      func_name
     )
   _ts('}')
 
@@ -658,7 +782,7 @@ def ts_open(self):
   _ts('import type { Unmarshaller, EventHandler, RequestChecker } from \'./xjsbInternals\'')
   _ts('// tslint:disable-next-line:no-duplicate-imports')
   _ts(
-    'import { xcbSimpleList, xcbComplexList, typePad, notUndefined, events, errors } from \'./xjsbInternals\'')
+    'import { xcbSimpleList, xcbComplexList, typePad, notUndefined, events, errors, concatArrayBuffers } from \'./xjsbInternals\'')
   _ts('import { unpackFrom, pack } from \'./struct\'')
   _ts('')
 
@@ -672,10 +796,12 @@ def ts_open(self):
     _ts('const eventInits: ((firstEvent: number) => void)[] = []')
     _ts('')
     _ts('let protocolExtension: %s | undefined = undefined', _ns.ext_name)
+    _ts('let firstEvent: number')
+    _ts('let firstError: number')
     _ts('')
     _ts('export async function get%s(xConnection: XConnection): Promise<%s> {', _ns.ext_name,
         _ns.ext_name)
-    _ts('  if (protocolExtension) {')
+    _ts('  if (protocolExtension && protocolExtension.xConnection === xConnection) {')
     _ts('    return protocolExtension')
     _ts('  }')
     _ts(
@@ -684,7 +810,9 @@ def ts_open(self):
     _ts('  if (queryExtensionReply.present === 0) {')
     _ts("    throw new Error('%s extension not present.')", _ns.ext_name)
     _ts('  }')
-    _ts('  const { firstError, firstEvent, majorOpcode } = queryExtensionReply')
+    _ts('  const { majorOpcode } = queryExtensionReply')
+    _ts('  firstEvent = queryExtensionReply.firstEvent')
+    _ts('  firstError = queryExtensionReply.firstError')
     _ts('  protocolExtension = new %s(xConnection, majorOpcode)', _ns.ext_name)
     _ts('  errorInits.forEach(init => init(firstError))')
     _ts('  eventInits.forEach(init => init(firstEvent))')
@@ -757,19 +885,7 @@ def ts_struct(self, name):
   _ts_complex(self, name)
 
 
-def ts_union(self, name):
-  '''
-  Exported function that handles union declarations.
-  '''
-  _ts_type_setup(self, name)
-
-  _ts_setlevel(0)
-
-  _ts('')
-  _ts('export type %s  = {', self.ts_type)
-  _ts_type_fields(self)
-  _ts('}')
-  _ts('')
+def _ts_unmarshall_union(self):
   _ts(
     'const unmarshall%s: Unmarshaller<%s> = (buffer, offset=0) => {',
     self.ts_type,
@@ -812,6 +928,24 @@ def ts_union(self, name):
   _ts('    offset')
   _ts('  }')
   _ts('}')
+  _ts('')
+
+
+def ts_union(self, name):
+  '''
+  Exported function that handles union declarations.
+  '''
+  _ts_type_setup(self, name)
+
+  _ts_setlevel(0)
+
+  _ts('')
+  _ts('export type %s  = Partial<{', self.ts_type)
+  _ts_type_fields(self)
+  _ts('}>')
+  _ts('')
+  _ts_unmarshall_union(self)
+  _ts_marshall_union(self)
 
 
 def ts_request(self, name):
@@ -882,18 +1016,19 @@ def ts_event(self, name):
   _ts_setlevel(2)
   if _ns.is_ext:
     _ts('eventInits.push((firstEvent) => {')
-    _ts('  events[firstEvent+%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
+    _ts('  events[firstEvent+%s] = async (xConnection: XConnection, rawEvent: Uint8Array) => {',
+        self.opcodes[name])
     _ts('    if(protocolExtension === undefined) return')
     _ts('    const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
         self.ts_event_name)
-    _ts('    protocolExtension.on%s?.(event)', self.ts_event_name)
+    _ts('    await protocolExtension.on%s?.(event)', self.ts_event_name)
     _ts('  }')
     _ts('})')
   else:
-    _ts('events[%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
+    _ts('events[%s] = async (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
     _ts('  const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
         self.ts_event_name)
-    _ts('  xConnection.on%s?.(event)', self.ts_event_name)
+    _ts('  await xConnection.on%s?.(event)', self.ts_event_name)
     _ts('}')
 
 

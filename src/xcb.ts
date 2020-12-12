@@ -3,11 +3,10 @@
 // Edit at your peril.
 //
 
-import { XConnection, chars, pad, TypedArray } from './connection'
-import Protocol from './Protocol'
+import { XConnection, pad, TypedArray } from './connection'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
 // tslint:disable-next-line:no-duplicate-imports
-import { xcbSimpleList, xcbComplexList, typePad, notUndefined, events, errors } from './xjsbInternals'
+import { xcbSimpleList, xcbComplexList, typePad, notUndefined, events, errors, concatArrayBuffers } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 
@@ -28,6 +27,15 @@ export const unmarshallCHAR2B: Unmarshaller<CHAR2B> = (buffer, offset=0) => {
     },
     offset
   }
+}
+export const marshallCHAR2B = (instance: CHAR2B): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { byte1, byte2 } = instance
+    buffers.push(pack('<BB', byte1, byte2))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export type WINDOW = number
@@ -95,6 +103,15 @@ export const unmarshallPOINT: Unmarshaller<POINT> = (buffer, offset=0) => {
     offset
   }
 }
+export const marshallPOINT = (instance: POINT): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { x, y } = instance
+    buffers.push(pack('<hh', x, y))
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type RECTANGLE  = {
   x: number
@@ -116,6 +133,15 @@ export const unmarshallRECTANGLE: Unmarshaller<RECTANGLE> = (buffer, offset=0) =
     },
     offset
   }
+}
+export const marshallRECTANGLE = (instance: RECTANGLE): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { x, y, width, height } = instance
+    buffers.push(pack('<hhHH', x, y, width, height))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export type ARC  = {
@@ -143,6 +169,15 @@ export const unmarshallARC: Unmarshaller<ARC> = (buffer, offset=0) => {
     offset
   }
 }
+export const marshallARC = (instance: ARC): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { x, y, width, height, angle1, angle2 } = instance
+    buffers.push(pack('<hhHHhh', x, y, width, height, angle1, angle2))
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type FORMAT  = {
   depth: number
@@ -162,6 +197,15 @@ export const unmarshallFORMAT: Unmarshaller<FORMAT> = (buffer, offset=0) => {
     },
     offset
   }
+}
+export const marshallFORMAT = (instance: FORMAT): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { depth, bitsPerPixel, scanlinePad } = instance
+    buffers.push(pack('<BBB5x', depth, bitsPerPixel, scanlinePad))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export const enum VisualClass {
@@ -200,6 +244,15 @@ export const unmarshallVISUALTYPE: Unmarshaller<VISUALTYPE> = (buffer, offset=0)
     offset
   }
 }
+export const marshallVISUALTYPE = (instance: VISUALTYPE): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { visualId, _class, bitsPerRgbValue, colormapEntries, redMask, greenMask, blueMask } = instance
+    buffers.push(pack('<IBBHIII4x', visualId, _class, bitsPerRgbValue, colormapEntries, redMask, greenMask, blueMask))
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type DEPTH  = {
   depth: number
@@ -222,6 +275,21 @@ export const unmarshallDEPTH: Unmarshaller<DEPTH> = (buffer, offset=0) => {
     },
     offset
   }
+}
+export const marshallDEPTH = (instance: DEPTH): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  const { depth, visualsLen } = instance
+  buffers.push(pack('<BxH4x', depth, visualsLen))
+  byteLength += 8
+  {
+    instance.visuals.forEach(complex => {
+      const buffer = marshallVISUALTYPE(complex)
+      buffers.push(buffer)
+      byteLength += buffer.byteLength
+    })
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export const enum EventMask {
@@ -309,6 +377,21 @@ export const unmarshallSCREEN: Unmarshaller<SCREEN> = (buffer, offset=0) => {
     offset
   }
 }
+export const marshallSCREEN = (instance: SCREEN): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  const { root, defaultColormap, whitePixel, blackPixel, currentInputMasks, widthInPixels, heightInPixels, widthInMillimeters, heightInMillimeters, minInstalledMaps, maxInstalledMaps, rootVisual, backingStores, saveUnders, rootDepth, allowedDepthsLen } = instance
+  buffers.push(pack('<IIIIIHHHHHHIBBBB', root, defaultColormap, whitePixel, blackPixel, currentInputMasks, widthInPixels, heightInPixels, widthInMillimeters, heightInMillimeters, minInstalledMaps, maxInstalledMaps, rootVisual, backingStores, saveUnders, rootDepth, allowedDepthsLen))
+  byteLength += 40
+  {
+    instance.allowedDepths.forEach(complex => {
+      const buffer = marshallDEPTH(complex)
+      buffers.push(buffer)
+      byteLength += buffer.byteLength
+    })
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type SetupRequest  = {
   byteOrder: number
@@ -344,6 +427,29 @@ export const unmarshallSetupRequest: Unmarshaller<SetupRequest> = (buffer, offse
     offset
   }
 }
+export const marshallSetupRequest = (instance: SetupRequest): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  const { byteOrder, protocolMajorVersion, protocolMinorVersion, authorizationProtocolNameLen, authorizationProtocolDataLen } = instance
+  buffers.push(pack('<BxHHHH2x', byteOrder, protocolMajorVersion, protocolMinorVersion, authorizationProtocolNameLen, authorizationProtocolDataLen))
+  byteLength += 12
+  {
+    const buffer = instance.authorizationProtocolName.buffer
+    buffers.push(buffer)
+    byteLength += buffer.byteLength
+  }
+  {
+    const padding = typePad(1, byteLength)
+    buffers.push(new ArrayBuffer(padding))
+    byteLength += padding
+  }
+  {
+    const buffer = instance.authorizationProtocolData.buffer
+    buffers.push(buffer)
+    byteLength += buffer.byteLength
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type SetupFailed  = {
   status: number
@@ -373,6 +479,19 @@ export const unmarshallSetupFailed: Unmarshaller<SetupFailed> = (buffer, offset=
     offset
   }
 }
+export const marshallSetupFailed = (instance: SetupFailed): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  const { status, reasonLen, protocolMajorVersion, protocolMinorVersion, length } = instance
+  buffers.push(pack('<BBHHH', status, reasonLen, protocolMajorVersion, protocolMinorVersion, length))
+  byteLength += 8
+  {
+    const buffer = instance.reason.buffer
+    buffers.push(buffer)
+    byteLength += buffer.byteLength
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type SetupAuthenticate  = {
   status: number
@@ -395,6 +514,19 @@ export const unmarshallSetupAuthenticate: Unmarshaller<SetupAuthenticate> = (buf
     },
     offset
   }
+}
+export const marshallSetupAuthenticate = (instance: SetupAuthenticate): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  const { status, length } = instance
+  buffers.push(pack('<B5xH', status, length))
+  byteLength += 8
+  {
+    const buffer = instance.reason.buffer
+    buffers.push(buffer)
+    byteLength += buffer.byteLength
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export const enum ImageOrder {
@@ -468,6 +600,43 @@ export const unmarshallSetup: Unmarshaller<Setup> = (buffer, offset=0) => {
     offset
   }
 }
+export const marshallSetup = (instance: Setup): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  const { status, protocolMajorVersion, protocolMinorVersion, length, releaseNumber, resourceIdBase, resourceIdMask, motionBufferSize, vendorLen, maximumRequestLength, rootsLen, pixmapFormatsLen, imageByteOrder, bitmapFormatBitOrder, bitmapFormatScanlineUnit, bitmapFormatScanlinePad, minKeycode, maxKeycode } = instance
+  buffers.push(pack('<BxHHHIIIIHHBBBBBBBB4x', status, protocolMajorVersion, protocolMinorVersion, length, releaseNumber, resourceIdBase, resourceIdMask, motionBufferSize, vendorLen, maximumRequestLength, rootsLen, pixmapFormatsLen, imageByteOrder, bitmapFormatBitOrder, bitmapFormatScanlineUnit, bitmapFormatScanlinePad, minKeycode, maxKeycode))
+  byteLength += 40
+  {
+    const buffer = instance.vendor.buffer
+    buffers.push(buffer)
+    byteLength += buffer.byteLength
+  }
+  {
+    const padding = typePad(8, byteLength)
+    buffers.push(new ArrayBuffer(padding))
+    byteLength += padding
+  }
+  {
+    instance.pixmapFormats.forEach(complex => {
+      const buffer = marshallFORMAT(complex)
+      buffers.push(buffer)
+      byteLength += buffer.byteLength
+    })
+  }
+  {
+    const padding = typePad(4, byteLength)
+    buffers.push(new ArrayBuffer(padding))
+    byteLength += padding
+  }
+  {
+    instance.roots.forEach(complex => {
+      const buffer = marshallSCREEN(complex)
+      buffers.push(buffer)
+      byteLength += buffer.byteLength
+    })
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export const enum ModMask {
   Shift= 1,
@@ -502,16 +671,17 @@ export const enum Window {
 }
 
 /**
- *  
+ *
  * a key was pressed/released
- *  
- * See:  
- *  
- * {@link XConnection.grabKey}  
- *  
- * {@link XConnection.grabKeyboard}  
+ *
+ * See:
+ *
+ * {@link XConnection.grabKey}
+ *
+ * {@link XConnection.grabKeyboard}
  */
 export type KeyPressEvent = {
+  responseType: number
  /**
   * The keycode (a number representing a physical key on the keyboard) of the key
   * which was pressed.
@@ -559,11 +729,12 @@ export type KeyPressEvent = {
 }
 
 export const unmarshallKeyPressEvent: Unmarshaller<KeyPressEvent> = (buffer, offset=0) => {
-  const [ detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen ] = unpackFrom('<xB2xIIIIhhhhHBx', buffer, offset)
+  const [ responseType, detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen ] = unpackFrom('<BB2xIIIIhhhhHBx', buffer, offset)
   offset += 32
 
   return {
     value: {
+      responseType,
       detail,
       time,
       root,
@@ -579,6 +750,16 @@ export const unmarshallKeyPressEvent: Unmarshaller<KeyPressEvent> = (buffer, off
     offset
   }
 }
+export const marshallKeyPressEvent = (instance: KeyPressEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen } = instance
+    buffers.push(pack('<xB2xIIIIhhhhHBx', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen))
+  }
+  new Uint8Array(buffers[0])[0] = 2
+  return concatArrayBuffers(buffers, byteLength)
+}
 export interface KeyPressEventHandler extends EventHandler<KeyPressEvent> {}
 
 declare module './connection' {
@@ -589,16 +770,17 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * a key was pressed/released
- *  
- * See:  
- *  
- * {@link XConnection.grabKey}  
- *  
- * {@link XConnection.grabKeyboard}  
+ *
+ * See:
+ *
+ * {@link XConnection.grabKey}
+ *
+ * {@link XConnection.grabKeyboard}
  */
 export type KeyReleaseEvent = {
+  responseType: number
  /**
   * The keycode (a number representing a physical key on the keyboard) of the key
   * which was pressed.
@@ -646,11 +828,12 @@ export type KeyReleaseEvent = {
 }
 
 export const unmarshallKeyReleaseEvent: Unmarshaller<KeyReleaseEvent> = (buffer, offset=0) => {
-  const [ detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen ] = unpackFrom('<xB2xIIIIhhhhHBx', buffer, offset)
+  const [ responseType, detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen ] = unpackFrom('<BB2xIIIIhhhhHBx', buffer, offset)
   offset += 32
 
   return {
     value: {
+      responseType,
       detail,
       time,
       root,
@@ -665,6 +848,16 @@ export const unmarshallKeyReleaseEvent: Unmarshaller<KeyReleaseEvent> = (buffer,
     },
     offset
   }
+}
+export const marshallKeyReleaseEvent = (instance: KeyReleaseEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen } = instance
+    buffers.push(pack('<xB2xIIIIhhhhHBx', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen))
+  }
+  new Uint8Array(buffers[0])[0] = 3
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface KeyReleaseEventHandler extends EventHandler<KeyReleaseEvent> {}
 
@@ -685,16 +878,17 @@ export const enum ButtonMask {
 }
 
 /**
- *  
+ *
  * a mouse button was pressed/released
- *  
- * See:  
- *  
- * {@link XConnection.grabButton}  
- *  
- * {@link XConnection.grabPointer}  
+ *
+ * See:
+ *
+ * {@link XConnection.grabButton}
+ *
+ * {@link XConnection.grabPointer}
  */
 export type ButtonPressEvent = {
+  responseType: number
  /**
   * The keycode (a number representing a physical key on the keyboard) of the key
   * which was pressed.
@@ -742,11 +936,12 @@ export type ButtonPressEvent = {
 }
 
 export const unmarshallButtonPressEvent: Unmarshaller<ButtonPressEvent> = (buffer, offset=0) => {
-  const [ detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen ] = unpackFrom('<xB2xIIIIhhhhHBx', buffer, offset)
+  const [ responseType, detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen ] = unpackFrom('<BB2xIIIIhhhhHBx', buffer, offset)
   offset += 32
 
   return {
     value: {
+      responseType,
       detail,
       time,
       root,
@@ -762,6 +957,16 @@ export const unmarshallButtonPressEvent: Unmarshaller<ButtonPressEvent> = (buffe
     offset
   }
 }
+export const marshallButtonPressEvent = (instance: ButtonPressEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen } = instance
+    buffers.push(pack('<xB2xIIIIhhhhHBx', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen))
+  }
+  new Uint8Array(buffers[0])[0] = 4
+  return concatArrayBuffers(buffers, byteLength)
+}
 export interface ButtonPressEventHandler extends EventHandler<ButtonPressEvent> {}
 
 declare module './connection' {
@@ -772,16 +977,17 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * a mouse button was pressed/released
- *  
- * See:  
- *  
- * {@link XConnection.grabButton}  
- *  
- * {@link XConnection.grabPointer}  
+ *
+ * See:
+ *
+ * {@link XConnection.grabButton}
+ *
+ * {@link XConnection.grabPointer}
  */
 export type ButtonReleaseEvent = {
+  responseType: number
  /**
   * The keycode (a number representing a physical key on the keyboard) of the key
   * which was pressed.
@@ -829,11 +1035,12 @@ export type ButtonReleaseEvent = {
 }
 
 export const unmarshallButtonReleaseEvent: Unmarshaller<ButtonReleaseEvent> = (buffer, offset=0) => {
-  const [ detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen ] = unpackFrom('<xB2xIIIIhhhhHBx', buffer, offset)
+  const [ responseType, detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen ] = unpackFrom('<BB2xIIIIhhhhHBx', buffer, offset)
   offset += 32
 
   return {
     value: {
+      responseType,
       detail,
       time,
       root,
@@ -848,6 +1055,16 @@ export const unmarshallButtonReleaseEvent: Unmarshaller<ButtonReleaseEvent> = (b
     },
     offset
   }
+}
+export const marshallButtonReleaseEvent = (instance: ButtonReleaseEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen } = instance
+    buffers.push(pack('<xB2xIIIIhhhhHBx', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen))
+  }
+  new Uint8Array(buffers[0])[0] = 5
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface ButtonReleaseEventHandler extends EventHandler<ButtonReleaseEvent> {}
 
@@ -864,16 +1081,17 @@ export const enum Motion {
 }
 
 /**
- *  
+ *
  * a key was pressed
- *  
- * See:  
- *  
- * {@link XConnection.grabKey}  
- *  
- * {@link XConnection.grabKeyboard}  
+ *
+ * See:
+ *
+ * {@link XConnection.grabKey}
+ *
+ * {@link XConnection.grabKeyboard}
  */
 export type MotionNotifyEvent = {
+  responseType: number
  /**
   * The keycode (a number representing a physical key on the keyboard) of the key
   * which was pressed.
@@ -921,11 +1139,12 @@ export type MotionNotifyEvent = {
 }
 
 export const unmarshallMotionNotifyEvent: Unmarshaller<MotionNotifyEvent> = (buffer, offset=0) => {
-  const [ detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen ] = unpackFrom('<xB2xIIIIhhhhHBx', buffer, offset)
+  const [ responseType, detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen ] = unpackFrom('<BB2xIIIIhhhhHBx', buffer, offset)
   offset += 32
 
   return {
     value: {
+      responseType,
       detail,
       time,
       root,
@@ -940,6 +1159,16 @@ export const unmarshallMotionNotifyEvent: Unmarshaller<MotionNotifyEvent> = (buf
     },
     offset
   }
+}
+export const marshallMotionNotifyEvent = (instance: MotionNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen } = instance
+    buffers.push(pack('<xB2xIIIIhhhhHBx', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen))
+  }
+  new Uint8Array(buffers[0])[0] = 6
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface MotionNotifyEventHandler extends EventHandler<MotionNotifyEvent> {}
 
@@ -969,10 +1198,11 @@ export const enum NotifyMode {
 }
 
 /**
- *  
+ *
  * the pointer is in a different window
  */
 export type EnterNotifyEvent = {
+  responseType: number
   detail: NotifyDetail
   time: TIMESTAMP
  /**
@@ -1008,18 +1238,19 @@ export type EnterNotifyEvent = {
   eventY: number
   state: number
  /**
-  * 
+  *
   */
   mode: NotifyMode
   sameScreenFocus: number
 }
 
 export const unmarshallEnterNotifyEvent: Unmarshaller<EnterNotifyEvent> = (buffer, offset=0) => {
-  const [ detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus ] = unpackFrom('<xB2xIIIIhhhhHBB', buffer, offset)
+  const [ responseType, detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus ] = unpackFrom('<BB2xIIIIhhhhHBB', buffer, offset)
   offset += 32
 
   return {
     value: {
+      responseType,
       detail,
       time,
       root,
@@ -1035,6 +1266,16 @@ export const unmarshallEnterNotifyEvent: Unmarshaller<EnterNotifyEvent> = (buffe
     },
     offset
   }
+}
+export const marshallEnterNotifyEvent = (instance: EnterNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus } = instance
+    buffers.push(pack('<xB2xIIIIhhhhHBB', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus))
+  }
+  new Uint8Array(buffers[0])[0] = 7
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface EnterNotifyEventHandler extends EventHandler<EnterNotifyEvent> {}
 
@@ -1046,10 +1287,11 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * the pointer is in a different window
  */
 export type LeaveNotifyEvent = {
+  responseType: number
   detail: NotifyDetail
   time: TIMESTAMP
  /**
@@ -1085,18 +1327,19 @@ export type LeaveNotifyEvent = {
   eventY: number
   state: number
  /**
-  * 
+  *
   */
   mode: NotifyMode
   sameScreenFocus: number
 }
 
 export const unmarshallLeaveNotifyEvent: Unmarshaller<LeaveNotifyEvent> = (buffer, offset=0) => {
-  const [ detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus ] = unpackFrom('<xB2xIIIIhhhhHBB', buffer, offset)
+  const [ responseType, detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus ] = unpackFrom('<BB2xIIIIhhhhHBB', buffer, offset)
   offset += 32
 
   return {
     value: {
+      responseType,
       detail,
       time,
       root,
@@ -1113,6 +1356,16 @@ export const unmarshallLeaveNotifyEvent: Unmarshaller<LeaveNotifyEvent> = (buffe
     offset
   }
 }
+export const marshallLeaveNotifyEvent = (instance: LeaveNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus } = instance
+    buffers.push(pack('<xB2xIIIIhhhhHBB', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus))
+  }
+  new Uint8Array(buffers[0])[0] = 8
+  return concatArrayBuffers(buffers, byteLength)
+}
 export interface LeaveNotifyEventHandler extends EventHandler<LeaveNotifyEvent> {}
 
 declare module './connection' {
@@ -1123,12 +1376,13 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * NOT YET DOCUMENTED
  */
 export type FocusInEvent = {
+  responseType: number
  /**
-  * 
+  *
   */
   detail: NotifyDetail
  /**
@@ -1137,23 +1391,34 @@ export type FocusInEvent = {
   */
   event: WINDOW
  /**
-  * 
+  *
   */
   mode: NotifyMode
 }
 
 export const unmarshallFocusInEvent: Unmarshaller<FocusInEvent> = (buffer, offset=0) => {
-  const [ detail, event, mode ] = unpackFrom('<xB2xIB3x', buffer, offset)
+  const [ responseType, detail, event, mode ] = unpackFrom('<BB2xIB3x', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       detail,
       event,
       mode,
     },
     offset
   }
+}
+export const marshallFocusInEvent = (instance: FocusInEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { detail, event, mode } = instance
+    buffers.push(pack('<xB2xIB3x', detail, event, mode))
+  }
+  new Uint8Array(buffers[0])[0] = 9
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface FocusInEventHandler extends EventHandler<FocusInEvent> {}
 
@@ -1165,12 +1430,13 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * NOT YET DOCUMENTED
  */
 export type FocusOutEvent = {
+  responseType: number
  /**
-  * 
+  *
   */
   detail: NotifyDetail
  /**
@@ -1179,23 +1445,34 @@ export type FocusOutEvent = {
   */
   event: WINDOW
  /**
-  * 
+  *
   */
   mode: NotifyMode
 }
 
 export const unmarshallFocusOutEvent: Unmarshaller<FocusOutEvent> = (buffer, offset=0) => {
-  const [ detail, event, mode ] = unpackFrom('<xB2xIB3x', buffer, offset)
+  const [ responseType, detail, event, mode ] = unpackFrom('<BB2xIB3x', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       detail,
       event,
       mode,
     },
     offset
   }
+}
+export const marshallFocusOutEvent = (instance: FocusOutEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { detail, event, mode } = instance
+    buffers.push(pack('<xB2xIB3x', detail, event, mode))
+  }
+  new Uint8Array(buffers[0])[0] = 10
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface FocusOutEventHandler extends EventHandler<FocusOutEvent> {}
 
@@ -1207,20 +1484,35 @@ declare module './connection' {
 
 
 export type KeymapNotifyEvent = {
+  responseType: number
   keys: Uint8Array
 }
 
 export const unmarshallKeymapNotifyEvent: Unmarshaller<KeymapNotifyEvent> = (buffer, offset=0) => {
+  const [ responseType ] = unpackFrom('<B', buffer, offset)
+  offset += 1
   const keysWithOffset = xcbSimpleList(buffer, offset, 31, Uint8Array, 1)
   offset = keysWithOffset.offset
   const keys = keysWithOffset.value
 
   return {
     value: {
+      responseType,
       keys,
     },
     offset
   }
+}
+export const marshallKeymapNotifyEvent = (instance: KeymapNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const buffer = instance.keys.buffer
+    buffers.push(buffer)
+    byteLength += buffer.byteLength
+  }
+  new Uint8Array(buffers[0])[0] = 11
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface KeymapNotifyEventHandler extends EventHandler<KeymapNotifyEvent> {}
 
@@ -1232,10 +1524,11 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * NOT YET DOCUMENTED
  */
 export type ExposeEvent = {
+  responseType: number
  /**
   * The exposed (damaged) window.
   */
@@ -1268,11 +1561,12 @@ export type ExposeEvent = {
 }
 
 export const unmarshallExposeEvent: Unmarshaller<ExposeEvent> = (buffer, offset=0) => {
-  const [ window, x, y, width, height, count ] = unpackFrom('<xx2xIHHHHH2x', buffer, offset)
+  const [ responseType, window, x, y, width, height, count ] = unpackFrom('<Bx2xIHHHHH2x', buffer, offset)
   offset += 20
 
   return {
     value: {
+      responseType,
       window,
       x,
       y,
@@ -1282,6 +1576,16 @@ export const unmarshallExposeEvent: Unmarshaller<ExposeEvent> = (buffer, offset=
     },
     offset
   }
+}
+export const marshallExposeEvent = (instance: ExposeEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { window, x, y, width, height, count } = instance
+    buffers.push(pack('<xx2xIHHHHH2x', window, x, y, width, height, count))
+  }
+  new Uint8Array(buffers[0])[0] = 12
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface ExposeEventHandler extends EventHandler<ExposeEvent> {}
 
@@ -1293,6 +1597,7 @@ declare module './connection' {
 
 
 export type GraphicsExposureEvent = {
+  responseType: number
   drawable: DRAWABLE
   x: number
   y: number
@@ -1304,11 +1609,12 @@ export type GraphicsExposureEvent = {
 }
 
 export const unmarshallGraphicsExposureEvent: Unmarshaller<GraphicsExposureEvent> = (buffer, offset=0) => {
-  const [ drawable, x, y, width, height, minorOpcode, count, majorOpcode ] = unpackFrom('<xx2xIHHHHHHB3x', buffer, offset)
+  const [ responseType, drawable, x, y, width, height, minorOpcode, count, majorOpcode ] = unpackFrom('<Bx2xIHHHHHHB3x', buffer, offset)
   offset += 24
 
   return {
     value: {
+      responseType,
       drawable,
       x,
       y,
@@ -1321,6 +1627,16 @@ export const unmarshallGraphicsExposureEvent: Unmarshaller<GraphicsExposureEvent
     offset
   }
 }
+export const marshallGraphicsExposureEvent = (instance: GraphicsExposureEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { drawable, x, y, width, height, minorOpcode, count, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHHHHHHB3x', drawable, x, y, width, height, minorOpcode, count, majorOpcode))
+  }
+  new Uint8Array(buffers[0])[0] = 13
+  return concatArrayBuffers(buffers, byteLength)
+}
 export interface GraphicsExposureEventHandler extends EventHandler<GraphicsExposureEvent> {}
 
 declare module './connection' {
@@ -1331,23 +1647,35 @@ declare module './connection' {
 
 
 export type NoExposureEvent = {
+  responseType: number
   drawable: DRAWABLE
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallNoExposureEvent: Unmarshaller<NoExposureEvent> = (buffer, offset=0) => {
-  const [ drawable, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, drawable, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       drawable,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallNoExposureEvent = (instance: NoExposureEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { drawable, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', drawable, minorOpcode, majorOpcode))
+  }
+  new Uint8Array(buffers[0])[0] = 14
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface NoExposureEventHandler extends EventHandler<NoExposureEvent> {}
 
@@ -1365,21 +1693,33 @@ export const enum Visibility {
 }
 
 export type VisibilityNotifyEvent = {
+  responseType: number
   window: WINDOW
   state: Visibility
 }
 
 export const unmarshallVisibilityNotifyEvent: Unmarshaller<VisibilityNotifyEvent> = (buffer, offset=0) => {
-  const [ window, state ] = unpackFrom('<xx2xIB3x', buffer, offset)
+  const [ responseType, window, state ] = unpackFrom('<Bx2xIB3x', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       window,
       state,
     },
     offset
   }
+}
+export const marshallVisibilityNotifyEvent = (instance: VisibilityNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { window, state } = instance
+    buffers.push(pack('<xx2xIB3x', window, state))
+  }
+  new Uint8Array(buffers[0])[0] = 15
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface VisibilityNotifyEventHandler extends EventHandler<VisibilityNotifyEvent> {}
 
@@ -1391,6 +1731,7 @@ declare module './connection' {
 
 
 export type CreateNotifyEvent = {
+  responseType: number
   parent: WINDOW
   window: WINDOW
   x: number
@@ -1402,11 +1743,12 @@ export type CreateNotifyEvent = {
 }
 
 export const unmarshallCreateNotifyEvent: Unmarshaller<CreateNotifyEvent> = (buffer, offset=0) => {
-  const [ parent, window, x, y, width, height, borderWidth, overrideRedirect ] = unpackFrom('<xx2xIIhhHHHBx', buffer, offset)
+  const [ responseType, parent, window, x, y, width, height, borderWidth, overrideRedirect ] = unpackFrom('<Bx2xIIhhHHHBx', buffer, offset)
   offset += 24
 
   return {
     value: {
+      responseType,
       parent,
       window,
       x,
@@ -1419,6 +1761,16 @@ export const unmarshallCreateNotifyEvent: Unmarshaller<CreateNotifyEvent> = (buf
     offset
   }
 }
+export const marshallCreateNotifyEvent = (instance: CreateNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { parent, window, x, y, width, height, borderWidth, overrideRedirect } = instance
+    buffers.push(pack('<xx2xIIhhHHHBx', parent, window, x, y, width, height, borderWidth, overrideRedirect))
+  }
+  new Uint8Array(buffers[0])[0] = 16
+  return concatArrayBuffers(buffers, byteLength)
+}
 export interface CreateNotifyEventHandler extends EventHandler<CreateNotifyEvent> {}
 
 declare module './connection' {
@@ -1429,14 +1781,15 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * a window is destroyed
- *  
- * See:  
- *  
- * {@link XConnection.destroyWindow}  
+ *
+ * See:
+ *
+ * {@link XConnection.destroyWindow}
  */
 export type DestroyNotifyEvent = {
+  responseType: number
  /**
   * The reconfigured window or its parent, depending on whether `StructureNotify`
   * or `SubstructureNotify` was selected.
@@ -1449,16 +1802,27 @@ export type DestroyNotifyEvent = {
 }
 
 export const unmarshallDestroyNotifyEvent: Unmarshaller<DestroyNotifyEvent> = (buffer, offset=0) => {
-  const [ event, window ] = unpackFrom('<xx2xII', buffer, offset)
+  const [ responseType, event, window ] = unpackFrom('<Bx2xII', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       event,
       window,
     },
     offset
   }
+}
+export const marshallDestroyNotifyEvent = (instance: DestroyNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { event, window } = instance
+    buffers.push(pack('<xx2xII', event, window))
+  }
+  new Uint8Array(buffers[0])[0] = 17
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface DestroyNotifyEventHandler extends EventHandler<DestroyNotifyEvent> {}
 
@@ -1470,14 +1834,15 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * a window is unmapped
- *  
- * See:  
- *  
- * {@link XConnection.unmapWindow}  
+ *
+ * See:
+ *
+ * {@link XConnection.unmapWindow}
  */
 export type UnmapNotifyEvent = {
+  responseType: number
  /**
   * The reconfigured window or its parent, depending on whether `StructureNotify`
   * or `SubstructureNotify` was selected.
@@ -1495,17 +1860,28 @@ export type UnmapNotifyEvent = {
 }
 
 export const unmarshallUnmapNotifyEvent: Unmarshaller<UnmapNotifyEvent> = (buffer, offset=0) => {
-  const [ event, window, fromConfigure ] = unpackFrom('<xx2xIIB3x', buffer, offset)
+  const [ responseType, event, window, fromConfigure ] = unpackFrom('<Bx2xIIB3x', buffer, offset)
   offset += 16
 
   return {
     value: {
+      responseType,
       event,
       window,
       fromConfigure,
     },
     offset
   }
+}
+export const marshallUnmapNotifyEvent = (instance: UnmapNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { event, window, fromConfigure } = instance
+    buffers.push(pack('<xx2xIIB3x', event, window, fromConfigure))
+  }
+  new Uint8Array(buffers[0])[0] = 18
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface UnmapNotifyEventHandler extends EventHandler<UnmapNotifyEvent> {}
 
@@ -1517,14 +1893,15 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * a window was mapped
- *  
- * See:  
- *  
- * {@link XConnection.mapWindow}  
+ *
+ * See:
+ *
+ * {@link XConnection.mapWindow}
  */
 export type MapNotifyEvent = {
+  responseType: number
  /**
   * The window which was mapped or its parent, depending on whether
   * `StructureNotify` or `SubstructureNotify` was selected.
@@ -1541,17 +1918,28 @@ export type MapNotifyEvent = {
 }
 
 export const unmarshallMapNotifyEvent: Unmarshaller<MapNotifyEvent> = (buffer, offset=0) => {
-  const [ event, window, overrideRedirect ] = unpackFrom('<xx2xIIB3x', buffer, offset)
+  const [ responseType, event, window, overrideRedirect ] = unpackFrom('<Bx2xIIB3x', buffer, offset)
   offset += 16
 
   return {
     value: {
+      responseType,
       event,
       window,
       overrideRedirect,
     },
     offset
   }
+}
+export const marshallMapNotifyEvent = (instance: MapNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { event, window, overrideRedirect } = instance
+    buffers.push(pack('<xx2xIIB3x', event, window, overrideRedirect))
+  }
+  new Uint8Array(buffers[0])[0] = 19
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface MapNotifyEventHandler extends EventHandler<MapNotifyEvent> {}
 
@@ -1563,14 +1951,15 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * window wants to be mapped
- *  
- * See:  
- *  
- * {@link XConnection.mapWindow}  
+ *
+ * See:
+ *
+ * {@link XConnection.mapWindow}
  */
 export type MapRequestEvent = {
+  responseType: number
  /**
   * The parent of `window`.
   */
@@ -1582,16 +1971,27 @@ export type MapRequestEvent = {
 }
 
 export const unmarshallMapRequestEvent: Unmarshaller<MapRequestEvent> = (buffer, offset=0) => {
-  const [ parent, window ] = unpackFrom('<xx2xII', buffer, offset)
+  const [ responseType, parent, window ] = unpackFrom('<Bx2xII', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       parent,
       window,
     },
     offset
   }
+}
+export const marshallMapRequestEvent = (instance: MapRequestEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { parent, window } = instance
+    buffers.push(pack('<xx2xII', parent, window))
+  }
+  new Uint8Array(buffers[0])[0] = 20
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface MapRequestEventHandler extends EventHandler<MapRequestEvent> {}
 
@@ -1603,6 +2003,7 @@ declare module './connection' {
 
 
 export type ReparentNotifyEvent = {
+  responseType: number
   event: WINDOW
   window: WINDOW
   parent: WINDOW
@@ -1612,11 +2013,12 @@ export type ReparentNotifyEvent = {
 }
 
 export const unmarshallReparentNotifyEvent: Unmarshaller<ReparentNotifyEvent> = (buffer, offset=0) => {
-  const [ event, window, parent, x, y, overrideRedirect ] = unpackFrom('<xx2xIIIhhB3x', buffer, offset)
+  const [ responseType, event, window, parent, x, y, overrideRedirect ] = unpackFrom('<Bx2xIIIhhB3x', buffer, offset)
   offset += 24
 
   return {
     value: {
+      responseType,
       event,
       window,
       parent,
@@ -1626,6 +2028,16 @@ export const unmarshallReparentNotifyEvent: Unmarshaller<ReparentNotifyEvent> = 
     },
     offset
   }
+}
+export const marshallReparentNotifyEvent = (instance: ReparentNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { event, window, parent, x, y, overrideRedirect } = instance
+    buffers.push(pack('<xx2xIIIhhB3x', event, window, parent, x, y, overrideRedirect))
+  }
+  new Uint8Array(buffers[0])[0] = 21
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface ReparentNotifyEventHandler extends EventHandler<ReparentNotifyEvent> {}
 
@@ -1637,14 +2049,15 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * NOT YET DOCUMENTED
- *  
- * See:  
- *  
- * {@link XConnection.freeColormap}  
+ *
+ * See:
+ *
+ * {@link XConnection.freeColormap}
  */
 export type ConfigureNotifyEvent = {
+  responseType: number
  /**
   * The reconfigured window or its parent, depending on whether `StructureNotify`
   * or `SubstructureNotify` was selected.
@@ -1689,11 +2102,12 @@ export type ConfigureNotifyEvent = {
 }
 
 export const unmarshallConfigureNotifyEvent: Unmarshaller<ConfigureNotifyEvent> = (buffer, offset=0) => {
-  const [ event, window, aboveSibling, x, y, width, height, borderWidth, overrideRedirect ] = unpackFrom('<xx2xIIIhhHHHBx', buffer, offset)
+  const [ responseType, event, window, aboveSibling, x, y, width, height, borderWidth, overrideRedirect ] = unpackFrom('<Bx2xIIIhhHHHBx', buffer, offset)
   offset += 28
 
   return {
     value: {
+      responseType,
       event,
       window,
       aboveSibling,
@@ -1707,6 +2121,16 @@ export const unmarshallConfigureNotifyEvent: Unmarshaller<ConfigureNotifyEvent> 
     offset
   }
 }
+export const marshallConfigureNotifyEvent = (instance: ConfigureNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { event, window, aboveSibling, x, y, width, height, borderWidth, overrideRedirect } = instance
+    buffers.push(pack('<xx2xIIIhhHHHBx', event, window, aboveSibling, x, y, width, height, borderWidth, overrideRedirect))
+  }
+  new Uint8Array(buffers[0])[0] = 22
+  return concatArrayBuffers(buffers, byteLength)
+}
 export interface ConfigureNotifyEventHandler extends EventHandler<ConfigureNotifyEvent> {}
 
 declare module './connection' {
@@ -1717,6 +2141,7 @@ declare module './connection' {
 
 
 export type ConfigureRequestEvent = {
+  responseType: number
   stackMode: StackMode
   parent: WINDOW
   window: WINDOW
@@ -1730,11 +2155,12 @@ export type ConfigureRequestEvent = {
 }
 
 export const unmarshallConfigureRequestEvent: Unmarshaller<ConfigureRequestEvent> = (buffer, offset=0) => {
-  const [ stackMode, parent, window, sibling, x, y, width, height, borderWidth, valueMask ] = unpackFrom('<xB2xIIIhhHHHH', buffer, offset)
+  const [ responseType, stackMode, parent, window, sibling, x, y, width, height, borderWidth, valueMask ] = unpackFrom('<BB2xIIIhhHHHH', buffer, offset)
   offset += 28
 
   return {
     value: {
+      responseType,
       stackMode,
       parent,
       window,
@@ -1749,6 +2175,16 @@ export const unmarshallConfigureRequestEvent: Unmarshaller<ConfigureRequestEvent
     offset
   }
 }
+export const marshallConfigureRequestEvent = (instance: ConfigureRequestEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { stackMode, parent, window, sibling, x, y, width, height, borderWidth, valueMask } = instance
+    buffers.push(pack('<xB2xIIIhhHHHH', stackMode, parent, window, sibling, x, y, width, height, borderWidth, valueMask))
+  }
+  new Uint8Array(buffers[0])[0] = 23
+  return concatArrayBuffers(buffers, byteLength)
+}
 export interface ConfigureRequestEventHandler extends EventHandler<ConfigureRequestEvent> {}
 
 declare module './connection' {
@@ -1759,6 +2195,7 @@ declare module './connection' {
 
 
 export type GravityNotifyEvent = {
+  responseType: number
   event: WINDOW
   window: WINDOW
   x: number
@@ -1766,11 +2203,12 @@ export type GravityNotifyEvent = {
 }
 
 export const unmarshallGravityNotifyEvent: Unmarshaller<GravityNotifyEvent> = (buffer, offset=0) => {
-  const [ event, window, x, y ] = unpackFrom('<xx2xIIhh', buffer, offset)
+  const [ responseType, event, window, x, y ] = unpackFrom('<Bx2xIIhh', buffer, offset)
   offset += 16
 
   return {
     value: {
+      responseType,
       event,
       window,
       x,
@@ -1778,6 +2216,16 @@ export const unmarshallGravityNotifyEvent: Unmarshaller<GravityNotifyEvent> = (b
     },
     offset
   }
+}
+export const marshallGravityNotifyEvent = (instance: GravityNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { event, window, x, y } = instance
+    buffers.push(pack('<xx2xIIhh', event, window, x, y))
+  }
+  new Uint8Array(buffers[0])[0] = 24
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface GravityNotifyEventHandler extends EventHandler<GravityNotifyEvent> {}
 
@@ -1789,23 +2237,35 @@ declare module './connection' {
 
 
 export type ResizeRequestEvent = {
+  responseType: number
   window: WINDOW
   width: number
   height: number
 }
 
 export const unmarshallResizeRequestEvent: Unmarshaller<ResizeRequestEvent> = (buffer, offset=0) => {
-  const [ window, width, height ] = unpackFrom('<xx2xIHH', buffer, offset)
+  const [ responseType, window, width, height ] = unpackFrom('<Bx2xIHH', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       window,
       width,
       height,
     },
     offset
   }
+}
+export const marshallResizeRequestEvent = (instance: ResizeRequestEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { window, width, height } = instance
+    buffers.push(pack('<xx2xIHH', window, width, height))
+  }
+  new Uint8Array(buffers[0])[0] = 25
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface ResizeRequestEventHandler extends EventHandler<ResizeRequestEvent> {}
 
@@ -1822,14 +2282,15 @@ export const enum Place {
 }
 
 /**
- *  
+ *
  * NOT YET DOCUMENTED
- *  
- * See:  
- *  
- * {@link XConnection.circulateWindow}  
+ *
+ * See:
+ *
+ * {@link XConnection.circulateWindow}
  */
 export type CirculateNotifyEvent = {
+  responseType: number
  /**
   * Either the restacked window or its parent, depending on whether
   * `StructureNotify` or `SubstructureNotify` was selected.
@@ -1840,23 +2301,34 @@ export type CirculateNotifyEvent = {
   */
   window: WINDOW
  /**
-  * 
+  *
   */
   place: Place
 }
 
 export const unmarshallCirculateNotifyEvent: Unmarshaller<CirculateNotifyEvent> = (buffer, offset=0) => {
-  const [ event, window, place ] = unpackFrom('<xx2xII4xB3x', buffer, offset)
+  const [ responseType, event, window, place ] = unpackFrom('<Bx2xII4xB3x', buffer, offset)
   offset += 20
 
   return {
     value: {
+      responseType,
       event,
       window,
       place,
     },
     offset
   }
+}
+export const marshallCirculateNotifyEvent = (instance: CirculateNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { event, window, place } = instance
+    buffers.push(pack('<xx2xII4xB3x', event, window, place))
+  }
+  new Uint8Array(buffers[0])[0] = 26
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface CirculateNotifyEventHandler extends EventHandler<CirculateNotifyEvent> {}
 
@@ -1868,14 +2340,15 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * NOT YET DOCUMENTED
- *  
- * See:  
- *  
- * {@link XConnection.circulateWindow}  
+ *
+ * See:
+ *
+ * {@link XConnection.circulateWindow}
  */
 export type CirculateRequestEvent = {
+  responseType: number
  /**
   * Either the restacked window or its parent, depending on whether
   * `StructureNotify` or `SubstructureNotify` was selected.
@@ -1886,23 +2359,34 @@ export type CirculateRequestEvent = {
   */
   window: WINDOW
  /**
-  * 
+  *
   */
   place: Place
 }
 
 export const unmarshallCirculateRequestEvent: Unmarshaller<CirculateRequestEvent> = (buffer, offset=0) => {
-  const [ event, window, place ] = unpackFrom('<xx2xII4xB3x', buffer, offset)
+  const [ responseType, event, window, place ] = unpackFrom('<Bx2xII4xB3x', buffer, offset)
   offset += 20
 
   return {
     value: {
+      responseType,
       event,
       window,
       place,
     },
     offset
   }
+}
+export const marshallCirculateRequestEvent = (instance: CirculateRequestEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { event, window, place } = instance
+    buffers.push(pack('<xx2xII4xB3x', event, window, place))
+  }
+  new Uint8Array(buffers[0])[0] = 27
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface CirculateRequestEventHandler extends EventHandler<CirculateRequestEvent> {}
 
@@ -1919,14 +2403,15 @@ export const enum Property {
 }
 
 /**
- *  
+ *
  * a window property changed
- *  
- * See:  
- *  
- * {@link XConnection.changeProperty}  
+ *
+ * See:
+ *
+ * {@link XConnection.changeProperty}
  */
 export type PropertyNotifyEvent = {
+  responseType: number
  /**
   * The window whose associated property was changed.
   */
@@ -1940,17 +2425,18 @@ export type PropertyNotifyEvent = {
   */
   time: TIMESTAMP
  /**
-  * 
+  *
   */
   state: Property
 }
 
 export const unmarshallPropertyNotifyEvent: Unmarshaller<PropertyNotifyEvent> = (buffer, offset=0) => {
-  const [ window, atom, time, state ] = unpackFrom('<xx2xIIIB3x', buffer, offset)
+  const [ responseType, window, atom, time, state ] = unpackFrom('<Bx2xIIIB3x', buffer, offset)
   offset += 20
 
   return {
     value: {
+      responseType,
       window,
       atom,
       time,
@@ -1958,6 +2444,16 @@ export const unmarshallPropertyNotifyEvent: Unmarshaller<PropertyNotifyEvent> = 
     },
     offset
   }
+}
+export const marshallPropertyNotifyEvent = (instance: PropertyNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { window, atom, time, state } = instance
+    buffers.push(pack('<xx2xIIIB3x', window, atom, time, state))
+  }
+  new Uint8Array(buffers[0])[0] = 28
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface PropertyNotifyEventHandler extends EventHandler<PropertyNotifyEvent> {}
 
@@ -1969,23 +2465,35 @@ declare module './connection' {
 
 
 export type SelectionClearEvent = {
+  responseType: number
   time: TIMESTAMP
   owner: WINDOW
   selection: ATOM
 }
 
 export const unmarshallSelectionClearEvent: Unmarshaller<SelectionClearEvent> = (buffer, offset=0) => {
-  const [ time, owner, selection ] = unpackFrom('<xx2xIII', buffer, offset)
+  const [ responseType, time, owner, selection ] = unpackFrom('<Bx2xIII', buffer, offset)
   offset += 16
 
   return {
     value: {
+      responseType,
       time,
       owner,
       selection,
     },
     offset
   }
+}
+export const marshallSelectionClearEvent = (instance: SelectionClearEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { time, owner, selection } = instance
+    buffers.push(pack('<xx2xIII', time, owner, selection))
+  }
+  new Uint8Array(buffers[0])[0] = 29
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface SelectionClearEventHandler extends EventHandler<SelectionClearEvent> {}
 
@@ -2074,6 +2582,7 @@ export const enum Atom {
 }
 
 export type SelectionRequestEvent = {
+  responseType: number
   time: TIMESTAMP
   owner: WINDOW
   requestor: WINDOW
@@ -2083,11 +2592,12 @@ export type SelectionRequestEvent = {
 }
 
 export const unmarshallSelectionRequestEvent: Unmarshaller<SelectionRequestEvent> = (buffer, offset=0) => {
-  const [ time, owner, requestor, selection, target, property ] = unpackFrom('<xx2xIIIIII', buffer, offset)
+  const [ responseType, time, owner, requestor, selection, target, property ] = unpackFrom('<Bx2xIIIIII', buffer, offset)
   offset += 28
 
   return {
     value: {
+      responseType,
       time,
       owner,
       requestor,
@@ -2097,6 +2607,16 @@ export const unmarshallSelectionRequestEvent: Unmarshaller<SelectionRequestEvent
     },
     offset
   }
+}
+export const marshallSelectionRequestEvent = (instance: SelectionRequestEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { time, owner, requestor, selection, target, property } = instance
+    buffers.push(pack('<xx2xIIIIII', time, owner, requestor, selection, target, property))
+  }
+  new Uint8Array(buffers[0])[0] = 30
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface SelectionRequestEventHandler extends EventHandler<SelectionRequestEvent> {}
 
@@ -2108,6 +2628,7 @@ declare module './connection' {
 
 
 export type SelectionNotifyEvent = {
+  responseType: number
   time: TIMESTAMP
   requestor: WINDOW
   selection: ATOM
@@ -2116,11 +2637,12 @@ export type SelectionNotifyEvent = {
 }
 
 export const unmarshallSelectionNotifyEvent: Unmarshaller<SelectionNotifyEvent> = (buffer, offset=0) => {
-  const [ time, requestor, selection, target, property ] = unpackFrom('<xx2xIIIII', buffer, offset)
+  const [ responseType, time, requestor, selection, target, property ] = unpackFrom('<Bx2xIIIII', buffer, offset)
   offset += 24
 
   return {
     value: {
+      responseType,
       time,
       requestor,
       selection,
@@ -2129,6 +2651,16 @@ export const unmarshallSelectionNotifyEvent: Unmarshaller<SelectionNotifyEvent> 
     },
     offset
   }
+}
+export const marshallSelectionNotifyEvent = (instance: SelectionNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { time, requestor, selection, target, property } = instance
+    buffers.push(pack('<xx2xIIIII', time, requestor, selection, target, property))
+  }
+  new Uint8Array(buffers[0])[0] = 31
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface SelectionNotifyEventHandler extends EventHandler<SelectionNotifyEvent> {}
 
@@ -2149,14 +2681,15 @@ export const enum Colormap {
 }
 
 /**
- *  
+ *
  * the colormap for some window changed
- *  
- * See:  
- *  
- * {@link XConnection.freeColormap}  
+ *
+ * See:
+ *
+ * {@link XConnection.freeColormap}
  */
 export type ColormapNotifyEvent = {
+  responseType: number
  /**
   * The window whose associated colormap is changed, installed or uninstalled.
   */
@@ -2168,17 +2701,18 @@ export type ColormapNotifyEvent = {
   colormap: COLORMAP
   _new: number
  /**
-  * 
+  *
   */
   state: ColormapState
 }
 
 export const unmarshallColormapNotifyEvent: Unmarshaller<ColormapNotifyEvent> = (buffer, offset=0) => {
-  const [ window, colormap, _new, state ] = unpackFrom('<xx2xIIBB2x', buffer, offset)
+  const [ responseType, window, colormap, _new, state ] = unpackFrom('<Bx2xIIBB2x', buffer, offset)
   offset += 16
 
   return {
     value: {
+      responseType,
       window,
       colormap,
       _new,
@@ -2186,6 +2720,16 @@ export const unmarshallColormapNotifyEvent: Unmarshaller<ColormapNotifyEvent> = 
     },
     offset
   }
+}
+export const marshallColormapNotifyEvent = (instance: ColormapNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { window, colormap, _new, state } = instance
+    buffers.push(pack('<xx2xIIBB2x', window, colormap, _new, state))
+  }
+  new Uint8Array(buffers[0])[0] = 32
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface ColormapNotifyEventHandler extends EventHandler<ColormapNotifyEvent> {}
 
@@ -2196,11 +2740,11 @@ declare module './connection' {
 }
 
 
-export type ClientMessageData  = {
+export type ClientMessageData  = Partial<{
   data8: Uint8Array
   data16: Uint16Array
   data32: Uint32Array
-}
+}>
 
 const unmarshallClientMessageData: Unmarshaller<ClientMessageData> = (buffer, offset=0) => {
   let size = 0
@@ -2226,20 +2770,37 @@ const unmarshallClientMessageData: Unmarshaller<ClientMessageData> = (buffer, of
   }
 }
 
+export const marshallClientMessageData = (instance: Partial<ClientMessageData>): ArrayBuffer => {
+  if(instance.data8 !== undefined) {
+    return instance.data8.buffer
+  }
+
+  if(instance.data16 !== undefined) {
+    return instance.data16.buffer
+  }
+
+  if(instance.data32 !== undefined) {
+    return instance.data32.buffer
+  }
+
+  throw new Error('Empty union argument')
+}
+
 /**
- *  
+ *
  * NOT YET DOCUMENTED
- *  
+ *
  * This event represents a ClientMessage, sent by another X11 client. An example
  * is a client sending the `_NET_WM_STATE` ClientMessage to the root window
  * to indicate the fullscreen window state, effectively requesting that the window
  * manager puts it into fullscreen mode.
- *  
- * See:  
- *  
- * {@link XConnection.sendEvent}  
+ *
+ * See:
+ *
+ * {@link XConnection.sendEvent}
  */
 export type ClientMessageEvent = {
+  responseType: number
  /**
   * Specifies how to interpret `data`. Can be either 8, 16 or 32.
   */
@@ -2257,7 +2818,7 @@ export type ClientMessageEvent = {
 }
 
 export const unmarshallClientMessageEvent: Unmarshaller<ClientMessageEvent> = (buffer, offset=0) => {
-  const [ format, window, _type ] = unpackFrom('<xB2xII', buffer, offset)
+  const [ responseType, format, window, _type ] = unpackFrom('<BB2xII', buffer, offset)
   offset += 12
   const dataWithOffset = unmarshallClientMessageData(buffer, offset)
   const data = dataWithOffset.value
@@ -2265,6 +2826,7 @@ export const unmarshallClientMessageEvent: Unmarshaller<ClientMessageEvent> = (b
 
   return {
     value: {
+      responseType,
       format,
       window,
       _type,
@@ -2272,6 +2834,20 @@ export const unmarshallClientMessageEvent: Unmarshaller<ClientMessageEvent> = (b
     },
     offset
   }
+}
+export const marshallClientMessageEvent = (instance: ClientMessageEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  const { format, window, _type } = instance
+  buffers.push(pack('<xB2xII', format, window, _type))
+  byteLength += 12
+  {
+    const buffer = marshallClientMessageData(instance.data)
+    buffers.push(buffer)
+    byteLength += buffer.byteLength
+  }
+  new Uint8Array(buffers[0])[0] = 33
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface ClientMessageEventHandler extends EventHandler<ClientMessageEvent> {}
 
@@ -2289,12 +2865,13 @@ export const enum Mapping {
 }
 
 /**
- *  
+ *
  * keyboard mapping changed
  */
 export type MappingNotifyEvent = {
+  responseType: number
  /**
-  * 
+  *
   */
   request: Mapping
  /**
@@ -2308,17 +2885,28 @@ export type MappingNotifyEvent = {
 }
 
 export const unmarshallMappingNotifyEvent: Unmarshaller<MappingNotifyEvent> = (buffer, offset=0) => {
-  const [ request, firstKeycode, count ] = unpackFrom('<xx2xBBBx', buffer, offset)
+  const [ responseType, request, firstKeycode, count ] = unpackFrom('<Bx2xBBBx', buffer, offset)
   offset += 8
 
   return {
     value: {
+      responseType,
       request,
       firstKeycode,
       count,
     },
     offset
   }
+}
+export const marshallMappingNotifyEvent = (instance: MappingNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { request, firstKeycode, count } = instance
+    buffers.push(pack('<xx2xBBBx', request, firstKeycode, count))
+  }
+  new Uint8Array(buffers[0])[0] = 34
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface MappingNotifyEventHandler extends EventHandler<MappingNotifyEvent> {}
 
@@ -2330,19 +2918,29 @@ declare module './connection' {
 
 
 /**
- *  
+ *
  * generic event (with length)
  */
 export type GeGenericEvent = {
+  responseType: number
 }
 
 export const unmarshallGeGenericEvent: Unmarshaller<GeGenericEvent> = (buffer, offset=0) => {
+  const [ responseType ] = unpackFrom('<Bx2x4x2x22x', buffer, offset)
+  offset += 32
 
   return {
     value: {
+      responseType,
     },
     offset
   }
+}
+export const marshallGeGenericEvent = (instance: GeGenericEvent): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  new Uint8Array(buffers[0])[0] = 35
+  return concatArrayBuffers(buffers, byteLength)
 }
 export interface GeGenericEventHandler extends EventHandler<GeGenericEvent> {}
 
@@ -2354,23 +2952,34 @@ declare module './connection' {
 
 
 export type RequestError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallRequestError: Unmarshaller<RequestError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallRequestError = (instance: RequestError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadRequest extends Error {
@@ -2387,23 +2996,34 @@ export class BadRequest extends Error {
 }
 
 export type ValueError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallValueError: Unmarshaller<ValueError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallValueError = (instance: ValueError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadValue extends Error {
@@ -2420,23 +3040,34 @@ export class BadValue extends Error {
 }
 
 export type WindowError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallWindowError: Unmarshaller<WindowError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallWindowError = (instance: WindowError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadWindow extends Error {
@@ -2453,23 +3084,34 @@ export class BadWindow extends Error {
 }
 
 export type PixmapError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallPixmapError: Unmarshaller<PixmapError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallPixmapError = (instance: PixmapError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadPixmap extends Error {
@@ -2486,23 +3128,34 @@ export class BadPixmap extends Error {
 }
 
 export type AtomError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallAtomError: Unmarshaller<AtomError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallAtomError = (instance: AtomError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadAtom extends Error {
@@ -2519,23 +3172,34 @@ export class BadAtom extends Error {
 }
 
 export type CursorError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallCursorError: Unmarshaller<CursorError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallCursorError = (instance: CursorError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadCursor extends Error {
@@ -2552,23 +3216,34 @@ export class BadCursor extends Error {
 }
 
 export type FontError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallFontError: Unmarshaller<FontError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallFontError = (instance: FontError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadFont extends Error {
@@ -2585,23 +3260,34 @@ export class BadFont extends Error {
 }
 
 export type MatchError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallMatchError: Unmarshaller<MatchError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallMatchError = (instance: MatchError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadMatch extends Error {
@@ -2618,23 +3304,34 @@ export class BadMatch extends Error {
 }
 
 export type DrawableError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallDrawableError: Unmarshaller<DrawableError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallDrawableError = (instance: DrawableError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadDrawable extends Error {
@@ -2651,23 +3348,34 @@ export class BadDrawable extends Error {
 }
 
 export type AccessError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallAccessError: Unmarshaller<AccessError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallAccessError = (instance: AccessError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadAccess extends Error {
@@ -2684,23 +3392,34 @@ export class BadAccess extends Error {
 }
 
 export type AllocError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallAllocError: Unmarshaller<AllocError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallAllocError = (instance: AllocError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadAlloc extends Error {
@@ -2717,23 +3436,34 @@ export class BadAlloc extends Error {
 }
 
 export type ColormapError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallColormapError: Unmarshaller<ColormapError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallColormapError = (instance: ColormapError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadColormap extends Error {
@@ -2750,23 +3480,34 @@ export class BadColormap extends Error {
 }
 
 export type GContextError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallGContextError: Unmarshaller<GContextError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallGContextError = (instance: GContextError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadGContext extends Error {
@@ -2783,23 +3524,34 @@ export class BadGContext extends Error {
 }
 
 export type IDChoiceError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallIDChoiceError: Unmarshaller<IDChoiceError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallIDChoiceError = (instance: IDChoiceError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadIDChoice extends Error {
@@ -2816,23 +3568,34 @@ export class BadIDChoice extends Error {
 }
 
 export type NameError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallNameError: Unmarshaller<NameError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallNameError = (instance: NameError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadName extends Error {
@@ -2849,23 +3612,34 @@ export class BadName extends Error {
 }
 
 export type LengthError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallLengthError: Unmarshaller<LengthError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallLengthError = (instance: LengthError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadLength extends Error {
@@ -2882,23 +3656,34 @@ export class BadLength extends Error {
 }
 
 export type ImplementationError = {
+  responseType: number
   badValue: number
   minorOpcode: number
   majorOpcode: number
 }
 
 export const unmarshallImplementationError: Unmarshaller<ImplementationError> = (buffer, offset=0) => {
-  const [ badValue, minorOpcode, majorOpcode ] = unpackFrom('<xx2xIHBx', buffer, offset)
+  const [ responseType, badValue, minorOpcode, majorOpcode ] = unpackFrom('<Bx2xIHBx', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       badValue,
       minorOpcode,
       majorOpcode,
     },
     offset
   }
+}
+export const marshallImplementationError = (instance: ImplementationError): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { badValue, minorOpcode, majorOpcode } = instance
+    buffers.push(pack('<xx2xIHBx', badValue, minorOpcode, majorOpcode))
+  }
+  return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadImplementation extends Error {
@@ -2967,8 +3752,9 @@ export const enum MapState {
 export type GetWindowAttributesCookie = Promise<GetWindowAttributesReply>
 
 export type GetWindowAttributesReply = {
+  responseType: number
  /**
-  * 
+  *
   */
   backingStore: BackingStore
  /**
@@ -2976,15 +3762,15 @@ export type GetWindowAttributesReply = {
   */
   visual: VISUALID
  /**
-  * 
+  *
   */
   _class: WindowClass
  /**
-  * 
+  *
   */
   bitGravity: Gravity
  /**
-  * 
+  *
   */
   winGravity: Gravity
  /**
@@ -3001,7 +3787,7 @@ export type GetWindowAttributesReply = {
   saveUnder: number
   mapIsInstalled: number
  /**
-  * 
+  *
   */
   mapState: MapState
  /**
@@ -3027,11 +3813,12 @@ export type GetWindowAttributesReply = {
 }
 
 export const unmarshallGetWindowAttributesReply: Unmarshaller<GetWindowAttributesReply> = (buffer, offset=0) => {
-  const [ backingStore, visual, _class, bitGravity, winGravity, backingPlanes, backingPixel, saveUnder, mapIsInstalled, mapState, overrideRedirect, colormap, allEventMasks, yourEventMask, doNotPropagateMask ] = unpackFrom('<xB2x4xIHBBIIBBBBIIIH2x', buffer, offset)
+  const [ responseType, backingStore, visual, _class, bitGravity, winGravity, backingPlanes, backingPixel, saveUnder, mapIsInstalled, mapState, overrideRedirect, colormap, allEventMasks, yourEventMask, doNotPropagateMask ] = unpackFrom('<BB2x4xIHBBIIBBBBIIIH2x', buffer, offset)
   offset += 44
 
   return {
     value: {
+      responseType,
       backingStore,
       visual,
       _class,
@@ -3083,6 +3870,7 @@ export const enum Circulate {
 export type GetGeometryCookie = Promise<GetGeometryReply>
 
 export type GetGeometryReply = {
+  responseType: number
  /**
   * The depth of the drawable (bits per pixel for the object).
   */
@@ -3118,11 +3906,12 @@ export type GetGeometryReply = {
 }
 
 export const unmarshallGetGeometryReply: Unmarshaller<GetGeometryReply> = (buffer, offset=0) => {
-  const [ depth, root, x, y, width, height, borderWidth ] = unpackFrom('<xB2x4xIhhHHH2x', buffer, offset)
+  const [ responseType, depth, root, x, y, width, height, borderWidth ] = unpackFrom('<BB2x4xIhhHHH2x', buffer, offset)
   offset += 24
 
   return {
     value: {
+      responseType,
       depth,
       root,
       x,
@@ -3138,6 +3927,7 @@ export const unmarshallGetGeometryReply: Unmarshaller<GetGeometryReply> = (buffe
 export type QueryTreeCookie = Promise<QueryTreeReply>
 
 export type QueryTreeReply = {
+  responseType: number
  /**
   * The root window of `window`.
   */
@@ -3154,7 +3944,7 @@ export type QueryTreeReply = {
 }
 
 export const unmarshallQueryTreeReply: Unmarshaller<QueryTreeReply> = (buffer, offset=0) => {
-  const [ root, parent, childrenLen ] = unpackFrom('<xx2x4xIIH14x', buffer, offset)
+  const [ responseType, root, parent, childrenLen ] = unpackFrom('<Bx2x4xIIH14x', buffer, offset)
   offset += 32
   const childrenWithOffset = xcbSimpleList(buffer, offset, childrenLen, Uint32Array, 4)
   offset = childrenWithOffset.offset
@@ -3162,6 +3952,7 @@ export const unmarshallQueryTreeReply: Unmarshaller<QueryTreeReply> = (buffer, o
 
   return {
     value: {
+      responseType,
       root,
       parent,
       childrenLen,
@@ -3174,15 +3965,17 @@ export const unmarshallQueryTreeReply: Unmarshaller<QueryTreeReply> = (buffer, o
 export type InternAtomCookie = Promise<InternAtomReply>
 
 export type InternAtomReply = {
+  responseType: number
   atom: ATOM
 }
 
 export const unmarshallInternAtomReply: Unmarshaller<InternAtomReply> = (buffer, offset=0) => {
-  const [ atom ] = unpackFrom('<xx2x4xI', buffer, offset)
+  const [ responseType, atom ] = unpackFrom('<Bx2x4xI', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       atom,
     },
     offset
@@ -3192,12 +3985,13 @@ export const unmarshallInternAtomReply: Unmarshaller<InternAtomReply> = (buffer,
 export type GetAtomNameCookie = Promise<GetAtomNameReply>
 
 export type GetAtomNameReply = {
+  responseType: number
   nameLen: number
   name: Int8Array
 }
 
 export const unmarshallGetAtomNameReply: Unmarshaller<GetAtomNameReply> = (buffer, offset=0) => {
-  const [ nameLen ] = unpackFrom('<xx2x4xH22x', buffer, offset)
+  const [ responseType, nameLen ] = unpackFrom('<Bx2x4xH22x', buffer, offset)
   offset += 32
   const nameWithOffset = xcbSimpleList(buffer, offset, nameLen, Int8Array, 1)
   offset = nameWithOffset.offset
@@ -3205,6 +3999,7 @@ export const unmarshallGetAtomNameReply: Unmarshaller<GetAtomNameReply> = (buffe
 
   return {
     value: {
+      responseType,
       nameLen,
       name,
     },
@@ -3225,6 +4020,7 @@ export const enum GetPropertyType {
 export type GetPropertyCookie = Promise<GetPropertyReply>
 
 export type GetPropertyReply = {
+  responseType: number
  /**
   * Specifies whether the data should be viewed as a list of 8-bit, 16-bit, or
   * 32-bit quantities. Possible values are 8, 16, and 32. This information allows
@@ -3249,7 +4045,7 @@ export type GetPropertyReply = {
 }
 
 export const unmarshallGetPropertyReply: Unmarshaller<GetPropertyReply> = (buffer, offset=0) => {
-  const [ format, _type, bytesAfter, valueLen ] = unpackFrom('<xB2x4xIII12x', buffer, offset)
+  const [ responseType, format, _type, bytesAfter, valueLen ] = unpackFrom('<BB2x4xIII12x', buffer, offset)
   offset += 32
   const valueWithOffset = xcbSimpleList(buffer, offset, (valueLen * (format / 8)), Uint8Array, 1)
   offset = valueWithOffset.offset
@@ -3257,6 +4053,7 @@ export const unmarshallGetPropertyReply: Unmarshaller<GetPropertyReply> = (buffe
 
   return {
     value: {
+      responseType,
       format,
       _type,
       bytesAfter,
@@ -3270,12 +4067,13 @@ export const unmarshallGetPropertyReply: Unmarshaller<GetPropertyReply> = (buffe
 export type ListPropertiesCookie = Promise<ListPropertiesReply>
 
 export type ListPropertiesReply = {
+  responseType: number
   atomsLen: number
   atoms: Uint32Array
 }
 
 export const unmarshallListPropertiesReply: Unmarshaller<ListPropertiesReply> = (buffer, offset=0) => {
-  const [ atomsLen ] = unpackFrom('<xx2x4xH22x', buffer, offset)
+  const [ responseType, atomsLen ] = unpackFrom('<Bx2x4xH22x', buffer, offset)
   offset += 32
   const atomsWithOffset = xcbSimpleList(buffer, offset, atomsLen, Uint32Array, 4)
   offset = atomsWithOffset.offset
@@ -3283,6 +4081,7 @@ export const unmarshallListPropertiesReply: Unmarshaller<ListPropertiesReply> = 
 
   return {
     value: {
+      responseType,
       atomsLen,
       atoms,
     },
@@ -3293,6 +4092,7 @@ export const unmarshallListPropertiesReply: Unmarshaller<ListPropertiesReply> = 
 export type GetSelectionOwnerCookie = Promise<GetSelectionOwnerReply>
 
 export type GetSelectionOwnerReply = {
+  responseType: number
  /**
   * The current selection owner window.
   */
@@ -3300,11 +4100,12 @@ export type GetSelectionOwnerReply = {
 }
 
 export const unmarshallGetSelectionOwnerReply: Unmarshaller<GetSelectionOwnerReply> = (buffer, offset=0) => {
-  const [ owner ] = unpackFrom('<xx2x4xI', buffer, offset)
+  const [ responseType, owner ] = unpackFrom('<Bx2x4xI', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       owner,
     },
     offset
@@ -3336,15 +4137,17 @@ export const enum Cursor {
 export type GrabPointerCookie = Promise<GrabPointerReply>
 
 export type GrabPointerReply = {
+  responseType: number
   status: GrabStatus
 }
 
 export const unmarshallGrabPointerReply: Unmarshaller<GrabPointerReply> = (buffer, offset=0) => {
-  const [ status ] = unpackFrom('<xB2x4x', buffer, offset)
+  const [ responseType, status ] = unpackFrom('<BB2x4x', buffer, offset)
   offset += 8
 
   return {
     value: {
+      responseType,
       status,
     },
     offset
@@ -3363,15 +4166,17 @@ export const enum ButtonIndex {
 export type GrabKeyboardCookie = Promise<GrabKeyboardReply>
 
 export type GrabKeyboardReply = {
+  responseType: number
   status: GrabStatus
 }
 
 export const unmarshallGrabKeyboardReply: Unmarshaller<GrabKeyboardReply> = (buffer, offset=0) => {
-  const [ status ] = unpackFrom('<xB2x4x', buffer, offset)
+  const [ responseType, status ] = unpackFrom('<BB2x4x', buffer, offset)
   offset += 8
 
   return {
     value: {
+      responseType,
       status,
     },
     offset
@@ -3396,6 +4201,7 @@ export const enum Allow {
 export type QueryPointerCookie = Promise<QueryPointerReply>
 
 export type QueryPointerReply = {
+  responseType: number
  /**
   * If `same_screen` is False, then the pointer is not on the same screen as the
   * argument window, `child` is None, and `win_x` and `win_y` are zero. If
@@ -3440,11 +4246,12 @@ export type QueryPointerReply = {
 }
 
 export const unmarshallQueryPointerReply: Unmarshaller<QueryPointerReply> = (buffer, offset=0) => {
-  const [ sameScreen, root, child, rootX, rootY, winX, winY, mask ] = unpackFrom('<xB2x4xIIhhhhH2x', buffer, offset)
+  const [ responseType, sameScreen, root, child, rootX, rootY, winX, winY, mask ] = unpackFrom('<BB2x4xIIhhhhH2x', buffer, offset)
   offset += 28
 
   return {
     value: {
+      responseType,
       sameScreen,
       root,
       child,
@@ -3477,16 +4284,26 @@ export const unmarshallTIMECOORD: Unmarshaller<TIMECOORD> = (buffer, offset=0) =
     offset
   }
 }
+export const marshallTIMECOORD = (instance: TIMECOORD): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { time, x, y } = instance
+    buffers.push(pack('<Ihh', time, x, y))
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type GetMotionEventsCookie = Promise<GetMotionEventsReply>
 
 export type GetMotionEventsReply = {
+  responseType: number
   eventsLen: number
   events: TIMECOORD[]
 }
 
 export const unmarshallGetMotionEventsReply: Unmarshaller<GetMotionEventsReply> = (buffer, offset=0) => {
-  const [ eventsLen ] = unpackFrom('<xx2x4xI20x', buffer, offset)
+  const [ responseType, eventsLen ] = unpackFrom('<Bx2x4xI20x', buffer, offset)
   offset += 32
   const eventsWithOffset = xcbComplexList(buffer, offset, eventsLen, unmarshallTIMECOORD)
   offset = eventsWithOffset.offset
@@ -3494,6 +4311,7 @@ export const unmarshallGetMotionEventsReply: Unmarshaller<GetMotionEventsReply> 
 
   return {
     value: {
+      responseType,
       eventsLen,
       events,
     },
@@ -3504,6 +4322,7 @@ export const unmarshallGetMotionEventsReply: Unmarshaller<GetMotionEventsReply> 
 export type TranslateCoordinatesCookie = Promise<TranslateCoordinatesReply>
 
 export type TranslateCoordinatesReply = {
+  responseType: number
   sameScreen: number
   child: WINDOW
   dstX: number
@@ -3511,11 +4330,12 @@ export type TranslateCoordinatesReply = {
 }
 
 export const unmarshallTranslateCoordinatesReply: Unmarshaller<TranslateCoordinatesReply> = (buffer, offset=0) => {
-  const [ sameScreen, child, dstX, dstY ] = unpackFrom('<xB2x4xIhh', buffer, offset)
+  const [ responseType, sameScreen, child, dstX, dstY ] = unpackFrom('<BB2x4xIhh', buffer, offset)
   offset += 16
 
   return {
     value: {
+      responseType,
       sameScreen,
       child,
       dstX,
@@ -3535,16 +4355,18 @@ export const enum InputFocus {
 export type GetInputFocusCookie = Promise<GetInputFocusReply>
 
 export type GetInputFocusReply = {
+  responseType: number
   revertTo: InputFocus
   focus: WINDOW
 }
 
 export const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (buffer, offset=0) => {
-  const [ revertTo, focus ] = unpackFrom('<xB2x4xI', buffer, offset)
+  const [ responseType, revertTo, focus ] = unpackFrom('<BB2x4xI', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       revertTo,
       focus,
     },
@@ -3555,16 +4377,20 @@ export const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (b
 export type QueryKeymapCookie = Promise<QueryKeymapReply>
 
 export type QueryKeymapReply = {
+  responseType: number
   keys: Uint8Array
 }
 
 export const unmarshallQueryKeymapReply: Unmarshaller<QueryKeymapReply> = (buffer, offset=0) => {
+  const [ responseType ] = unpackFrom('<Bx2x4x', buffer, offset)
+  offset += 8
   const keysWithOffset = xcbSimpleList(buffer, offset, 32, Uint8Array, 1)
   offset = keysWithOffset.offset
   const keys = keysWithOffset.value
 
   return {
     value: {
+      responseType,
       keys,
     },
     offset
@@ -3593,6 +4419,15 @@ export const unmarshallFONTPROP: Unmarshaller<FONTPROP> = (buffer, offset=0) => 
     offset
   }
 }
+export const marshallFONTPROP = (instance: FONTPROP): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { name, value } = instance
+    buffers.push(pack('<II', name, value))
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type CHARINFO  = {
   leftSideBearing: number
@@ -3619,10 +4454,20 @@ export const unmarshallCHARINFO: Unmarshaller<CHARINFO> = (buffer, offset=0) => 
     offset
   }
 }
+export const marshallCHARINFO = (instance: CHARINFO): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { leftSideBearing, rightSideBearing, characterWidth, ascent, descent, attributes } = instance
+    buffers.push(pack('<hhhhhH', leftSideBearing, rightSideBearing, characterWidth, ascent, descent, attributes))
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type QueryFontCookie = Promise<QueryFontReply>
 
 export type QueryFontReply = {
+  responseType: number
  /**
   * minimum bounds over all existing char
   */
@@ -3648,7 +4493,7 @@ export type QueryFontReply = {
   */
   propertiesLen: number
  /**
-  * 
+  *
   */
   drawDirection: FontDraw
   minByte1: number
@@ -3671,6 +4516,8 @@ export type QueryFontReply = {
 }
 
 export const unmarshallQueryFontReply: Unmarshaller<QueryFontReply> = (buffer, offset=0) => {
+  const [ responseType ] = unpackFrom('<Bx2x4x', buffer, offset)
+  offset += 8
   const minBoundsWithOffset = unmarshallCHARINFO(buffer, offset)
   const minBounds = minBoundsWithOffset.value
   offset = minBoundsWithOffset.offset
@@ -3691,6 +4538,7 @@ export const unmarshallQueryFontReply: Unmarshaller<QueryFontReply> = (buffer, o
 
   return {
     value: {
+      responseType,
       minBounds,
       maxBounds,
       minCharOrByte2,
@@ -3714,6 +4562,7 @@ export const unmarshallQueryFontReply: Unmarshaller<QueryFontReply> = (buffer, o
 export type QueryTextExtentsCookie = Promise<QueryTextExtentsReply>
 
 export type QueryTextExtentsReply = {
+  responseType: number
   drawDirection: FontDraw
   fontAscent: number
   fontDescent: number
@@ -3725,11 +4574,12 @@ export type QueryTextExtentsReply = {
 }
 
 export const unmarshallQueryTextExtentsReply: Unmarshaller<QueryTextExtentsReply> = (buffer, offset=0) => {
-  const [ drawDirection, fontAscent, fontDescent, overallAscent, overallDescent, overallWidth, overallLeft, overallRight ] = unpackFrom('<xB2x4xhhhhiii', buffer, offset)
+  const [ responseType, drawDirection, fontAscent, fontDescent, overallAscent, overallDescent, overallWidth, overallLeft, overallRight ] = unpackFrom('<BB2x4xhhhhiii', buffer, offset)
   offset += 28
 
   return {
     value: {
+      responseType,
       drawDirection,
       fontAscent,
       fontDescent,
@@ -3763,10 +4613,24 @@ export const unmarshallSTR: Unmarshaller<STR> = (buffer, offset=0) => {
     offset
   }
 }
+export const marshallSTR = (instance: STR): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  const { nameLen } = instance
+  buffers.push(pack('<B', nameLen))
+  byteLength += 1
+  {
+    const buffer = instance.name.buffer
+    buffers.push(buffer)
+    byteLength += buffer.byteLength
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type ListFontsCookie = Promise<ListFontsReply>
 
 export type ListFontsReply = {
+  responseType: number
  /**
   * The number of font names.
   */
@@ -3775,7 +4639,7 @@ export type ListFontsReply = {
 }
 
 export const unmarshallListFontsReply: Unmarshaller<ListFontsReply> = (buffer, offset=0) => {
-  const [ namesLen ] = unpackFrom('<xx2x4xH22x', buffer, offset)
+  const [ responseType, namesLen ] = unpackFrom('<Bx2x4xH22x', buffer, offset)
   offset += 32
   const namesWithOffset = xcbComplexList(buffer, offset, namesLen, unmarshallSTR)
   offset = namesWithOffset.offset
@@ -3783,6 +4647,7 @@ export const unmarshallListFontsReply: Unmarshaller<ListFontsReply> = (buffer, o
 
   return {
     value: {
+      responseType,
       namesLen,
       names,
     },
@@ -3793,6 +4658,7 @@ export const unmarshallListFontsReply: Unmarshaller<ListFontsReply> = (buffer, o
 export type ListFontsWithInfoCookie = Promise<ListFontsWithInfoReply>
 
 export type ListFontsWithInfoReply = {
+  responseType: number
  /**
   * The number of matched font names.
   */
@@ -3822,7 +4688,7 @@ export type ListFontsWithInfoReply = {
   */
   propertiesLen: number
  /**
-  * 
+  *
   */
   drawDirection: FontDraw
   minByte1: number
@@ -3850,7 +4716,7 @@ export type ListFontsWithInfoReply = {
 }
 
 export const unmarshallListFontsWithInfoReply: Unmarshaller<ListFontsWithInfoReply> = (buffer, offset=0) => {
-  const [ nameLen ] = unpackFrom('<xB2x4x', buffer, offset)
+  const [ responseType, nameLen ] = unpackFrom('<BB2x4x', buffer, offset)
   offset += 8
   const minBoundsWithOffset = unmarshallCHARINFO(buffer, offset)
   const minBounds = minBoundsWithOffset.value
@@ -3872,6 +4738,7 @@ export const unmarshallListFontsWithInfoReply: Unmarshaller<ListFontsWithInfoRep
 
   return {
     value: {
+      responseType,
       nameLen,
       minBounds,
       maxBounds,
@@ -3896,12 +4763,13 @@ export const unmarshallListFontsWithInfoReply: Unmarshaller<ListFontsWithInfoRep
 export type GetFontPathCookie = Promise<GetFontPathReply>
 
 export type GetFontPathReply = {
+  responseType: number
   pathLen: number
   path: STR[]
 }
 
 export const unmarshallGetFontPathReply: Unmarshaller<GetFontPathReply> = (buffer, offset=0) => {
-  const [ pathLen ] = unpackFrom('<xx2x4xH22x', buffer, offset)
+  const [ responseType, pathLen ] = unpackFrom('<Bx2x4xH22x', buffer, offset)
   offset += 32
   const pathWithOffset = xcbComplexList(buffer, offset, pathLen, unmarshallSTR)
   offset = pathWithOffset.offset
@@ -3909,6 +4777,7 @@ export const unmarshallGetFontPathReply: Unmarshaller<GetFontPathReply> = (buffe
 
   return {
     value: {
+      responseType,
       pathLen,
       path,
     },
@@ -4035,6 +4904,15 @@ export const unmarshallSEGMENT: Unmarshaller<SEGMENT> = (buffer, offset=0) => {
     offset
   }
 }
+export const marshallSEGMENT = (instance: SEGMENT): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { x1, y1, x2, y2 } = instance
+    buffers.push(pack('<hhhh', x1, y1, x2, y2))
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export const enum PolyShape {
   Complex= 0,
@@ -4051,13 +4929,14 @@ export const enum ImageFormat {
 export type GetImageCookie = Promise<GetImageReply>
 
 export type GetImageReply = {
+  responseType: number
   depth: number
   visual: VISUALID
   data: Uint8Array
 }
 
 export const unmarshallGetImageReply: Unmarshaller<GetImageReply> = (buffer, offset=0) => {
-  const [ depth, visual ] = unpackFrom('<xB2x4xI20x', buffer, offset)
+  const [ responseType, depth, visual ] = unpackFrom('<BB2x4xI20x', buffer, offset)
   offset += 32
   const dataWithOffset = xcbSimpleList(buffer, offset, (length * 4), Uint8Array, 1)
   offset = dataWithOffset.offset
@@ -4065,6 +4944,7 @@ export const unmarshallGetImageReply: Unmarshaller<GetImageReply> = (buffer, off
 
   return {
     value: {
+      responseType,
       depth,
       visual,
       data,
@@ -4081,12 +4961,13 @@ export const enum ColormapAlloc {
 export type ListInstalledColormapsCookie = Promise<ListInstalledColormapsReply>
 
 export type ListInstalledColormapsReply = {
+  responseType: number
   cmapsLen: number
   cmaps: Uint32Array
 }
 
 export const unmarshallListInstalledColormapsReply: Unmarshaller<ListInstalledColormapsReply> = (buffer, offset=0) => {
-  const [ cmapsLen ] = unpackFrom('<xx2x4xH22x', buffer, offset)
+  const [ responseType, cmapsLen ] = unpackFrom('<Bx2x4xH22x', buffer, offset)
   offset += 32
   const cmapsWithOffset = xcbSimpleList(buffer, offset, cmapsLen, Uint32Array, 4)
   offset = cmapsWithOffset.offset
@@ -4094,6 +4975,7 @@ export const unmarshallListInstalledColormapsReply: Unmarshaller<ListInstalledCo
 
   return {
     value: {
+      responseType,
       cmapsLen,
       cmaps,
     },
@@ -4104,6 +4986,7 @@ export const unmarshallListInstalledColormapsReply: Unmarshaller<ListInstalledCo
 export type AllocColorCookie = Promise<AllocColorReply>
 
 export type AllocColorReply = {
+  responseType: number
   red: number
   green: number
   blue: number
@@ -4111,11 +4994,12 @@ export type AllocColorReply = {
 }
 
 export const unmarshallAllocColorReply: Unmarshaller<AllocColorReply> = (buffer, offset=0) => {
-  const [ red, green, blue, pixel ] = unpackFrom('<xx2x4xHHH2xI', buffer, offset)
+  const [ responseType, red, green, blue, pixel ] = unpackFrom('<Bx2x4xHHH2xI', buffer, offset)
   offset += 20
 
   return {
     value: {
+      responseType,
       red,
       green,
       blue,
@@ -4128,6 +5012,7 @@ export const unmarshallAllocColorReply: Unmarshaller<AllocColorReply> = (buffer,
 export type AllocNamedColorCookie = Promise<AllocNamedColorReply>
 
 export type AllocNamedColorReply = {
+  responseType: number
   pixel: number
   exactRed: number
   exactGreen: number
@@ -4138,11 +5023,12 @@ export type AllocNamedColorReply = {
 }
 
 export const unmarshallAllocNamedColorReply: Unmarshaller<AllocNamedColorReply> = (buffer, offset=0) => {
-  const [ pixel, exactRed, exactGreen, exactBlue, visualRed, visualGreen, visualBlue ] = unpackFrom('<xx2x4xIHHHHHH', buffer, offset)
+  const [ responseType, pixel, exactRed, exactGreen, exactBlue, visualRed, visualGreen, visualBlue ] = unpackFrom('<Bx2x4xIHHHHHH', buffer, offset)
   offset += 24
 
   return {
     value: {
+      responseType,
       pixel,
       exactRed,
       exactGreen,
@@ -4158,6 +5044,7 @@ export const unmarshallAllocNamedColorReply: Unmarshaller<AllocNamedColorReply> 
 export type AllocColorCellsCookie = Promise<AllocColorCellsReply>
 
 export type AllocColorCellsReply = {
+  responseType: number
   pixelsLen: number
   masksLen: number
   pixels: Uint32Array
@@ -4165,7 +5052,7 @@ export type AllocColorCellsReply = {
 }
 
 export const unmarshallAllocColorCellsReply: Unmarshaller<AllocColorCellsReply> = (buffer, offset=0) => {
-  const [ pixelsLen, masksLen ] = unpackFrom('<xx2x4xHH20x', buffer, offset)
+  const [ responseType, pixelsLen, masksLen ] = unpackFrom('<Bx2x4xHH20x', buffer, offset)
   offset += 32
   const pixelsWithOffset = xcbSimpleList(buffer, offset, pixelsLen, Uint32Array, 4)
   offset = pixelsWithOffset.offset
@@ -4177,6 +5064,7 @@ export const unmarshallAllocColorCellsReply: Unmarshaller<AllocColorCellsReply> 
 
   return {
     value: {
+      responseType,
       pixelsLen,
       masksLen,
       pixels,
@@ -4189,6 +5077,7 @@ export const unmarshallAllocColorCellsReply: Unmarshaller<AllocColorCellsReply> 
 export type AllocColorPlanesCookie = Promise<AllocColorPlanesReply>
 
 export type AllocColorPlanesReply = {
+  responseType: number
   pixelsLen: number
   redMask: number
   greenMask: number
@@ -4197,7 +5086,7 @@ export type AllocColorPlanesReply = {
 }
 
 export const unmarshallAllocColorPlanesReply: Unmarshaller<AllocColorPlanesReply> = (buffer, offset=0) => {
-  const [ pixelsLen, redMask, greenMask, blueMask ] = unpackFrom('<xx2x4xH2xIII8x', buffer, offset)
+  const [ responseType, pixelsLen, redMask, greenMask, blueMask ] = unpackFrom('<Bx2x4xH2xIII8x', buffer, offset)
   offset += 32
   const pixelsWithOffset = xcbSimpleList(buffer, offset, pixelsLen, Uint32Array, 4)
   offset = pixelsWithOffset.offset
@@ -4205,6 +5094,7 @@ export const unmarshallAllocColorPlanesReply: Unmarshaller<AllocColorPlanesReply
 
   return {
     value: {
+      responseType,
       pixelsLen,
       redMask,
       greenMask,
@@ -4244,6 +5134,15 @@ export const unmarshallCOLORITEM: Unmarshaller<COLORITEM> = (buffer, offset=0) =
     offset
   }
 }
+export const marshallCOLORITEM = (instance: COLORITEM): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { pixel, red, green, blue, flags } = instance
+    buffers.push(pack('<IHHHBx', pixel, red, green, blue, flags))
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type RGB  = {
   red: number
@@ -4264,16 +5163,26 @@ export const unmarshallRGB: Unmarshaller<RGB> = (buffer, offset=0) => {
     offset
   }
 }
+export const marshallRGB = (instance: RGB): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  {
+    const { red, green, blue } = instance
+    buffers.push(pack('<HHH2x', red, green, blue))
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type QueryColorsCookie = Promise<QueryColorsReply>
 
 export type QueryColorsReply = {
+  responseType: number
   colorsLen: number
   colors: RGB[]
 }
 
 export const unmarshallQueryColorsReply: Unmarshaller<QueryColorsReply> = (buffer, offset=0) => {
-  const [ colorsLen ] = unpackFrom('<xx2x4xH22x', buffer, offset)
+  const [ responseType, colorsLen ] = unpackFrom('<Bx2x4xH22x', buffer, offset)
   offset += 32
   const colorsWithOffset = xcbComplexList(buffer, offset, colorsLen, unmarshallRGB)
   offset = colorsWithOffset.offset
@@ -4281,6 +5190,7 @@ export const unmarshallQueryColorsReply: Unmarshaller<QueryColorsReply> = (buffe
 
   return {
     value: {
+      responseType,
       colorsLen,
       colors,
     },
@@ -4291,6 +5201,7 @@ export const unmarshallQueryColorsReply: Unmarshaller<QueryColorsReply> = (buffe
 export type LookupColorCookie = Promise<LookupColorReply>
 
 export type LookupColorReply = {
+  responseType: number
   exactRed: number
   exactGreen: number
   exactBlue: number
@@ -4300,11 +5211,12 @@ export type LookupColorReply = {
 }
 
 export const unmarshallLookupColorReply: Unmarshaller<LookupColorReply> = (buffer, offset=0) => {
-  const [ exactRed, exactGreen, exactBlue, visualRed, visualGreen, visualBlue ] = unpackFrom('<xx2x4xHHHHHH', buffer, offset)
+  const [ responseType, exactRed, exactGreen, exactBlue, visualRed, visualGreen, visualBlue ] = unpackFrom('<Bx2x4xHHHHHH', buffer, offset)
   offset += 20
 
   return {
     value: {
+      responseType,
       exactRed,
       exactGreen,
       exactBlue,
@@ -4333,16 +5245,18 @@ export const enum QueryShapeOf {
 export type QueryBestSizeCookie = Promise<QueryBestSizeReply>
 
 export type QueryBestSizeReply = {
+  responseType: number
   width: number
   height: number
 }
 
 export const unmarshallQueryBestSizeReply: Unmarshaller<QueryBestSizeReply> = (buffer, offset=0) => {
-  const [ width, height ] = unpackFrom('<xx2x4xHH', buffer, offset)
+  const [ responseType, width, height ] = unpackFrom('<Bx2x4xHH', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       width,
       height,
     },
@@ -4353,6 +5267,7 @@ export const unmarshallQueryBestSizeReply: Unmarshaller<QueryBestSizeReply> = (b
 export type QueryExtensionCookie = Promise<QueryExtensionReply>
 
 export type QueryExtensionReply = {
+  responseType: number
  /**
   * Whether the extension is present on this X11 server.
   */
@@ -4372,11 +5287,12 @@ export type QueryExtensionReply = {
 }
 
 export const unmarshallQueryExtensionReply: Unmarshaller<QueryExtensionReply> = (buffer, offset=0) => {
-  const [ present, majorOpcode, firstEvent, firstError ] = unpackFrom('<xx2x4xBBBB', buffer, offset)
+  const [ responseType, present, majorOpcode, firstEvent, firstError ] = unpackFrom('<Bx2x4xBBBB', buffer, offset)
   offset += 12
 
   return {
     value: {
+      responseType,
       present,
       majorOpcode,
       firstEvent,
@@ -4389,12 +5305,13 @@ export const unmarshallQueryExtensionReply: Unmarshaller<QueryExtensionReply> = 
 export type ListExtensionsCookie = Promise<ListExtensionsReply>
 
 export type ListExtensionsReply = {
+  responseType: number
   namesLen: number
   names: STR[]
 }
 
 export const unmarshallListExtensionsReply: Unmarshaller<ListExtensionsReply> = (buffer, offset=0) => {
-  const [ namesLen ] = unpackFrom('<xB2x4x24x', buffer, offset)
+  const [ responseType, namesLen ] = unpackFrom('<BB2x4x24x', buffer, offset)
   offset += 32
   const namesWithOffset = xcbComplexList(buffer, offset, namesLen, unmarshallSTR)
   offset = namesWithOffset.offset
@@ -4402,6 +5319,7 @@ export const unmarshallListExtensionsReply: Unmarshaller<ListExtensionsReply> = 
 
   return {
     value: {
+      responseType,
       namesLen,
       names,
     },
@@ -4412,12 +5330,13 @@ export const unmarshallListExtensionsReply: Unmarshaller<ListExtensionsReply> = 
 export type GetKeyboardMappingCookie = Promise<GetKeyboardMappingReply>
 
 export type GetKeyboardMappingReply = {
+  responseType: number
   keysymsPerKeycode: number
   keysyms: Uint32Array
 }
 
 export const unmarshallGetKeyboardMappingReply: Unmarshaller<GetKeyboardMappingReply> = (buffer, offset=0) => {
-  const [ keysymsPerKeycode ] = unpackFrom('<xB2x4x24x', buffer, offset)
+  const [ responseType, keysymsPerKeycode ] = unpackFrom('<BB2x4x24x', buffer, offset)
   offset += 32
   const keysymsWithOffset = xcbSimpleList(buffer, offset, length, Uint32Array, 4)
   offset = keysymsWithOffset.offset
@@ -4425,6 +5344,7 @@ export const unmarshallGetKeyboardMappingReply: Unmarshaller<GetKeyboardMappingR
 
   return {
     value: {
+      responseType,
       keysymsPerKeycode,
       keysyms,
     },
@@ -4457,6 +5377,7 @@ export const enum AutoRepeatMode {
 export type GetKeyboardControlCookie = Promise<GetKeyboardControlReply>
 
 export type GetKeyboardControlReply = {
+  responseType: number
   globalAutoRepeat: AutoRepeatMode
   ledMask: number
   keyClickPercent: number
@@ -4467,7 +5388,7 @@ export type GetKeyboardControlReply = {
 }
 
 export const unmarshallGetKeyboardControlReply: Unmarshaller<GetKeyboardControlReply> = (buffer, offset=0) => {
-  const [ globalAutoRepeat, ledMask, keyClickPercent, bellPercent, bellPitch, bellDuration ] = unpackFrom('<xB2x4xIBBHH2x', buffer, offset)
+  const [ responseType, globalAutoRepeat, ledMask, keyClickPercent, bellPercent, bellPitch, bellDuration ] = unpackFrom('<BB2x4xIBBHH2x', buffer, offset)
   offset += 20
   const autoRepeatsWithOffset = xcbSimpleList(buffer, offset, 32, Uint8Array, 1)
   offset = autoRepeatsWithOffset.offset
@@ -4475,6 +5396,7 @@ export const unmarshallGetKeyboardControlReply: Unmarshaller<GetKeyboardControlR
 
   return {
     value: {
+      responseType,
       globalAutoRepeat,
       ledMask,
       keyClickPercent,
@@ -4490,17 +5412,19 @@ export const unmarshallGetKeyboardControlReply: Unmarshaller<GetKeyboardControlR
 export type GetPointerControlCookie = Promise<GetPointerControlReply>
 
 export type GetPointerControlReply = {
+  responseType: number
   accelerationNumerator: number
   accelerationDenominator: number
   threshold: number
 }
 
 export const unmarshallGetPointerControlReply: Unmarshaller<GetPointerControlReply> = (buffer, offset=0) => {
-  const [ accelerationNumerator, accelerationDenominator, threshold ] = unpackFrom('<xx2x4xHHH18x', buffer, offset)
+  const [ responseType, accelerationNumerator, accelerationDenominator, threshold ] = unpackFrom('<Bx2x4xHHH18x', buffer, offset)
   offset += 32
 
   return {
     value: {
+      responseType,
       accelerationNumerator,
       accelerationDenominator,
       threshold,
@@ -4524,6 +5448,7 @@ export const enum Exposures {
 export type GetScreenSaverCookie = Promise<GetScreenSaverReply>
 
 export type GetScreenSaverReply = {
+  responseType: number
   timeout: number
   interval: number
   preferBlanking: Blanking
@@ -4531,11 +5456,12 @@ export type GetScreenSaverReply = {
 }
 
 export const unmarshallGetScreenSaverReply: Unmarshaller<GetScreenSaverReply> = (buffer, offset=0) => {
-  const [ timeout, interval, preferBlanking, allowExposures ] = unpackFrom('<xx2x4xHHBB18x', buffer, offset)
+  const [ responseType, timeout, interval, preferBlanking, allowExposures ] = unpackFrom('<Bx2x4xHHBB18x', buffer, offset)
   offset += 32
 
   return {
     value: {
+      responseType,
       timeout,
       interval,
       preferBlanking,
@@ -4580,17 +5506,31 @@ export const unmarshallHOST: Unmarshaller<HOST> = (buffer, offset=0) => {
     offset
   }
 }
+export const marshallHOST = (instance: HOST): ArrayBuffer => {
+  let byteLength = 0
+  const buffers: ArrayBuffer[] = []
+  const { family, addressLen } = instance
+  buffers.push(pack('<BxH', family, addressLen))
+  byteLength += 4
+  {
+    const buffer = instance.address.buffer
+    buffers.push(buffer)
+    byteLength += buffer.byteLength
+  }
+  return concatArrayBuffers(buffers, byteLength)
+}
 
 export type ListHostsCookie = Promise<ListHostsReply>
 
 export type ListHostsReply = {
+  responseType: number
   mode: AccessControl
   hostsLen: number
   hosts: HOST[]
 }
 
 export const unmarshallListHostsReply: Unmarshaller<ListHostsReply> = (buffer, offset=0) => {
-  const [ mode, hostsLen ] = unpackFrom('<xB2x4xH22x', buffer, offset)
+  const [ responseType, mode, hostsLen ] = unpackFrom('<BB2x4xH22x', buffer, offset)
   offset += 32
   const hostsWithOffset = xcbComplexList(buffer, offset, hostsLen, unmarshallHOST)
   offset = hostsWithOffset.offset
@@ -4598,6 +5538,7 @@ export const unmarshallListHostsReply: Unmarshaller<ListHostsReply> = (buffer, o
 
   return {
     value: {
+      responseType,
       mode,
       hostsLen,
       hosts,
@@ -4635,15 +5576,17 @@ export const enum MappingStatus {
 export type SetPointerMappingCookie = Promise<SetPointerMappingReply>
 
 export type SetPointerMappingReply = {
+  responseType: number
   status: MappingStatus
 }
 
 export const unmarshallSetPointerMappingReply: Unmarshaller<SetPointerMappingReply> = (buffer, offset=0) => {
-  const [ status ] = unpackFrom('<xB2x4x', buffer, offset)
+  const [ responseType, status ] = unpackFrom('<BB2x4x', buffer, offset)
   offset += 8
 
   return {
     value: {
+      responseType,
       status,
     },
     offset
@@ -4653,12 +5596,13 @@ export const unmarshallSetPointerMappingReply: Unmarshaller<SetPointerMappingRep
 export type GetPointerMappingCookie = Promise<GetPointerMappingReply>
 
 export type GetPointerMappingReply = {
+  responseType: number
   mapLen: number
   map: Uint8Array
 }
 
 export const unmarshallGetPointerMappingReply: Unmarshaller<GetPointerMappingReply> = (buffer, offset=0) => {
-  const [ mapLen ] = unpackFrom('<xB2x4x24x', buffer, offset)
+  const [ responseType, mapLen ] = unpackFrom('<BB2x4x24x', buffer, offset)
   offset += 32
   const mapWithOffset = xcbSimpleList(buffer, offset, mapLen, Uint8Array, 1)
   offset = mapWithOffset.offset
@@ -4666,6 +5610,7 @@ export const unmarshallGetPointerMappingReply: Unmarshaller<GetPointerMappingRep
 
   return {
     value: {
+      responseType,
       mapLen,
       map,
     },
@@ -4687,15 +5632,17 @@ export const enum MapIndex {
 export type SetModifierMappingCookie = Promise<SetModifierMappingReply>
 
 export type SetModifierMappingReply = {
+  responseType: number
   status: MappingStatus
 }
 
 export const unmarshallSetModifierMappingReply: Unmarshaller<SetModifierMappingReply> = (buffer, offset=0) => {
-  const [ status ] = unpackFrom('<xB2x4x', buffer, offset)
+  const [ responseType, status ] = unpackFrom('<BB2x4x', buffer, offset)
   offset += 8
 
   return {
     value: {
+      responseType,
       status,
     },
     offset
@@ -4705,12 +5652,13 @@ export const unmarshallSetModifierMappingReply: Unmarshaller<SetModifierMappingR
 export type GetModifierMappingCookie = Promise<GetModifierMappingReply>
 
 export type GetModifierMappingReply = {
+  responseType: number
   keycodesPerModifier: number
   keycodes: Uint8Array
 }
 
 export const unmarshallGetModifierMappingReply: Unmarshaller<GetModifierMappingReply> = (buffer, offset=0) => {
-  const [ keycodesPerModifier ] = unpackFrom('<xB2x4x24x', buffer, offset)
+  const [ responseType, keycodesPerModifier ] = unpackFrom('<BB2x4x24x', buffer, offset)
   offset += 32
   const keycodesWithOffset = xcbSimpleList(buffer, offset, (keycodesPerModifier * 8), Uint8Array, 1)
   offset = keycodesWithOffset.offset
@@ -4718,6 +5666,7 @@ export const unmarshallGetModifierMappingReply: Unmarshaller<GetModifierMappingR
 
   return {
     value: {
+      responseType,
       keycodesPerModifier,
       keycodes,
     },
@@ -4730,20 +5679,20 @@ declare module './connection' {
   interface XConnection {
     /**
      * Creates a window
-     *  
+     *
      * Creates an unmapped window as child of the specified `parent` window. A
      * CreateNotify event will be generated. The new window is placed on top in the
      * stacking order with respect to siblings.
-     * 
+     *
      * The coordinate system has the X axis horizontal and the Y axis vertical with
      * the origin [0, 0] at the upper-left corner. Coordinates are integral, in terms
      * of pixels, and coincide with pixel centers. Each window and pixmap has its own
      * coordinate system. For a window, the origin is inside the border at the inside,
      * upper-left corner.
-     * 
+     *
      * The created window is not yet displayed (mapped), call `xcb_map_window` to
      * display it.
-     * 
+     *
      * The created window will initially use the same cursor as its parent.
      * @param wid The ID with which you will refer to the new window, created by
      * `xcb_generate_id`.
@@ -4753,7 +5702,7 @@ declare module './connection' {
      * @param visual Specifies the id for the new window's visual.
      *      * The special value `XCB_COPY_FROM_PARENT` means the visual is taken from the
      * `parent` window.
-     * @param class 
+     * @param class
      * @param parent The parent window of the new window.
      * @param border_width TODO:
      *      * Must be zero if the `class` is `InputOnly` or a `xcb_match_error_t` occurs.
@@ -4761,12 +5710,12 @@ declare module './connection' {
      * @param y The Y coordinate of the new window.
      * @param width The width of the new window.
      * @param height The height of the new window.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.mapWindow}  
-     *  
-     * {@link CreateNotifyEvent}  
+     *
+     * See also:
+     *
+     * {@link XConnection.mapWindow}
+     *
+     * {@link CreateNotifyEvent}
      */
     createWindow (depth: number, wid: WINDOW, parent: WINDOW, x: number, y: number, width: number, height: number, borderWidth: number, _class: WindowClass, visual: VISUALID, valueList: Partial<{ backgroundPixmap: PIXMAP, backgroundPixel: number, borderPixmap: PIXMAP, borderPixel: number, bitGravity: Gravity, winGravity: Gravity, backingStore: BackingStore, backingPlanes: number, backingPixel: number, overrideRedirect: BOOL32, saveUnder: BOOL32, eventMask: number, doNotPropogateMask: number, colormap: COLORMAP, cursor: CURSOR }>): RequestChecker
   }
@@ -4821,7 +5770,7 @@ XConnection.prototype.createWindow = function(depth: number, wid: WINDOW, parent
   requestParts.push(pack('<xB2xIIhhHHHHII', depth, wid, parent, x, y, width, height, borderWidth, _class, visual, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return this.sendVoidRequest(requestParts, 1, 0)
+  return this.sendVoidRequest(requestParts, 1, 0, 'createWindow')
 }
 
 
@@ -4829,10 +5778,10 @@ declare module './connection' {
   interface XConnection {
     /**
      * change window attributes
-     *  
+     *
      * Changes the attributes specified by `value_mask` for the specified `window`.
      * @param window The window to change.
-     * @param value_mask 
+     * @param value_mask
      * @param value_list Values for each of the attributes specified in the bitmask `value_mask`. The
      * order has to correspond to the order of possible `value_mask` bits. See the
      * example.
@@ -4890,7 +5839,7 @@ XConnection.prototype.changeWindowAttributes = function(window: WINDOW, valueLis
   requestParts.push(pack('<xx2xII', window, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return this.sendVoidRequest(requestParts, 2, 0)
+  return this.sendVoidRequest(requestParts, 2, 0, 'changeWindowAttributes')
 }
 
 
@@ -4898,7 +5847,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * Gets window attributes
-     *  
+     *
      * Gets the current attributes for the specified `window`.
      * @param window The window to get the attributes from.
      */
@@ -4911,7 +5860,7 @@ XConnection.prototype.getWindowAttributes = function(window: WINDOW): GetWindowA
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendRequest<GetWindowAttributesReply>(requestParts, 3, unmarshallGetWindowAttributesReply, 0)
+  return this.sendRequest<GetWindowAttributesReply>(requestParts, 3, unmarshallGetWindowAttributesReply, 0, 'getWindowAttributes')
 }
 
 
@@ -4919,22 +5868,22 @@ declare module './connection' {
   interface XConnection {
     /**
      * Destroys a window
-     *  
+     *
      * Destroys the specified window and all of its subwindows. A DestroyNotify event
      * is generated for each destroyed window (a DestroyNotify event is first generated
      * for any given window's inferiors). If the window was mapped, it will be
      * automatically unmapped before destroying.
-     * 
+     *
      * Calling DestroyWindow on the root window will do nothing.
      * @param window The window to destroy.
-     *  
-     * See also:  
-     *  
-     * {@link DestroyNotifyEvent}  
-     *  
-     * {@link XConnection.mapWindow}  
-     *  
-     * {@link XConnection.unmapWindow}  
+     *
+     * See also:
+     *
+     * {@link DestroyNotifyEvent}
+     *
+     * {@link XConnection.mapWindow}
+     *
+     * {@link XConnection.unmapWindow}
      */
     destroyWindow (window: WINDOW): RequestChecker
   }
@@ -4945,7 +5894,7 @@ XConnection.prototype.destroyWindow = function(window: WINDOW): RequestChecker {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendVoidRequest(requestParts, 4, 0)
+  return this.sendVoidRequest(requestParts, 4, 0, 'destroyWindow')
 }
 
 
@@ -4960,7 +5909,7 @@ XConnection.prototype.destroySubwindows = function(window: WINDOW): RequestCheck
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendVoidRequest(requestParts, 5, 0)
+  return this.sendVoidRequest(requestParts, 5, 0, 'destroySubwindows')
 }
 
 
@@ -4968,17 +5917,17 @@ declare module './connection' {
   interface XConnection {
     /**
      * Changes a client's save set
-     *  
+     *
      * TODO: explain what the save set is for.
-     * 
+     *
      * This function either adds or removes the specified window to the client's (your
      * application's) save set.
      * @param mode Insert to add the specified window to the save set or Delete to delete it from the save set.
      * @param window The window to add or delete to/from your save set.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.reparentWindow}  
+     *
+     * See also:
+     *
+     * {@link XConnection.reparentWindow}
      */
     changeSaveSet (mode: SetMode, window: WINDOW): RequestChecker
   }
@@ -4989,7 +5938,7 @@ XConnection.prototype.changeSaveSet = function(mode: SetMode, window: WINDOW): R
 
   requestParts.push(pack('<xB2xI', mode, window))
 
-  return this.sendVoidRequest(requestParts, 6, 0)
+  return this.sendVoidRequest(requestParts, 6, 0, 'changeSaveSet')
 }
 
 
@@ -4997,25 +5946,25 @@ declare module './connection' {
   interface XConnection {
     /**
      * Reparents a window
-     *  
+     *
      * Makes the specified window a child of the specified parent window. If the
      * window is mapped, it will automatically be unmapped before reparenting and
      * re-mapped after reparenting. The window is placed in the stacking order on top
      * with respect to sibling windows.
-     * 
+     *
      * After reparenting, a ReparentNotify event is generated.
      * @param window The window to reparent.
      * @param parent The new parent of the window.
      * @param x The X position of the window within its new parent.
      * @param y The Y position of the window within its new parent.
-     *  
-     * See also:  
-     *  
-     * {@link ReparentNotifyEvent}  
-     *  
-     * {@link XConnection.mapWindow}  
-     *  
-     * {@link XConnection.unmapWindow}  
+     *
+     * See also:
+     *
+     * {@link ReparentNotifyEvent}
+     *
+     * {@link XConnection.mapWindow}
+     *
+     * {@link XConnection.unmapWindow}
      */
     reparentWindow (window: WINDOW, parent: WINDOW, x: number, y: number): RequestChecker
   }
@@ -5026,7 +5975,7 @@ XConnection.prototype.reparentWindow = function(window: WINDOW, parent: WINDOW, 
 
   requestParts.push(pack('<xx2xIIhh', window, parent, x, y))
 
-  return this.sendVoidRequest(requestParts, 7, 0)
+  return this.sendVoidRequest(requestParts, 7, 0, 'reparentWindow')
 }
 
 
@@ -5034,35 +5983,35 @@ declare module './connection' {
   interface XConnection {
     /**
      * Makes a window visible
-     *  
+     *
      * Maps the specified window. This means making the window visible (as long as its
      * parent is visible).
-     * 
+     *
      * This MapWindow request will be translated to a MapRequest request if a window
      * manager is running. The window manager then decides to either map the window or
      * not. Set the override-redirect window attribute to true if you want to bypass
      * this mechanism.
-     * 
+     *
      * If the window manager decides to map the window (or if no window manager is
      * running), a MapNotify event is generated.
-     * 
+     *
      * If the window becomes viewable and no earlier contents for it are remembered,
      * the X server tiles the window with its background. If the window's background
      * is undefined, the existing screen contents are not altered, and the X server
      * generates zero or more Expose events.
-     * 
+     *
      * If the window type is InputOutput, an Expose event will be generated when the
      * window becomes visible. The normal response to an Expose event should be to
      * repaint the window.
      * @param window The window to make visible.
-     *  
-     * See also:  
-     *  
-     * {@link MapNotifyEvent}  
-     *  
-     * {@link ExposeEvent}  
-     *  
-     * {@link XConnection.unmapWindow}  
+     *
+     * See also:
+     *
+     * {@link MapNotifyEvent}
+     *
+     * {@link ExposeEvent}
+     *
+     * {@link XConnection.unmapWindow}
      */
     mapWindow (window: WINDOW): RequestChecker
   }
@@ -5073,7 +6022,7 @@ XConnection.prototype.mapWindow = function(window: WINDOW): RequestChecker {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendVoidRequest(requestParts, 8, 0)
+  return this.sendVoidRequest(requestParts, 8, 0, 'mapWindow')
 }
 
 
@@ -5088,7 +6037,7 @@ XConnection.prototype.mapSubwindows = function(window: WINDOW): RequestChecker {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendVoidRequest(requestParts, 9, 0)
+  return this.sendVoidRequest(requestParts, 9, 0, 'mapSubwindows')
 }
 
 
@@ -5096,21 +6045,21 @@ declare module './connection' {
   interface XConnection {
     /**
      * Makes a window invisible
-     *  
+     *
      * Unmaps the specified window. This means making the window invisible (and all
      * its child windows).
-     * 
+     *
      * Unmapping a window leads to the `UnmapNotify` event being generated. Also,
      * `Expose` events are generated for formerly obscured windows.
      * @param window The window to make invisible.
-     *  
-     * See also:  
-     *  
-     * {@link UnmapNotifyEvent}  
-     *  
-     * {@link ExposeEvent}  
-     *  
-     * {@link XConnection.mapWindow}  
+     *
+     * See also:
+     *
+     * {@link UnmapNotifyEvent}
+     *
+     * {@link ExposeEvent}
+     *
+     * {@link XConnection.mapWindow}
      */
     unmapWindow (window: WINDOW): RequestChecker
   }
@@ -5121,7 +6070,7 @@ XConnection.prototype.unmapWindow = function(window: WINDOW): RequestChecker {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendVoidRequest(requestParts, 10, 0)
+  return this.sendVoidRequest(requestParts, 10, 0, 'unmapWindow')
 }
 
 
@@ -5136,7 +6085,7 @@ XConnection.prototype.unmapSubwindows = function(window: WINDOW): RequestChecker
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendVoidRequest(requestParts, 11, 0)
+  return this.sendVoidRequest(requestParts, 11, 0, 'unmapSubwindows')
 }
 
 
@@ -5144,18 +6093,18 @@ declare module './connection' {
   interface XConnection {
     /**
      * Configures window attributes
-     *  
+     *
      * Configures a window's size, position, border width and stacking order.
      * @param window The window to configure.
      * @param value_mask Bitmask of attributes to change.
      * @param value_list New values, corresponding to the attributes in value_mask. The order has to
      * correspond to the order of possible `value_mask` bits. See the example.
-     *  
-     * See also:  
-     *  
-     * {@link MapNotifyEvent}  
-     *  
-     * {@link ExposeEvent}  
+     *
+     * See also:
+     *
+     * {@link MapNotifyEvent}
+     *
+     * {@link ExposeEvent}
      */
     configureWindow (window: WINDOW, valueList: Partial<{ x: number, y: number, width: number, height: number, borderWidth: number, sibling: WINDOW, stackMode: StackMode }>): RequestChecker
   }
@@ -5194,7 +6143,7 @@ XConnection.prototype.configureWindow = function(window: WINDOW, valueList: Part
   requestParts.push(pack('<xx2xIH2x', window, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return this.sendVoidRequest(requestParts, 12, 0)
+  return this.sendVoidRequest(requestParts, 12, 0, 'configureWindow')
 }
 
 
@@ -5202,13 +6151,13 @@ declare module './connection' {
   interface XConnection {
     /**
      * Change window stacking order
-     *  
+     *
      * If `direction` is `XCB_CIRCULATE_RAISE_LOWEST`, the lowest mapped child (if
      * any) will be raised to the top of the stack.
-     * 
+     *
      * If `direction` is `XCB_CIRCULATE_LOWER_HIGHEST`, the highest mapped child will
      * be lowered to the bottom of the stack.
-     * @param direction 
+     * @param direction
      * @param window The window to raise/lower (depending on `direction`).
      */
     circulateWindow (direction: Circulate, window: WINDOW): RequestChecker
@@ -5220,7 +6169,7 @@ XConnection.prototype.circulateWindow = function(direction: Circulate, window: W
 
   requestParts.push(pack('<xB2xI', direction, window))
 
-  return this.sendVoidRequest(requestParts, 13, 0)
+  return this.sendVoidRequest(requestParts, 13, 0, 'circulateWindow')
 }
 
 
@@ -5228,11 +6177,11 @@ declare module './connection' {
   interface XConnection {
     /**
      * Get current window geometry
-     *  
+     *
      * Gets the current geometry of the specified drawable (either `Window` or `Pixmap`).
      * @param drawable The drawable (`Window` or `Pixmap`) of which the geometry will be received.
-     *  
-     * See also:  
+     *
+     * See also:
      */
     getGeometry (drawable: DRAWABLE): GetGeometryCookie
   }
@@ -5243,7 +6192,7 @@ XConnection.prototype.getGeometry = function(drawable: DRAWABLE): GetGeometryCoo
 
   requestParts.push(pack('<xx2xI', drawable))
 
-  return this.sendRequest<GetGeometryReply>(requestParts, 14, unmarshallGetGeometryReply, 0)
+  return this.sendRequest<GetGeometryReply>(requestParts, 14, unmarshallGetGeometryReply, 0, 'getGeometry')
 }
 
 
@@ -5251,12 +6200,12 @@ declare module './connection' {
   interface XConnection {
     /**
      * query the window tree
-     *  
+     *
      * Gets the root window ID, parent window ID and list of children windows for the
      * specified `window`. The children are listed in bottom-to-top stacking order.
      * @param window The `window` to query.
-     *  
-     * See also:  
+     *
+     * See also:
      */
     queryTree (window: WINDOW): QueryTreeCookie
   }
@@ -5267,7 +6216,7 @@ XConnection.prototype.queryTree = function(window: WINDOW): QueryTreeCookie {
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendRequest<QueryTreeReply>(requestParts, 15, unmarshallQueryTreeReply, 0)
+  return this.sendRequest<QueryTreeReply>(requestParts, 15, unmarshallQueryTreeReply, 0, 'queryTree')
 }
 
 
@@ -5275,21 +6224,21 @@ declare module './connection' {
   interface XConnection {
     /**
      * Get atom identifier by name
-     *  
+     *
      * Retrieves the identifier (xcb_atom_t TODO) for the atom with the specified
      * name. Atoms are used in protocols like EWMH, for example to store window titles
      * (`_NET_WM_NAME` atom) as property of a window.
-     * 
+     *
      * If `only_if_exists` is 0, the atom will be created if it does not already exist.
      * If `only_if_exists` is 1, `XCB_ATOM_NONE` will be returned if the atom does
      * not yet exist.
      * @param name_len The length of the following `name`.
      * @param name The name of the atom.
      * @param only_if_exists Return a valid atom id only if the atom already exists.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.getAtomName}  
+     *
+     * See also:
+     *
+     * {@link XConnection.getAtomName}
      */
     internAtom (onlyIfExists: number, name: Int8Array): InternAtomCookie
   }
@@ -5302,7 +6251,7 @@ XConnection.prototype.internAtom = function(onlyIfExists: number, name: Int8Arra
   requestParts.push(pack('<xB2xH2x', onlyIfExists, nameLen))
   requestParts.push(pad(name.buffer))
 
-  return this.sendRequest<InternAtomReply>(requestParts, 16, unmarshallInternAtomReply, 0)
+  return this.sendRequest<InternAtomReply>(requestParts, 16, unmarshallInternAtomReply, 0, 'internAtom')
 }
 
 
@@ -5317,7 +6266,7 @@ XConnection.prototype.getAtomName = function(atom: ATOM): GetAtomNameCookie {
 
   requestParts.push(pack('<xx2xI', atom))
 
-  return this.sendRequest<GetAtomNameReply>(requestParts, 17, unmarshallGetAtomNameReply, 0)
+  return this.sendRequest<GetAtomNameReply>(requestParts, 17, unmarshallGetAtomNameReply, 0, 'getAtomName')
 }
 
 
@@ -5325,13 +6274,13 @@ declare module './connection' {
   interface XConnection {
     /**
      * Changes a window property
-     *  
+     *
      * Sets or updates a property on the specified `window`. Properties are for
      * example the window title (`WM_NAME`) or its minimum size (`WM_NORMAL_HINTS`).
      * Protocols such as EWMH also use properties - for example EWMH defines the
      * window title, encoded as UTF-8 string, in the `_NET_WM_NAME` property.
      * @param window The window whose property you want to change.
-     * @param mode 
+     * @param mode
      * @param property The property you want to change (an atom).
      * @param type The type of the property you want to change (an atom).
      * @param format Specifies whether the data should be viewed as a list of 8-bit, 16-bit or
@@ -5339,10 +6288,10 @@ declare module './connection' {
      * the X server to correctly perform byte-swap operations as necessary.
      * @param data_len Specifies the number of elements (see `format`).
      * @param data The property data.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.internAtom}  
+     *
+     * See also:
+     *
+     * {@link XConnection.internAtom}
      */
     changeProperty (mode: PropMode, window: WINDOW, property: ATOM, _type: ATOM, format: number, data: TypedArray): RequestChecker
   }
@@ -5355,7 +6304,7 @@ XConnection.prototype.changeProperty = function(mode: PropMode, window: WINDOW, 
   requestParts.push(pack('<xB2xIIIB3xI', mode, window, property, _type, format, dataLen))
   requestParts.push(pad(data.buffer))
 
-  return this.sendVoidRequest(requestParts, 18, 0)
+  return this.sendVoidRequest(requestParts, 18, 0, 'changeProperty')
 }
 
 
@@ -5370,7 +6319,7 @@ XConnection.prototype.deleteProperty = function(window: WINDOW, property: ATOM):
 
   requestParts.push(pack('<xx2xII', window, property))
 
-  return this.sendVoidRequest(requestParts, 19, 0)
+  return this.sendVoidRequest(requestParts, 19, 0, 'deleteProperty')
 }
 
 
@@ -5378,16 +6327,16 @@ declare module './connection' {
   interface XConnection {
     /**
      * Gets a window property
-     *  
+     *
      * Gets the specified `property` from the specified `window`. Properties are for
      * example the window title (`WM_NAME`) or its minimum size (`WM_NORMAL_HINTS`).
      * Protocols such as EWMH also use properties - for example EWMH defines the
      * window title, encoded as UTF-8 string, in the `_NET_WM_NAME` property.
-     * 
+     *
      * TODO: talk about `type`
-     * 
+     *
      * TODO: talk about `delete`
-     * 
+     *
      * TODO: talk about the offset/length thing. what's a valid use case?
      * @param window The window whose property you want to get.
      * @param delete Whether the property should actually be deleted. For deleting a property, the
@@ -5398,10 +6347,10 @@ declare module './connection' {
      * data is to be retrieved.
      * @param long_length Specifies how many 32-bit multiples of data should be retrieved (e.g. if you
      * set `long_length` to 4, you will receive 16 bytes of data).
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.internAtom}  
+     *
+     * See also:
+     *
+     * {@link XConnection.internAtom}
      */
     getProperty (_delete: number, window: WINDOW, property: ATOM, _type: ATOM, longOffset: number, longLength: number): GetPropertyCookie
   }
@@ -5412,7 +6361,7 @@ XConnection.prototype.getProperty = function(_delete: number, window: WINDOW, pr
 
   requestParts.push(pack('<xB2xIIIII', _delete, window, property, _type, longOffset, longLength))
 
-  return this.sendRequest<GetPropertyReply>(requestParts, 20, unmarshallGetPropertyReply, 0)
+  return this.sendRequest<GetPropertyReply>(requestParts, 20, unmarshallGetPropertyReply, 0, 'getProperty')
 }
 
 
@@ -5427,7 +6376,7 @@ XConnection.prototype.listProperties = function(window: WINDOW): ListPropertiesC
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendRequest<ListPropertiesReply>(requestParts, 21, unmarshallListPropertiesReply, 0)
+  return this.sendRequest<ListPropertiesReply>(requestParts, 21, unmarshallListPropertiesReply, 0, 'listProperties')
 }
 
 
@@ -5435,10 +6384,10 @@ declare module './connection' {
   interface XConnection {
     /**
      * Sets the owner of a selection
-     *  
+     *
      * Makes `window` the owner of the selection `selection` and updates the
      * last-change time of the specified selection.
-     * 
+     *
      * TODO: briefly explain what a selection is.
      * @param selection The selection.
      * @param owner The new owner of the selection.
@@ -5449,10 +6398,10 @@ declare module './connection' {
      * Otherwise, the last-change time is set to the specified time.
      *      * The special value `XCB_CURRENT_TIME` will be replaced with the current server
      * time.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.setSelectionOwner}  
+     *
+     * See also:
+     *
+     * {@link XConnection.setSelectionOwner}
      */
     setSelectionOwner (owner: WINDOW, selection: ATOM, time: TIMESTAMP): RequestChecker
   }
@@ -5463,7 +6412,7 @@ XConnection.prototype.setSelectionOwner = function(owner: WINDOW, selection: ATO
 
   requestParts.push(pack('<xx2xIII', owner, selection, time))
 
-  return this.sendVoidRequest(requestParts, 22, 0)
+  return this.sendVoidRequest(requestParts, 22, 0, 'setSelectionOwner')
 }
 
 
@@ -5471,15 +6420,15 @@ declare module './connection' {
   interface XConnection {
     /**
      * Gets the owner of a selection
-     *  
+     *
      * Gets the owner of the specified selection.
-     * 
+     *
      * TODO: briefly explain what a selection is.
      * @param selection The selection.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.setSelectionOwner}  
+     *
+     * See also:
+     *
+     * {@link XConnection.setSelectionOwner}
      */
     getSelectionOwner (selection: ATOM): GetSelectionOwnerCookie
   }
@@ -5490,7 +6439,7 @@ XConnection.prototype.getSelectionOwner = function(selection: ATOM): GetSelectio
 
   requestParts.push(pack('<xx2xI', selection))
 
-  return this.sendRequest<GetSelectionOwnerReply>(requestParts, 23, unmarshallGetSelectionOwnerReply, 0)
+  return this.sendRequest<GetSelectionOwnerReply>(requestParts, 23, unmarshallGetSelectionOwnerReply, 0, 'getSelectionOwner')
 }
 
 
@@ -5505,7 +6454,7 @@ XConnection.prototype.convertSelection = function(requestor: WINDOW, selection: 
 
   requestParts.push(pack('<xx2xIIIII', requestor, selection, target, property, time))
 
-  return this.sendVoidRequest(requestParts, 24, 0)
+  return this.sendVoidRequest(requestParts, 24, 0, 'convertSelection')
 }
 
 
@@ -5513,10 +6462,10 @@ declare module './connection' {
   interface XConnection {
     /**
      * send an event
-     *  
+     *
      * Identifies the `destination` window, determines which clients should receive
      * the specified event and ignores any active grabs.
-     * 
+     *
      * The `event` must be one of the core events or an event defined by an extension,
      * so that the X server can correctly byte-swap the contents as necessary. The
      * contents of `event` are otherwise unaltered and unchecked except for the
@@ -5538,10 +6487,10 @@ declare module './connection' {
      * to any clients. Otherwise, the event is reported to every client selecting on
      * the final destination any of the types specified in `event_mask`.
      * @param event The event to send to the specified `destination`.
-     *  
-     * See also:  
-     *  
-     * {@link ConfigureNotifyEvent}  
+     *
+     * See also:
+     *
+     * {@link ConfigureNotifyEvent}
      */
     sendEvent (propagate: number, destination: WINDOW, eventMask: number, event: Int8Array): RequestChecker
   }
@@ -5553,7 +6502,7 @@ XConnection.prototype.sendEvent = function(propagate: number, destination: WINDO
   requestParts.push(pack('<xB2xII', propagate, destination, eventMask))
   requestParts.push(pad(event.buffer))
 
-  return this.sendVoidRequest(requestParts, 25, 0)
+  return this.sendVoidRequest(requestParts, 25, 0, 'sendEvent')
 }
 
 
@@ -5561,7 +6510,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * Grab the pointer
-     *  
+     *
      * Actively grabs control of the pointer. Further pointer events are reported only to the grabbing client. Overrides any active pointer grab by this client.
      * @param event_mask Specifies which pointer events are reported to the client.
      *      * TODO: which values?
@@ -5583,12 +6532,12 @@ declare module './connection' {
      * was processed.
      *      * The special value `XCB_CURRENT_TIME` will be replaced with the current server
      * time.
-     * @param pointer_mode 
-     * @param keyboard_mode 
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.grabKeyboard}  
+     * @param pointer_mode
+     * @param keyboard_mode
+     *
+     * See also:
+     *
+     * {@link XConnection.grabKeyboard}
      */
     grabPointer (ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, time: TIMESTAMP): GrabPointerCookie
   }
@@ -5599,7 +6548,7 @@ XConnection.prototype.grabPointer = function(ownerEvents: number, grabWindow: WI
 
   requestParts.push(pack('<xB2xIHBBIII', ownerEvents, grabWindow, eventMask, pointerMode, keyboardMode, confineTo, cursor, time))
 
-  return this.sendRequest<GrabPointerReply>(requestParts, 26, unmarshallGrabPointerReply, 0)
+  return this.sendRequest<GrabPointerReply>(requestParts, 26, unmarshallGrabPointerReply, 0, 'grabPointer')
 }
 
 
@@ -5607,27 +6556,27 @@ declare module './connection' {
   interface XConnection {
     /**
      * release the pointer
-     *  
+     *
      * Releases the pointer and any queued events if you actively grabbed the pointer
      * before using `xcb_grab_pointer`, `xcb_grab_button` or within a normal button
      * press.
-     * 
+     *
      * EnterNotify and LeaveNotify events are generated.
      * @param time Timestamp to avoid race conditions when running X over the network.
      *      * The pointer will not be released if `time` is earlier than the
      * last-pointer-grab time or later than the current X server time.
      * @param name_len Length (in bytes) of `name`.
      * @param name A pattern describing an X core font.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.grabPointer}  
-     *  
-     * {@link XConnection.grabButton}  
-     *  
-     * {@link EnterNotifyEvent}  
-     *  
-     * {@link LeaveNotifyEvent}  
+     *
+     * See also:
+     *
+     * {@link XConnection.grabPointer}
+     *
+     * {@link XConnection.grabButton}
+     *
+     * {@link EnterNotifyEvent}
+     *
+     * {@link LeaveNotifyEvent}
      */
     ungrabPointer (time: TIMESTAMP): RequestChecker
   }
@@ -5638,7 +6587,7 @@ XConnection.prototype.ungrabPointer = function(time: TIMESTAMP): RequestChecker 
 
   requestParts.push(pack('<xx2xI', time))
 
-  return this.sendVoidRequest(requestParts, 27, 0)
+  return this.sendVoidRequest(requestParts, 27, 0, 'ungrabPointer')
 }
 
 
@@ -5646,23 +6595,23 @@ declare module './connection' {
   interface XConnection {
     /**
      * Grab pointer button(s)
-     *  
+     *
      * This request establishes a passive grab. The pointer is actively grabbed as
      * described in GrabPointer, the last-pointer-grab time is set to the time at
      * which the button was pressed (as transmitted in the ButtonPress event), and the
      * ButtonPress event is reported if all of the following conditions are true:
-     * 
+     *
      * The pointer is not grabbed and the specified button is logically pressed when
      * the specified modifier keys are logically down, and no other buttons or
      * modifier keys are logically down.
-     * 
+     *
      * The grab-window contains the pointer.
-     * 
+     *
      * The confine-to window (if any) is viewable.
-     * 
+     *
      * A passive grab on the same button/key combination does not exist on any
      * ancestor of grab-window.
-     * 
+     *
      * The interpretation of the remaining arguments is the same as for GrabPointer.
      * The active grab is terminated automatically when the logical state of the
      * pointer has all buttons released, independent of the logical state of modifier
@@ -5676,7 +6625,7 @@ declare module './connection' {
      * equivalent to issuing the request for all possible buttons. Otherwise, it is
      * not required that the button specified currently be assigned to a physical
      * button.
-     * 
+     *
      * An Access error is generated if some other client has already issued a
      * GrabButton request with the same button/key combination on the same window.
      * When using AnyModifier or AnyButton, the request fails completely (no grabs are
@@ -5695,9 +6644,9 @@ declare module './connection' {
      * @param modifiers The modifiers to grab.
      *      * Using the special value `XCB_MOD_MASK_ANY` means grab the pointer with all
      * possible modifier combinations.
-     * @param pointer_mode 
-     * @param keyboard_mode 
-     * @param button 
+     * @param pointer_mode
+     * @param keyboard_mode
+     * @param button
      */
     grabButton (ownerEvents: number, grabWindow: WINDOW, eventMask: number, pointerMode: GrabMode, keyboardMode: GrabMode, confineTo: WINDOW, cursor: CURSOR, button: ButtonIndex, modifiers: number): RequestChecker
   }
@@ -5708,7 +6657,7 @@ XConnection.prototype.grabButton = function(ownerEvents: number, grabWindow: WIN
 
   requestParts.push(pack('<xB2xIHBBIIBxH', ownerEvents, grabWindow, eventMask, pointerMode, keyboardMode, confineTo, cursor, button, modifiers))
 
-  return this.sendVoidRequest(requestParts, 28, 0)
+  return this.sendVoidRequest(requestParts, 28, 0, 'grabButton')
 }
 
 
@@ -5723,7 +6672,7 @@ XConnection.prototype.ungrabButton = function(button: ButtonIndex, grabWindow: W
 
   requestParts.push(pack('<xB2xIH2x', button, grabWindow, modifiers))
 
-  return this.sendVoidRequest(requestParts, 29, 0)
+  return this.sendVoidRequest(requestParts, 29, 0, 'ungrabButton')
 }
 
 
@@ -5738,7 +6687,7 @@ XConnection.prototype.changeActivePointerGrab = function(cursor: CURSOR, time: T
 
   requestParts.push(pack('<xx2xIIH2x', cursor, time, eventMask))
 
-  return this.sendVoidRequest(requestParts, 30, 0)
+  return this.sendVoidRequest(requestParts, 30, 0, 'changeActivePointerGrab')
 }
 
 
@@ -5746,10 +6695,10 @@ declare module './connection' {
   interface XConnection {
     /**
      * Grab the keyboard
-     *  
+     *
      * Actively grabs control of the keyboard and generates FocusIn and FocusOut
      * events. Further key events are reported only to the grabbing client.
-     * 
+     *
      * Any active keyboard grab by this client is overridden. If the keyboard is
      * actively grabbed by some other client, `AlreadyGrabbed` is returned. If
      * `grab_window` is not viewable, `GrabNotViewable` is returned. If the keyboard
@@ -5763,12 +6712,12 @@ declare module './connection' {
      * @param time Timestamp to avoid race conditions when running X over the network.
      *      * The special value `XCB_CURRENT_TIME` will be replaced with the current server
      * time.
-     * @param pointer_mode 
-     * @param keyboard_mode 
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.grabPointer}  
+     * @param pointer_mode
+     * @param keyboard_mode
+     *
+     * See also:
+     *
+     * {@link XConnection.grabPointer}
      */
     grabKeyboard (ownerEvents: number, grabWindow: WINDOW, time: TIMESTAMP, pointerMode: GrabMode, keyboardMode: GrabMode): GrabKeyboardCookie
   }
@@ -5779,7 +6728,7 @@ XConnection.prototype.grabKeyboard = function(ownerEvents: number, grabWindow: W
 
   requestParts.push(pack('<xB2xIIBB2x', ownerEvents, grabWindow, time, pointerMode, keyboardMode))
 
-  return this.sendRequest<GrabKeyboardReply>(requestParts, 31, unmarshallGrabKeyboardReply, 0)
+  return this.sendRequest<GrabKeyboardReply>(requestParts, 31, unmarshallGrabKeyboardReply, 0, 'grabKeyboard')
 }
 
 
@@ -5794,7 +6743,7 @@ XConnection.prototype.ungrabKeyboard = function(time: TIMESTAMP): RequestChecker
 
   requestParts.push(pack('<xx2xI', time))
 
-  return this.sendVoidRequest(requestParts, 32, 0)
+  return this.sendVoidRequest(requestParts, 32, 0, 'ungrabKeyboard')
 }
 
 
@@ -5802,34 +6751,34 @@ declare module './connection' {
   interface XConnection {
     /**
      * Grab keyboard key(s)
-     *  
+     *
      * Establishes a passive grab on the keyboard. In the future, the keyboard is
      * actively grabbed (as for `GrabKeyboard`), the last-keyboard-grab time is set to
      * the time at which the key was pressed (as transmitted in the KeyPress event),
      * and the KeyPress event is reported if all of the following conditions are true:
-     * 
+     *
      * The keyboard is not grabbed and the specified key (which can itself be a
      * modifier key) is logically pressed when the specified modifier keys are
      * logically down, and no other modifier keys are logically down.
-     * 
+     *
      * Either the grab_window is an ancestor of (or is) the focus window, or the
      * grab_window is a descendant of the focus window and contains the pointer.
-     * 
+     *
      * A passive grab on the same key combination does not exist on any ancestor of
      * grab_window.
-     * 
+     *
      * The interpretation of the remaining arguments is as for XGrabKeyboard.  The active grab is terminated
      * automatically when the logical state of the keyboard has the specified key released (independent of the
      * logical state of the modifier keys), at which point a KeyRelease event is reported to the grabbing window.
-     * 
+     *
      * Note that the logical state of a device (as seen by client applications) may lag the physical state if
      * device event processing is frozen.
-     * 
+     *
      * A modifiers argument of AnyModifier is equivalent to issuing the request for all possible modifier combinations (including the combination of no modifiers).  It is not required that all modifiers specified
      * have currently assigned KeyCodes.  A keycode argument of AnyKey is equivalent to issuing the request for
      * all possible KeyCodes.  Otherwise, the specified keycode must be in the range specified by min_keycode
      * and max_keycode in the connection setup, or a BadValue error results.
-     * 
+     *
      * If some other client has issued a XGrabKey with the same key combination on the same window, a BadAccess
      * error results.  When using AnyModifier or AnyKey, the request fails completely, and a BadAccess error
      * results (no grabs are established) if there is a conflicting grab for any combination.
@@ -5843,12 +6792,12 @@ declare module './connection' {
      * @param modifiers The modifiers to grab.
      *      * Using the special value `XCB_MOD_MASK_ANY` means grab the pointer with all
      * possible modifier combinations.
-     * @param pointer_mode 
-     * @param keyboard_mode 
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.grabKeyboard}  
+     * @param pointer_mode
+     * @param keyboard_mode
+     *
+     * See also:
+     *
+     * {@link XConnection.grabKeyboard}
      */
     grabKey (ownerEvents: number, grabWindow: WINDOW, modifiers: number, key: KEYCODE, pointerMode: GrabMode, keyboardMode: GrabMode): RequestChecker
   }
@@ -5859,7 +6808,7 @@ XConnection.prototype.grabKey = function(ownerEvents: number, grabWindow: WINDOW
 
   requestParts.push(pack('<xB2xIHBBB3x', ownerEvents, grabWindow, modifiers, key, pointerMode, keyboardMode))
 
-  return this.sendVoidRequest(requestParts, 33, 0)
+  return this.sendVoidRequest(requestParts, 33, 0, 'grabKey')
 }
 
 
@@ -5867,7 +6816,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * release a key combination
-     *  
+     *
      * Releases the key combination on `grab_window` if you grabbed it using
      * `xcb_grab_key` before.
      * @param key The keycode of the specified key combination.
@@ -5876,10 +6825,10 @@ declare module './connection' {
      * @param modifiers The modifiers of the specified key combination.
      *      * Using the special value `XCB_MOD_MASK_ANY` means releasing the key combination
      * with every possible modifier combination.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.grabKey}  
+     *
+     * See also:
+     *
+     * {@link XConnection.grabKey}
      */
     ungrabKey (key: KEYCODE, grabWindow: WINDOW, modifiers: number): RequestChecker
   }
@@ -5890,7 +6839,7 @@ XConnection.prototype.ungrabKey = function(key: KEYCODE, grabWindow: WINDOW, mod
 
   requestParts.push(pack('<xB2xIH2x', key, grabWindow, modifiers))
 
-  return this.sendVoidRequest(requestParts, 34, 0)
+  return this.sendVoidRequest(requestParts, 34, 0, 'ungrabKey')
 }
 
 
@@ -5898,12 +6847,12 @@ declare module './connection' {
   interface XConnection {
     /**
      * release queued events
-     *  
+     *
      * Releases queued events if the client has caused a device (pointer/keyboard) to
      * freeze due to grabbing it actively. This request has no effect if `time` is
      * earlier than the last-grab time of the most recent active grab for this client
      * or if `time` is later than the current X server time.
-     * @param mode 
+     * @param mode
      * @param time Timestamp to avoid race conditions when running X over the network.
      *      * The special value `XCB_CURRENT_TIME` will be replaced with the current server
      * time.
@@ -5917,7 +6866,7 @@ XConnection.prototype.allowEvents = function(mode: Allow, time: TIMESTAMP): Requ
 
   requestParts.push(pack('<xB2xI', mode, time))
 
-  return this.sendVoidRequest(requestParts, 35, 0)
+  return this.sendVoidRequest(requestParts, 35, 0, 'allowEvents')
 }
 
 
@@ -5932,7 +6881,7 @@ XConnection.prototype.grabServer = function(): RequestChecker {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendVoidRequest(requestParts, 36, 0)
+  return this.sendVoidRequest(requestParts, 36, 0, 'grabServer')
 }
 
 
@@ -5947,7 +6896,7 @@ XConnection.prototype.ungrabServer = function(): RequestChecker {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendVoidRequest(requestParts, 37, 0)
+  return this.sendVoidRequest(requestParts, 37, 0, 'ungrabServer')
 }
 
 
@@ -5955,7 +6904,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * get pointer coordinates
-     *  
+     *
      * Gets the root window the pointer is logically on and the pointer coordinates
      * relative to the root window's origin.
      * @param window A window to check if the pointer is on the same screen as `window` (see the
@@ -5970,7 +6919,7 @@ XConnection.prototype.queryPointer = function(window: WINDOW): QueryPointerCooki
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendRequest<QueryPointerReply>(requestParts, 38, unmarshallQueryPointerReply, 0)
+  return this.sendRequest<QueryPointerReply>(requestParts, 38, unmarshallQueryPointerReply, 0, 'queryPointer')
 }
 
 
@@ -5985,7 +6934,7 @@ XConnection.prototype.getMotionEvents = function(window: WINDOW, start: TIMESTAM
 
   requestParts.push(pack('<xx2xIII', window, start, stop))
 
-  return this.sendRequest<GetMotionEventsReply>(requestParts, 39, unmarshallGetMotionEventsReply, 0)
+  return this.sendRequest<GetMotionEventsReply>(requestParts, 39, unmarshallGetMotionEventsReply, 0, 'getMotionEvents')
 }
 
 
@@ -6000,7 +6949,7 @@ XConnection.prototype.translateCoordinates = function(srcWindow: WINDOW, dstWind
 
   requestParts.push(pack('<xx2xIIhh', srcWindow, dstWindow, srcX, srcY))
 
-  return this.sendRequest<TranslateCoordinatesReply>(requestParts, 40, unmarshallTranslateCoordinatesReply, 0)
+  return this.sendRequest<TranslateCoordinatesReply>(requestParts, 40, unmarshallTranslateCoordinatesReply, 0, 'translateCoordinates')
 }
 
 
@@ -6008,14 +6957,14 @@ declare module './connection' {
   interface XConnection {
     /**
      * move mouse pointer
-     *  
+     *
      * Moves the mouse pointer to the specified position.
-     * 
+     *
      * If `src_window` is not `XCB_NONE` (TODO), the move will only take place if the
      * pointer is inside `src_window` and within the rectangle specified by (`src_x`,
      * `src_y`, `src_width`, `src_height`). The rectangle coordinates are relative to
      * `src_window`.
-     * 
+     *
      * If `dst_window` is not `XCB_NONE` (TODO), the pointer will be moved to the
      * offsets (`dst_x`, `dst_y`) relative to `dst_window`. If `dst_window` is
      * `XCB_NONE` (TODO), the pointer will be moved by the offsets (`dst_x`, `dst_y`)
@@ -6028,10 +6977,10 @@ declare module './connection' {
      * offsets (`dst_x`, `dst_y`) relative to `dst_window`. If `dst_window` is
      * `XCB_NONE` (TODO), the pointer will be moved by the offsets (`dst_x`, `dst_y`)
      * relative to the current position of the pointer.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.setInputFocus}  
+     *
+     * See also:
+     *
+     * {@link XConnection.setInputFocus}
      */
     warpPointer (srcWindow: WINDOW, dstWindow: WINDOW, srcX: number, srcY: number, srcWidth: number, srcHeight: number, dstX: number, dstY: number): RequestChecker
   }
@@ -6042,7 +6991,7 @@ XConnection.prototype.warpPointer = function(srcWindow: WINDOW, dstWindow: WINDO
 
   requestParts.push(pack('<xx2xIIhhHHhh', srcWindow, dstWindow, srcX, srcY, srcWidth, srcHeight, dstX, dstY))
 
-  return this.sendVoidRequest(requestParts, 41, 0)
+  return this.sendVoidRequest(requestParts, 41, 0, 'warpPointer')
 }
 
 
@@ -6050,11 +6999,11 @@ declare module './connection' {
   interface XConnection {
     /**
      * Sets input focus
-     *  
+     *
      * Changes the input focus and the last-focus-change time. If the specified `time`
      * is earlier than the current last-focus-change time, the request is ignored (to
      * avoid race conditions when running X over the network).
-     * 
+     *
      * A FocusIn and FocusOut event is generated when focus is changed.
      * @param focus The window to focus. All keyboard events will be reported to this window. The
      * window must be viewable (TODO), or a `xcb_match_error_t` occurs (TODO).
@@ -6067,12 +7016,12 @@ declare module './connection' {
      * time.
      * @param revert_to Specifies what happens when the `focus` window becomes unviewable (if `focus`
      * is neither `XCB_NONE` nor `XCB_POINTER_ROOT`).
-     *  
-     * See also:  
-     *  
-     * {@link FocusInEvent}  
-     *  
-     * {@link FocusOutEvent}  
+     *
+     * See also:
+     *
+     * {@link FocusInEvent}
+     *
+     * {@link FocusOutEvent}
      */
     setInputFocus (revertTo: InputFocus, focus: WINDOW, time: TIMESTAMP): RequestChecker
   }
@@ -6083,7 +7032,7 @@ XConnection.prototype.setInputFocus = function(revertTo: InputFocus, focus: WIND
 
   requestParts.push(pack('<xB2xII', revertTo, focus, time))
 
-  return this.sendVoidRequest(requestParts, 42, 0)
+  return this.sendVoidRequest(requestParts, 42, 0, 'setInputFocus')
 }
 
 
@@ -6098,7 +7047,7 @@ XConnection.prototype.getInputFocus = function(): GetInputFocusCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendRequest<GetInputFocusReply>(requestParts, 43, unmarshallGetInputFocusReply, 0)
+  return this.sendRequest<GetInputFocusReply>(requestParts, 43, unmarshallGetInputFocusReply, 0, 'getInputFocus')
 }
 
 
@@ -6113,7 +7062,7 @@ XConnection.prototype.queryKeymap = function(): QueryKeymapCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendRequest<QueryKeymapReply>(requestParts, 44, unmarshallQueryKeymapReply, 0)
+  return this.sendRequest<QueryKeymapReply>(requestParts, 44, unmarshallQueryKeymapReply, 0, 'queryKeymap')
 }
 
 
@@ -6121,16 +7070,16 @@ declare module './connection' {
   interface XConnection {
     /**
      * opens a font
-     *  
+     *
      * Opens any X core font matching the given `name` (for example "-misc-fixed-*").
-     * 
+     *
      * Note that X core fonts are deprecated (but still supported) in favor of
      * client-side rendering using Xft.
      * @param fid The ID with which you will refer to the font, created by `xcb_generate_id`.
      * @param name_len Length (in bytes) of `name`.
      * @param name A pattern describing an X core font.
-     *  
-     * See also:  
+     *
+     * See also:
      */
     openFont (fid: FONT, name: Int8Array): RequestChecker
   }
@@ -6143,7 +7092,7 @@ XConnection.prototype.openFont = function(fid: FONT, name: Int8Array): RequestCh
   requestParts.push(pack('<xx2xIH2x', fid, nameLen))
   requestParts.push(pad(name.buffer))
 
-  return this.sendVoidRequest(requestParts, 45, 0)
+  return this.sendVoidRequest(requestParts, 45, 0, 'openFont')
 }
 
 
@@ -6158,7 +7107,7 @@ XConnection.prototype.closeFont = function(font: FONT): RequestChecker {
 
   requestParts.push(pack('<xx2xI', font))
 
-  return this.sendVoidRequest(requestParts, 46, 0)
+  return this.sendVoidRequest(requestParts, 46, 0, 'closeFont')
 }
 
 
@@ -6166,7 +7115,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * query font metrics
-     *  
+     *
      * Queries information associated with the font.
      * @param font The fontable (Font or Graphics Context) to query.
      */
@@ -6179,7 +7128,7 @@ XConnection.prototype.queryFont = function(font: FONTABLE): QueryFontCookie {
 
   requestParts.push(pack('<xx2xI', font))
 
-  return this.sendRequest<QueryFontReply>(requestParts, 47, unmarshallQueryFontReply, 0)
+  return this.sendRequest<QueryFontReply>(requestParts, 47, unmarshallQueryFontReply, 0, 'queryFont')
 }
 
 
@@ -6187,11 +7136,11 @@ declare module './connection' {
   interface XConnection {
     /**
      * get text extents
-     *  
+     *
      * Query text extents from the X11 server. This request returns the bounding box
      * of the specified 16-bit character string in the specified `font` or the font
      * contained in the specified graphics context.
-     * 
+     *
      * `font_ascent` is set to the maximum of the ascent metrics of all characters in
      * the string. `font_descent` is set to the maximum of the descent metrics.
      * `overall_width` is set to the sum of the character-width metrics of all
@@ -6201,12 +7150,12 @@ declare module './connection' {
      * right-side-bearing metric of the character plus W. The lbearing member is set
      * to the minimum L of all characters in the string. The rbearing member is set to
      * the maximum R.
-     * 
+     *
      * For fonts defined with linear indexing rather than 2-byte matrix indexing, each
      * `xcb_char2b_t` structure is interpreted as a 16-bit number with byte1 as the
      * most significant byte. If the font has no defined default character, undefined
      * characters in the string are taken to have all zero metrics.
-     * 
+     *
      * Characters with all zero metrics are ignored. If the font has no defined
      * default_char, the undefined characters in the string are also ignored.
      * @param font The `font` to calculate text extents in. You can also pass a graphics context.
@@ -6228,7 +7177,7 @@ XConnection.prototype.queryTextExtents = function(font: FONTABLE, stringLen: num
 
   })
 
-  return this.sendRequest<QueryTextExtentsReply>(requestParts, 48, unmarshallQueryTextExtentsReply, 0)
+  return this.sendRequest<QueryTextExtentsReply>(requestParts, 48, unmarshallQueryTextExtentsReply, 0, 'queryTextExtents')
 }
 
 
@@ -6236,7 +7185,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * get matching font names
-     *  
+     *
      * Gets a list of available font names which match the given `pattern`.
      * @param pattern_len The length (in bytes) of `pattern`.
      * @param pattern A font pattern, for example "-misc-fixed-*".
@@ -6256,7 +7205,7 @@ XConnection.prototype.listFonts = function(maxNames: number, pattern: Int8Array)
   requestParts.push(pack('<xx2xHH', maxNames, patternLen))
   requestParts.push(pad(pattern.buffer))
 
-  return this.sendRequest<ListFontsReply>(requestParts, 49, unmarshallListFontsReply, 0)
+  return this.sendRequest<ListFontsReply>(requestParts, 49, unmarshallListFontsReply, 0, 'listFonts')
 }
 
 
@@ -6264,7 +7213,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * get matching font names and information
-     *  
+     *
      * Gets a list of available font names which match the given `pattern`.
      * @param pattern_len The length (in bytes) of `pattern`.
      * @param pattern A font pattern, for example "-misc-fixed-*".
@@ -6284,7 +7233,7 @@ XConnection.prototype.listFontsWithInfo = function(maxNames: number, pattern: In
   requestParts.push(pack('<xx2xHH', maxNames, patternLen))
   requestParts.push(pad(pattern.buffer))
 
-  return this.sendRequest<ListFontsWithInfoReply>(requestParts, 50, unmarshallListFontsWithInfoReply, 0)
+  return this.sendRequest<ListFontsWithInfoReply>(requestParts, 50, unmarshallListFontsWithInfoReply, 0, 'listFontsWithInfo')
 }
 
 
@@ -6305,7 +7254,7 @@ XConnection.prototype.setFontPath = function(font: STR[]): RequestChecker {
 
   })
 
-  return this.sendVoidRequest(requestParts, 51, 0)
+  return this.sendVoidRequest(requestParts, 51, 0, 'setFontPath')
 }
 
 
@@ -6320,7 +7269,7 @@ XConnection.prototype.getFontPath = function(): GetFontPathCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendRequest<GetFontPathReply>(requestParts, 52, unmarshallGetFontPathReply, 0)
+  return this.sendRequest<GetFontPathReply>(requestParts, 52, unmarshallGetFontPathReply, 0, 'getFontPath')
 }
 
 
@@ -6328,7 +7277,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * Creates a pixmap
-     *  
+     *
      * Creates a pixmap. The pixmap can only be used on the same screen as `drawable`
      * is on and only with drawables of the same `depth`.
      * @param depth TODO
@@ -6337,8 +7286,8 @@ declare module './connection' {
      * @param drawable Drawable to get the screen from.
      * @param width The width of the new pixmap.
      * @param height The height of the new pixmap.
-     *  
-     * See also:  
+     *
+     * See also:
      */
     createPixmap (depth: number, pid: PIXMAP, drawable: DRAWABLE, width: number, height: number): RequestChecker
   }
@@ -6349,7 +7298,7 @@ XConnection.prototype.createPixmap = function(depth: number, pid: PIXMAP, drawab
 
   requestParts.push(pack('<xB2xIIHH', depth, pid, drawable, width, height))
 
-  return this.sendVoidRequest(requestParts, 53, 0)
+  return this.sendVoidRequest(requestParts, 53, 0, 'createPixmap')
 }
 
 
@@ -6357,7 +7306,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * Destroys a pixmap
-     *  
+     *
      * Deletes the association between the pixmap ID and the pixmap. The pixmap
      * storage will be freed when there are no more references to it.
      * @param pixmap The pixmap to destroy.
@@ -6371,7 +7320,7 @@ XConnection.prototype.freePixmap = function(pixmap: PIXMAP): RequestChecker {
 
   requestParts.push(pack('<xx2xI', pixmap))
 
-  return this.sendVoidRequest(requestParts, 54, 0)
+  return this.sendVoidRequest(requestParts, 54, 0, 'freePixmap')
 }
 
 
@@ -6379,14 +7328,14 @@ declare module './connection' {
   interface XConnection {
     /**
      * Creates a graphics context
-     *  
+     *
      * Creates a graphics context. The graphics context can be used with any drawable
      * that has the same root and depth as the specified drawable.
      * @param cid The ID with which you will refer to the graphics context, created by
      * `xcb_generate_id`.
      * @param drawable Drawable to get the root/depth from.
-     *  
-     * See also:  
+     *
+     * See also:
      */
     createGC (cid: GCONTEXT, drawable: DRAWABLE, valueList: Partial<{ function: GX, planeMask: number, foreground: number, background: number, lineWidth: number, lineStyle: LineStyle, capStyle: CapStyle, joinStyle: JoinStyle, fillStyle: FillStyle, fillRule: FillRule, tile: PIXMAP, stipple: PIXMAP, tileStippleXOrigin: number, tileStippleYOrigin: number, font: FONT, subwindowMode: SubwindowMode, graphicsExposures: BOOL32, clipXOrigin: number, clipYOrigin: number, clipMask: PIXMAP, dashOffset: number, dashes: number, arcMode: ArcMode }>): RequestChecker
   }
@@ -6457,7 +7406,7 @@ XConnection.prototype.createGC = function(cid: GCONTEXT, drawable: DRAWABLE, val
   requestParts.push(pack('<xx2xIII', cid, drawable, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return this.sendVoidRequest(requestParts, 55, 0)
+  return this.sendVoidRequest(requestParts, 55, 0, 'createGC')
 }
 
 
@@ -6465,10 +7414,10 @@ declare module './connection' {
   interface XConnection {
     /**
      * change graphics context components
-     *  
+     *
      * Changes the components specified by `value_mask` for the specified graphics context.
      * @param gc The graphics context to change.
-     * @param value_mask 
+     * @param value_mask
      * @param value_list Values for each of the components specified in the bitmask `value_mask`. The
      * order has to correspond to the order of possible `value_mask` bits. See the
      * example.
@@ -6542,7 +7491,7 @@ XConnection.prototype.changeGC = function(gc: GCONTEXT, valueList: Partial<{ fun
   requestParts.push(pack('<xx2xII', gc, valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return this.sendVoidRequest(requestParts, 56, 0)
+  return this.sendVoidRequest(requestParts, 56, 0, 'changeGC')
 }
 
 
@@ -6557,7 +7506,7 @@ XConnection.prototype.copyGC = function(srcGc: GCONTEXT, dstGc: GCONTEXT, valueM
 
   requestParts.push(pack('<xx2xIII', srcGc, dstGc, valueMask))
 
-  return this.sendVoidRequest(requestParts, 57, 0)
+  return this.sendVoidRequest(requestParts, 57, 0, 'copyGC')
 }
 
 
@@ -6574,7 +7523,7 @@ XConnection.prototype.setDashes = function(gc: GCONTEXT, dashOffset: number, das
   requestParts.push(pack('<xx2xIHH', gc, dashOffset, dashesLen))
   requestParts.push(pad(dashes.buffer))
 
-  return this.sendVoidRequest(requestParts, 58, 0)
+  return this.sendVoidRequest(requestParts, 58, 0, 'setDashes')
 }
 
 
@@ -6593,7 +7542,7 @@ XConnection.prototype.setClipRectangles = function(ordering: ClipOrdering, gc: G
 
   })
 
-  return this.sendVoidRequest(requestParts, 59, 0)
+  return this.sendVoidRequest(requestParts, 59, 0, 'setClipRectangles')
 }
 
 
@@ -6601,7 +7550,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * Destroys a graphics context
-     *  
+     *
      * Destroys the specified `gc` and all associated storage.
      * @param gc The graphics context to destroy.
      */
@@ -6614,7 +7563,7 @@ XConnection.prototype.freeGC = function(gc: GCONTEXT): RequestChecker {
 
   requestParts.push(pack('<xx2xI', gc))
 
-  return this.sendVoidRequest(requestParts, 60, 0)
+  return this.sendVoidRequest(requestParts, 60, 0, 'freeGC')
 }
 
 
@@ -6629,7 +7578,7 @@ XConnection.prototype.clearArea = function(exposures: number, window: WINDOW, x:
 
   requestParts.push(pack('<xB2xIhhHH', exposures, window, x, y, width, height))
 
-  return this.sendVoidRequest(requestParts, 61, 0)
+  return this.sendVoidRequest(requestParts, 61, 0, 'clearArea')
 }
 
 
@@ -6637,7 +7586,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * copy areas
-     *  
+     *
      * Copies the specified rectangle from `src_drawable` to `dst_drawable`.
      * @param dst_drawable The destination drawable (Window or Pixmap).
      * @param src_drawable The source drawable (Window or Pixmap).
@@ -6658,7 +7607,7 @@ XConnection.prototype.copyArea = function(srcDrawable: DRAWABLE, dstDrawable: DR
 
   requestParts.push(pack('<xx2xIIIhhhhHH', srcDrawable, dstDrawable, gc, srcX, srcY, dstX, dstY, width, height))
 
-  return this.sendVoidRequest(requestParts, 62, 0)
+  return this.sendVoidRequest(requestParts, 62, 0, 'copyArea')
 }
 
 
@@ -6673,7 +7622,7 @@ XConnection.prototype.copyPlane = function(srcDrawable: DRAWABLE, dstDrawable: D
 
   requestParts.push(pack('<xx2xIIIhhhhHHI', srcDrawable, dstDrawable, gc, srcX, srcY, dstX, dstY, width, height, bitPlane))
 
-  return this.sendVoidRequest(requestParts, 63, 0)
+  return this.sendVoidRequest(requestParts, 63, 0, 'copyPlane')
 }
 
 
@@ -6692,7 +7641,7 @@ XConnection.prototype.polyPoint = function(coordinateMode: CoordMode, drawable: 
 
   })
 
-  return this.sendVoidRequest(requestParts, 64, 0)
+  return this.sendVoidRequest(requestParts, 64, 0, 'polyPoint')
 }
 
 
@@ -6700,7 +7649,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * draw lines
-     *  
+     *
      * Draws `points_len`-1 lines between each pair of points (point[i], point[i+1])
      * in the `points` array. The lines are drawn in the order listed in the array.
      * They join correctly at all intermediate points, and if the first and last
@@ -6713,7 +7662,7 @@ declare module './connection' {
      * @param gc The graphics context to use.
      * @param points_len The number of `xcb_point_t` structures in `points`.
      * @param points An array of points.
-     * @param coordinate_mode 
+     * @param coordinate_mode
      */
     polyLine (coordinateMode: CoordMode, drawable: DRAWABLE, gc: GCONTEXT, pointsLen: number, points: POINT[]): RequestChecker
   }
@@ -6728,7 +7677,7 @@ XConnection.prototype.polyLine = function(coordinateMode: CoordMode, drawable: D
 
   })
 
-  return this.sendVoidRequest(requestParts, 65, 0)
+  return this.sendVoidRequest(requestParts, 65, 0, 'polyLine')
 }
 
 
@@ -6736,15 +7685,15 @@ declare module './connection' {
   interface XConnection {
     /**
      * draw lines
-     *  
+     *
      * Draws multiple, unconnected lines. For each segment, a line is drawn between
      * (x1, y1) and (x2, y2). The lines are drawn in the order listed in the array of
      * `xcb_segment_t` structures and does not perform joining at coincident
      * endpoints. For any given line, a pixel is not drawn more than once. If lines
      * intersect, the intersecting pixels are drawn multiple times.
-     * 
+     *
      * TODO: include the xcb_segment_t data structure
-     * 
+     *
      * TODO: an example
      * @param drawable A drawable (Window or Pixmap) to draw on.
      * @param gc The graphics context to use.
@@ -6765,7 +7714,7 @@ XConnection.prototype.polySegment = function(drawable: DRAWABLE, gc: GCONTEXT, s
 
   })
 
-  return this.sendVoidRequest(requestParts, 66, 0)
+  return this.sendVoidRequest(requestParts, 66, 0, 'polySegment')
 }
 
 
@@ -6784,7 +7733,7 @@ XConnection.prototype.polyRectangle = function(drawable: DRAWABLE, gc: GCONTEXT,
 
   })
 
-  return this.sendVoidRequest(requestParts, 67, 0)
+  return this.sendVoidRequest(requestParts, 67, 0, 'polyRectangle')
 }
 
 
@@ -6803,7 +7752,7 @@ XConnection.prototype.polyArc = function(drawable: DRAWABLE, gc: GCONTEXT, arcsL
 
   })
 
-  return this.sendVoidRequest(requestParts, 68, 0)
+  return this.sendVoidRequest(requestParts, 68, 0, 'polyArc')
 }
 
 
@@ -6822,7 +7771,7 @@ XConnection.prototype.fillPoly = function(drawable: DRAWABLE, gc: GCONTEXT, shap
 
   })
 
-  return this.sendVoidRequest(requestParts, 69, 0)
+  return this.sendVoidRequest(requestParts, 69, 0, 'fillPoly')
 }
 
 
@@ -6830,7 +7779,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * Fills rectangles
-     *  
+     *
      * Fills the specified rectangle(s) in the order listed in the array. For any
      * given rectangle, each pixel is not drawn more than once. If rectangles
      * intersect, the intersecting pixels are drawn multiple times.
@@ -6857,7 +7806,7 @@ XConnection.prototype.polyFillRectangle = function(drawable: DRAWABLE, gc: GCONT
 
   })
 
-  return this.sendVoidRequest(requestParts, 70, 0)
+  return this.sendVoidRequest(requestParts, 70, 0, 'polyFillRectangle')
 }
 
 
@@ -6876,7 +7825,7 @@ XConnection.prototype.polyFillArc = function(drawable: DRAWABLE, gc: GCONTEXT, a
 
   })
 
-  return this.sendVoidRequest(requestParts, 71, 0)
+  return this.sendVoidRequest(requestParts, 71, 0, 'polyFillArc')
 }
 
 
@@ -6892,7 +7841,7 @@ XConnection.prototype.putImage = function(format: ImageFormat, drawable: DRAWABL
   requestParts.push(pack('<xB2xIIHHhhBB2x', format, drawable, gc, width, height, dstX, dstY, leftPad, depth))
   requestParts.push(pad(data.buffer))
 
-  return this.sendVoidRequest(requestParts, 72, 0)
+  return this.sendVoidRequest(requestParts, 72, 0, 'putImage')
 }
 
 
@@ -6907,7 +7856,7 @@ XConnection.prototype.getImage = function(format: ImageFormat, drawable: DRAWABL
 
   requestParts.push(pack('<xB2xIhhHHI', format, drawable, x, y, width, height, planeMask))
 
-  return this.sendRequest<GetImageReply>(requestParts, 73, unmarshallGetImageReply, 0)
+  return this.sendRequest<GetImageReply>(requestParts, 73, unmarshallGetImageReply, 0, 'getImage')
 }
 
 
@@ -6923,7 +7872,7 @@ XConnection.prototype.polyText8 = function(drawable: DRAWABLE, gc: GCONTEXT, x: 
   requestParts.push(pack('<xx2xIIhh', drawable, gc, x, y))
   requestParts.push(pad(items.buffer))
 
-  return this.sendVoidRequest(requestParts, 74, 0)
+  return this.sendVoidRequest(requestParts, 74, 0, 'polyText8')
 }
 
 
@@ -6939,7 +7888,7 @@ XConnection.prototype.polyText16 = function(drawable: DRAWABLE, gc: GCONTEXT, x:
   requestParts.push(pack('<xx2xIIhh', drawable, gc, x, y))
   requestParts.push(pad(items.buffer))
 
-  return this.sendVoidRequest(requestParts, 75, 0)
+  return this.sendVoidRequest(requestParts, 75, 0, 'polyText16')
 }
 
 
@@ -6947,13 +7896,13 @@ declare module './connection' {
   interface XConnection {
     /**
      * Draws text
-     *  
+     *
      * Fills the destination rectangle with the background pixel from `gc`, then
      * paints the text with the foreground pixel from `gc`. The upper-left corner of
      * the filled rectangle is at [x, y - font-ascent]. The width is overall-width,
      * the height is font-ascent + font-descent. The overall-width, font-ascent and
      * font-descent are as returned by `xcb_query_text_extents` (TODO).
-     * 
+     *
      * Note that using X core fonts is deprecated (but still supported) in favor of
      * client-side rendering using Xft.
      * @param drawable The drawable (Window or Pixmap) to draw text on.
@@ -6966,10 +7915,10 @@ declare module './connection' {
      * @param gc The graphics context to use.
      *      * The following graphics context components are used: plane-mask, foreground,
      * background, font, subwindow-mode, clip-x-origin, clip-y-origin, and clip-mask.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.imageText16}  
+     *
+     * See also:
+     *
+     * {@link XConnection.imageText16}
      */
     imageText8 (drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: Int8Array): RequestChecker
   }
@@ -6982,7 +7931,7 @@ XConnection.prototype.imageText8 = function(drawable: DRAWABLE, gc: GCONTEXT, x:
   requestParts.push(pack('<xB2xIIhh', stringLen, drawable, gc, x, y))
   requestParts.push(pad(_string.buffer))
 
-  return this.sendVoidRequest(requestParts, 76, 0)
+  return this.sendVoidRequest(requestParts, 76, 0, 'imageText8')
 }
 
 
@@ -6990,13 +7939,13 @@ declare module './connection' {
   interface XConnection {
     /**
      * Draws text
-     *  
+     *
      * Fills the destination rectangle with the background pixel from `gc`, then
      * paints the text with the foreground pixel from `gc`. The upper-left corner of
      * the filled rectangle is at [x, y - font-ascent]. The width is overall-width,
      * the height is font-ascent + font-descent. The overall-width, font-ascent and
      * font-descent are as returned by `xcb_query_text_extents` (TODO).
-     * 
+     *
      * Note that using X core fonts is deprecated (but still supported) in favor of
      * client-side rendering using Xft.
      * @param drawable The drawable (Window or Pixmap) to draw text on.
@@ -7010,10 +7959,10 @@ declare module './connection' {
      * @param gc The graphics context to use.
      *      * The following graphics context components are used: plane-mask, foreground,
      * background, font, subwindow-mode, clip-x-origin, clip-y-origin, and clip-mask.
-     *  
-     * See also:  
-     *  
-     * {@link XConnection.imageText8}  
+     *
+     * See also:
+     *
+     * {@link XConnection.imageText8}
      */
     imageText16 (drawable: DRAWABLE, gc: GCONTEXT, x: number, y: number, _string: CHAR2B[]): RequestChecker
   }
@@ -7029,7 +7978,7 @@ XConnection.prototype.imageText16 = function(drawable: DRAWABLE, gc: GCONTEXT, x
 
   })
 
-  return this.sendVoidRequest(requestParts, 77, 0)
+  return this.sendVoidRequest(requestParts, 77, 0, 'imageText16')
 }
 
 
@@ -7044,7 +7993,7 @@ XConnection.prototype.createColormap = function(alloc: ColormapAlloc, mid: COLOR
 
   requestParts.push(pack('<xB2xIII', alloc, mid, window, visual))
 
-  return this.sendVoidRequest(requestParts, 78, 0)
+  return this.sendVoidRequest(requestParts, 78, 0, 'createColormap')
 }
 
 
@@ -7059,7 +8008,7 @@ XConnection.prototype.freeColormap = function(cmap: COLORMAP): RequestChecker {
 
   requestParts.push(pack('<xx2xI', cmap))
 
-  return this.sendVoidRequest(requestParts, 79, 0)
+  return this.sendVoidRequest(requestParts, 79, 0, 'freeColormap')
 }
 
 
@@ -7074,7 +8023,7 @@ XConnection.prototype.copyColormapAndFree = function(mid: COLORMAP, srcCmap: COL
 
   requestParts.push(pack('<xx2xII', mid, srcCmap))
 
-  return this.sendVoidRequest(requestParts, 80, 0)
+  return this.sendVoidRequest(requestParts, 80, 0, 'copyColormapAndFree')
 }
 
 
@@ -7089,7 +8038,7 @@ XConnection.prototype.installColormap = function(cmap: COLORMAP): RequestChecker
 
   requestParts.push(pack('<xx2xI', cmap))
 
-  return this.sendVoidRequest(requestParts, 81, 0)
+  return this.sendVoidRequest(requestParts, 81, 0, 'installColormap')
 }
 
 
@@ -7104,7 +8053,7 @@ XConnection.prototype.uninstallColormap = function(cmap: COLORMAP): RequestCheck
 
   requestParts.push(pack('<xx2xI', cmap))
 
-  return this.sendVoidRequest(requestParts, 82, 0)
+  return this.sendVoidRequest(requestParts, 82, 0, 'uninstallColormap')
 }
 
 
@@ -7119,7 +8068,7 @@ XConnection.prototype.listInstalledColormaps = function(window: WINDOW): ListIns
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.sendRequest<ListInstalledColormapsReply>(requestParts, 83, unmarshallListInstalledColormapsReply, 0)
+  return this.sendRequest<ListInstalledColormapsReply>(requestParts, 83, unmarshallListInstalledColormapsReply, 0, 'listInstalledColormaps')
 }
 
 
@@ -7127,7 +8076,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * Allocate a color
-     *  
+     *
      * Allocates a read-only colormap entry corresponding to the closest RGB value
      * supported by the hardware. If you are using TrueColor, you can take a shortcut
      * and directly calculate the color pixel value to avoid the round trip. But, for
@@ -7147,7 +8096,7 @@ XConnection.prototype.allocColor = function(cmap: COLORMAP, red: number, green: 
 
   requestParts.push(pack('<xx2xIHHH2x', cmap, red, green, blue))
 
-  return this.sendRequest<AllocColorReply>(requestParts, 84, unmarshallAllocColorReply, 0)
+  return this.sendRequest<AllocColorReply>(requestParts, 84, unmarshallAllocColorReply, 0, 'allocColor')
 }
 
 
@@ -7164,7 +8113,7 @@ XConnection.prototype.allocNamedColor = function(cmap: COLORMAP, name: Int8Array
   requestParts.push(pack('<xx2xIH2x', cmap, nameLen))
   requestParts.push(pad(name.buffer))
 
-  return this.sendRequest<AllocNamedColorReply>(requestParts, 85, unmarshallAllocNamedColorReply, 0)
+  return this.sendRequest<AllocNamedColorReply>(requestParts, 85, unmarshallAllocNamedColorReply, 0, 'allocNamedColor')
 }
 
 
@@ -7179,7 +8128,7 @@ XConnection.prototype.allocColorCells = function(contiguous: number, cmap: COLOR
 
   requestParts.push(pack('<xB2xIHH', contiguous, cmap, colors, planes))
 
-  return this.sendRequest<AllocColorCellsReply>(requestParts, 86, unmarshallAllocColorCellsReply, 0)
+  return this.sendRequest<AllocColorCellsReply>(requestParts, 86, unmarshallAllocColorCellsReply, 0, 'allocColorCells')
 }
 
 
@@ -7194,7 +8143,7 @@ XConnection.prototype.allocColorPlanes = function(contiguous: number, cmap: COLO
 
   requestParts.push(pack('<xB2xIHHHH', contiguous, cmap, colors, reds, greens, blues))
 
-  return this.sendRequest<AllocColorPlanesReply>(requestParts, 87, unmarshallAllocColorPlanesReply, 0)
+  return this.sendRequest<AllocColorPlanesReply>(requestParts, 87, unmarshallAllocColorPlanesReply, 0, 'allocColorPlanes')
 }
 
 
@@ -7210,7 +8159,7 @@ XConnection.prototype.freeColors = function(cmap: COLORMAP, planeMask: number, p
   requestParts.push(pack('<xx2xII', cmap, planeMask))
   requestParts.push(pad(pixels.buffer))
 
-  return this.sendVoidRequest(requestParts, 88, 0)
+  return this.sendVoidRequest(requestParts, 88, 0, 'freeColors')
 }
 
 
@@ -7229,7 +8178,7 @@ XConnection.prototype.storeColors = function(cmap: COLORMAP, itemsLen: number, i
 
   })
 
-  return this.sendVoidRequest(requestParts, 89, 0)
+  return this.sendVoidRequest(requestParts, 89, 0, 'storeColors')
 }
 
 
@@ -7246,7 +8195,7 @@ XConnection.prototype.storeNamedColor = function(flags: number, cmap: COLORMAP, 
   requestParts.push(pack('<xB2xIIH2x', flags, cmap, pixel, nameLen))
   requestParts.push(pad(name.buffer))
 
-  return this.sendVoidRequest(requestParts, 90, 0)
+  return this.sendVoidRequest(requestParts, 90, 0, 'storeNamedColor')
 }
 
 
@@ -7262,7 +8211,7 @@ XConnection.prototype.queryColors = function(cmap: COLORMAP, pixelsLen: number, 
   requestParts.push(pack('<xx2xI', cmap))
   requestParts.push(pad(pixels.buffer))
 
-  return this.sendRequest<QueryColorsReply>(requestParts, 91, unmarshallQueryColorsReply, 0)
+  return this.sendRequest<QueryColorsReply>(requestParts, 91, unmarshallQueryColorsReply, 0, 'queryColors')
 }
 
 
@@ -7279,7 +8228,7 @@ XConnection.prototype.lookupColor = function(cmap: COLORMAP, name: Int8Array): L
   requestParts.push(pack('<xx2xIH2x', cmap, nameLen))
   requestParts.push(pad(name.buffer))
 
-  return this.sendRequest<LookupColorReply>(requestParts, 92, unmarshallLookupColorReply, 0)
+  return this.sendRequest<LookupColorReply>(requestParts, 92, unmarshallLookupColorReply, 0, 'lookupColor')
 }
 
 
@@ -7294,7 +8243,7 @@ XConnection.prototype.createCursor = function(cid: CURSOR, source: PIXMAP, mask:
 
   requestParts.push(pack('<xx2xIIIHHHHHHHH', cid, source, mask, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue, x, y))
 
-  return this.sendVoidRequest(requestParts, 93, 0)
+  return this.sendVoidRequest(requestParts, 93, 0, 'createCursor')
 }
 
 
@@ -7302,12 +8251,12 @@ declare module './connection' {
   interface XConnection {
     /**
      * create cursor
-     *  
+     *
      * Creates a cursor from a font glyph. X provides a set of standard cursor shapes
      * in a special font named cursor. Applications are encouraged to use this
      * interface for their cursors because the font can be customized for the
      * individual display type.
-     * 
+     *
      * All pixels which are set to 1 in the source will use the foreground color (as
      * specified by `fore_red`, `fore_green` and `fore_blue`). All pixels set to 0
      * will use the background color (as specified by `back_red`, `back_green` and
@@ -7335,7 +8284,7 @@ XConnection.prototype.createGlyphCursor = function(cid: CURSOR, sourceFont: FONT
 
   requestParts.push(pack('<xx2xIIIHHHHHHHH', cid, sourceFont, maskFont, sourceChar, maskChar, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue))
 
-  return this.sendVoidRequest(requestParts, 94, 0)
+  return this.sendVoidRequest(requestParts, 94, 0, 'createGlyphCursor')
 }
 
 
@@ -7343,7 +8292,7 @@ declare module './connection' {
   interface XConnection {
     /**
      * Deletes a cursor
-     *  
+     *
      * Deletes the association between the cursor resource ID and the specified
      * cursor. The cursor is freed when no other resource references it.
      * @param cursor The cursor to destroy.
@@ -7357,7 +8306,7 @@ XConnection.prototype.freeCursor = function(cursor: CURSOR): RequestChecker {
 
   requestParts.push(pack('<xx2xI', cursor))
 
-  return this.sendVoidRequest(requestParts, 95, 0)
+  return this.sendVoidRequest(requestParts, 95, 0, 'freeCursor')
 }
 
 
@@ -7372,7 +8321,7 @@ XConnection.prototype.recolorCursor = function(cursor: CURSOR, foreRed: number, 
 
   requestParts.push(pack('<xx2xIHHHHHH', cursor, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue))
 
-  return this.sendVoidRequest(requestParts, 96, 0)
+  return this.sendVoidRequest(requestParts, 96, 0, 'recolorCursor')
 }
 
 
@@ -7387,7 +8336,7 @@ XConnection.prototype.queryBestSize = function(_class: QueryShapeOf, drawable: D
 
   requestParts.push(pack('<xB2xIHH', _class, drawable, width, height))
 
-  return this.sendRequest<QueryBestSizeReply>(requestParts, 97, unmarshallQueryBestSizeReply, 0)
+  return this.sendRequest<QueryBestSizeReply>(requestParts, 97, unmarshallQueryBestSizeReply, 0, 'queryBestSize')
 }
 
 
@@ -7395,21 +8344,21 @@ declare module './connection' {
   interface XConnection {
     /**
      * check if extension is present
-     *  
+     *
      * Determines if the specified extension is present on this X11 server.
-     * 
+     *
      * Every extension has a unique `major_opcode` to identify requests, the minor
      * opcodes and request formats are extension-specific. If the extension provides
      * events and errors, the `first_event` and `first_error` fields in the reply are
      * set accordingly.
-     * 
+     *
      * There should rarely be a need to use this request directly, XCB provides the
      * `xcb_get_extension_data` function instead.
      * @param name_len The length of `name` in bytes.
      * @param name The name of the extension to query, for example "RANDR". This is case
      * sensitive!
-     *  
-     * See also:  
+     *
+     * See also:
      */
     queryExtension (name: Int8Array): QueryExtensionCookie
   }
@@ -7422,7 +8371,7 @@ XConnection.prototype.queryExtension = function(name: Int8Array): QueryExtension
   requestParts.push(pack('<xx2xH2x', nameLen))
   requestParts.push(pad(name.buffer))
 
-  return this.sendRequest<QueryExtensionReply>(requestParts, 98, unmarshallQueryExtensionReply, 0)
+  return this.sendRequest<QueryExtensionReply>(requestParts, 98, unmarshallQueryExtensionReply, 0, 'queryExtension')
 }
 
 
@@ -7437,7 +8386,7 @@ XConnection.prototype.listExtensions = function(): ListExtensionsCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendRequest<ListExtensionsReply>(requestParts, 99, unmarshallListExtensionsReply, 0)
+  return this.sendRequest<ListExtensionsReply>(requestParts, 99, unmarshallListExtensionsReply, 0, 'listExtensions')
 }
 
 
@@ -7454,7 +8403,7 @@ XConnection.prototype.changeKeyboardMapping = function(firstKeycode: KEYCODE, ke
   requestParts.push(pack('<xB2xBB2x', keycodeCount, firstKeycode, keysymsPerKeycode))
   requestParts.push(pad(keysyms.buffer))
 
-  return this.sendVoidRequest(requestParts, 100, 0)
+  return this.sendVoidRequest(requestParts, 100, 0, 'changeKeyboardMapping')
 }
 
 
@@ -7469,7 +8418,7 @@ XConnection.prototype.getKeyboardMapping = function(firstKeycode: KEYCODE, count
 
   requestParts.push(pack('<xx2xBB', firstKeycode, count))
 
-  return this.sendRequest<GetKeyboardMappingReply>(requestParts, 101, unmarshallGetKeyboardMappingReply, 0)
+  return this.sendRequest<GetKeyboardMappingReply>(requestParts, 101, unmarshallGetKeyboardMappingReply, 0, 'getKeyboardMapping')
 }
 
 
@@ -7514,7 +8463,7 @@ XConnection.prototype.changeKeyboardControl = function(valueList: Partial<{ keyC
   requestParts.push(pack('<xx2xI', valueMask))
   requestParts.push(pack(`<${valueMaskSortedList.map(key=>valueListFormats[key]).join('')}`, ...valueListValues))
 
-  return this.sendVoidRequest(requestParts, 102, 0)
+  return this.sendVoidRequest(requestParts, 102, 0, 'changeKeyboardControl')
 }
 
 
@@ -7529,7 +8478,7 @@ XConnection.prototype.getKeyboardControl = function(): GetKeyboardControlCookie 
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendRequest<GetKeyboardControlReply>(requestParts, 103, unmarshallGetKeyboardControlReply, 0)
+  return this.sendRequest<GetKeyboardControlReply>(requestParts, 103, unmarshallGetKeyboardControlReply, 0, 'getKeyboardControl')
 }
 
 
@@ -7544,7 +8493,7 @@ XConnection.prototype.bell = function(percent: number): RequestChecker {
 
   requestParts.push(pack('<xb2x', percent))
 
-  return this.sendVoidRequest(requestParts, 104, 0)
+  return this.sendVoidRequest(requestParts, 104, 0, 'bell')
 }
 
 
@@ -7559,7 +8508,7 @@ XConnection.prototype.changePointerControl = function(accelerationNumerator: num
 
   requestParts.push(pack('<xx2xhhhBB', accelerationNumerator, accelerationDenominator, threshold, doAcceleration, doThreshold))
 
-  return this.sendVoidRequest(requestParts, 105, 0)
+  return this.sendVoidRequest(requestParts, 105, 0, 'changePointerControl')
 }
 
 
@@ -7574,7 +8523,7 @@ XConnection.prototype.getPointerControl = function(): GetPointerControlCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendRequest<GetPointerControlReply>(requestParts, 106, unmarshallGetPointerControlReply, 0)
+  return this.sendRequest<GetPointerControlReply>(requestParts, 106, unmarshallGetPointerControlReply, 0, 'getPointerControl')
 }
 
 
@@ -7589,7 +8538,7 @@ XConnection.prototype.setScreenSaver = function(timeout: number, interval: numbe
 
   requestParts.push(pack('<xx2xhhBB', timeout, interval, preferBlanking, allowExposures))
 
-  return this.sendVoidRequest(requestParts, 107, 0)
+  return this.sendVoidRequest(requestParts, 107, 0, 'setScreenSaver')
 }
 
 
@@ -7604,7 +8553,7 @@ XConnection.prototype.getScreenSaver = function(): GetScreenSaverCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendRequest<GetScreenSaverReply>(requestParts, 108, unmarshallGetScreenSaverReply, 0)
+  return this.sendRequest<GetScreenSaverReply>(requestParts, 108, unmarshallGetScreenSaverReply, 0, 'getScreenSaver')
 }
 
 
@@ -7621,7 +8570,7 @@ XConnection.prototype.changeHosts = function(mode: HostMode, family: Family, add
   requestParts.push(pack('<xB2xBxH', mode, family, addressLen))
   requestParts.push(pad(address.buffer))
 
-  return this.sendVoidRequest(requestParts, 109, 0)
+  return this.sendVoidRequest(requestParts, 109, 0, 'changeHosts')
 }
 
 
@@ -7636,7 +8585,7 @@ XConnection.prototype.listHosts = function(): ListHostsCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendRequest<ListHostsReply>(requestParts, 110, unmarshallListHostsReply, 0)
+  return this.sendRequest<ListHostsReply>(requestParts, 110, unmarshallListHostsReply, 0, 'listHosts')
 }
 
 
@@ -7651,7 +8600,7 @@ XConnection.prototype.setAccessControl = function(mode: AccessControl): RequestC
 
   requestParts.push(pack('<xB2x', mode))
 
-  return this.sendVoidRequest(requestParts, 111, 0)
+  return this.sendVoidRequest(requestParts, 111, 0, 'setAccessControl')
 }
 
 
@@ -7666,7 +8615,7 @@ XConnection.prototype.setCloseDownMode = function(mode: CloseDown): RequestCheck
 
   requestParts.push(pack('<xB2x', mode))
 
-  return this.sendVoidRequest(requestParts, 112, 0)
+  return this.sendVoidRequest(requestParts, 112, 0, 'setCloseDownMode')
 }
 
 
@@ -7674,14 +8623,14 @@ declare module './connection' {
   interface XConnection {
     /**
      * kills a client
-     *  
+     *
      * Forces a close down of the client that created the specified `resource`.
      * @param resource Any resource belonging to the client (for example a Window), used to identify
      * the client connection.
      *      * The special value of `XCB_KILL_ALL_TEMPORARY`, the resources of all clients
      * that have terminated in `RetainTemporary` (TODO) are destroyed.
-     *  
-     * See also:  
+     *
+     * See also:
      */
     killClient (resource: number): RequestChecker
   }
@@ -7692,7 +8641,7 @@ XConnection.prototype.killClient = function(resource: number): RequestChecker {
 
   requestParts.push(pack('<xx2xI', resource))
 
-  return this.sendVoidRequest(requestParts, 113, 0)
+  return this.sendVoidRequest(requestParts, 113, 0, 'killClient')
 }
 
 
@@ -7709,7 +8658,7 @@ XConnection.prototype.rotateProperties = function(window: WINDOW, delta: number,
   requestParts.push(pack('<xx2xIHh', window, atomsLen, delta))
   requestParts.push(pad(atoms.buffer))
 
-  return this.sendVoidRequest(requestParts, 114, 0)
+  return this.sendVoidRequest(requestParts, 114, 0, 'rotateProperties')
 }
 
 
@@ -7724,7 +8673,7 @@ XConnection.prototype.forceScreenSaver = function(mode: ScreenSaver): RequestChe
 
   requestParts.push(pack('<xB2x', mode))
 
-  return this.sendVoidRequest(requestParts, 115, 0)
+  return this.sendVoidRequest(requestParts, 115, 0, 'forceScreenSaver')
 }
 
 
@@ -7741,7 +8690,7 @@ XConnection.prototype.setPointerMapping = function(map: Uint8Array): SetPointerM
   requestParts.push(pack('<xB2x', mapLen))
   requestParts.push(pad(map.buffer))
 
-  return this.sendRequest<SetPointerMappingReply>(requestParts, 116, unmarshallSetPointerMappingReply, 0)
+  return this.sendRequest<SetPointerMappingReply>(requestParts, 116, unmarshallSetPointerMappingReply, 0, 'setPointerMapping')
 }
 
 
@@ -7756,7 +8705,7 @@ XConnection.prototype.getPointerMapping = function(): GetPointerMappingCookie {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendRequest<GetPointerMappingReply>(requestParts, 117, unmarshallGetPointerMappingReply, 0)
+  return this.sendRequest<GetPointerMappingReply>(requestParts, 117, unmarshallGetPointerMappingReply, 0, 'getPointerMapping')
 }
 
 
@@ -7773,7 +8722,7 @@ XConnection.prototype.setModifierMapping = function(keycodes: Uint8Array): SetMo
   requestParts.push(pack('<xB2x', keycodesPerModifier))
   requestParts.push(pad(keycodes.buffer))
 
-  return this.sendRequest<SetModifierMappingReply>(requestParts, 118, unmarshallSetModifierMappingReply, 0)
+  return this.sendRequest<SetModifierMappingReply>(requestParts, 118, unmarshallSetModifierMappingReply, 0, 'setModifierMapping')
 }
 
 
@@ -7788,7 +8737,7 @@ XConnection.prototype.getModifierMapping = function(): GetModifierMappingCookie 
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendRequest<GetModifierMappingReply>(requestParts, 119, unmarshallGetModifierMappingReply, 0)
+  return this.sendRequest<GetModifierMappingReply>(requestParts, 119, unmarshallGetModifierMappingReply, 0, 'getModifierMapping')
 }
 
 
@@ -7803,144 +8752,144 @@ XConnection.prototype.noOperation = function(): RequestChecker {
 
   requestParts.push(pack('<xx2x', ))
 
-  return this.sendVoidRequest(requestParts, 127, 0)
+  return this.sendVoidRequest(requestParts, 127, 0, 'noOperation')
 }
 
-events[2] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[2] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallKeyPressEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onKeyPressEvent?.(event)
+  await xConnection.onKeyPressEvent?.(event)
 }
-events[3] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[3] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallKeyReleaseEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onKeyReleaseEvent?.(event)
+  await xConnection.onKeyReleaseEvent?.(event)
 }
-events[4] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[4] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallButtonPressEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onButtonPressEvent?.(event)
+  await xConnection.onButtonPressEvent?.(event)
 }
-events[5] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[5] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallButtonReleaseEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onButtonReleaseEvent?.(event)
+  await xConnection.onButtonReleaseEvent?.(event)
 }
-events[6] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[6] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallMotionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onMotionNotifyEvent?.(event)
+  await xConnection.onMotionNotifyEvent?.(event)
 }
-events[7] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[7] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallEnterNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onEnterNotifyEvent?.(event)
+  await xConnection.onEnterNotifyEvent?.(event)
 }
-events[8] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[8] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallLeaveNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onLeaveNotifyEvent?.(event)
+  await xConnection.onLeaveNotifyEvent?.(event)
 }
-events[9] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[9] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallFocusInEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onFocusInEvent?.(event)
+  await xConnection.onFocusInEvent?.(event)
 }
-events[10] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[10] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallFocusOutEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onFocusOutEvent?.(event)
+  await xConnection.onFocusOutEvent?.(event)
 }
-events[11] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[11] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallKeymapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onKeymapNotifyEvent?.(event)
+  await xConnection.onKeymapNotifyEvent?.(event)
 }
-events[12] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[12] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallExposeEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onExposeEvent?.(event)
+  await xConnection.onExposeEvent?.(event)
 }
-events[13] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[13] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallGraphicsExposureEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onGraphicsExposureEvent?.(event)
+  await xConnection.onGraphicsExposureEvent?.(event)
 }
-events[14] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[14] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallNoExposureEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onNoExposureEvent?.(event)
+  await xConnection.onNoExposureEvent?.(event)
 }
-events[15] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[15] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallVisibilityNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onVisibilityNotifyEvent?.(event)
+  await xConnection.onVisibilityNotifyEvent?.(event)
 }
-events[16] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[16] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallCreateNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onCreateNotifyEvent?.(event)
+  await xConnection.onCreateNotifyEvent?.(event)
 }
-events[17] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[17] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallDestroyNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onDestroyNotifyEvent?.(event)
+  await xConnection.onDestroyNotifyEvent?.(event)
 }
-events[18] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[18] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallUnmapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onUnmapNotifyEvent?.(event)
+  await xConnection.onUnmapNotifyEvent?.(event)
 }
-events[19] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[19] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallMapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onMapNotifyEvent?.(event)
+  await xConnection.onMapNotifyEvent?.(event)
 }
-events[20] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[20] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallMapRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onMapRequestEvent?.(event)
+  await xConnection.onMapRequestEvent?.(event)
 }
-events[21] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[21] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallReparentNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onReparentNotifyEvent?.(event)
+  await xConnection.onReparentNotifyEvent?.(event)
 }
-events[22] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[22] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallConfigureNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onConfigureNotifyEvent?.(event)
+  await xConnection.onConfigureNotifyEvent?.(event)
 }
-events[23] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[23] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallConfigureRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onConfigureRequestEvent?.(event)
+  await xConnection.onConfigureRequestEvent?.(event)
 }
-events[24] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[24] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallGravityNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onGravityNotifyEvent?.(event)
+  await xConnection.onGravityNotifyEvent?.(event)
 }
-events[25] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[25] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallResizeRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onResizeRequestEvent?.(event)
+  await xConnection.onResizeRequestEvent?.(event)
 }
-events[26] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[26] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallCirculateNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onCirculateNotifyEvent?.(event)
+  await xConnection.onCirculateNotifyEvent?.(event)
 }
-events[27] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[27] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallCirculateRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onCirculateRequestEvent?.(event)
+  await xConnection.onCirculateRequestEvent?.(event)
 }
-events[28] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[28] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallPropertyNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onPropertyNotifyEvent?.(event)
+  await xConnection.onPropertyNotifyEvent?.(event)
 }
-events[29] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[29] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallSelectionClearEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onSelectionClearEvent?.(event)
+  await xConnection.onSelectionClearEvent?.(event)
 }
-events[30] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[30] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallSelectionRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onSelectionRequestEvent?.(event)
+  await xConnection.onSelectionRequestEvent?.(event)
 }
-events[31] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[31] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallSelectionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onSelectionNotifyEvent?.(event)
+  await xConnection.onSelectionNotifyEvent?.(event)
 }
-events[32] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[32] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallColormapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onColormapNotifyEvent?.(event)
+  await xConnection.onColormapNotifyEvent?.(event)
 }
-events[33] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[33] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallClientMessageEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onClientMessageEvent?.(event)
+  await xConnection.onClientMessageEvent?.(event)
 }
-events[34] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[34] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallMappingNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onMappingNotifyEvent?.(event)
+  await xConnection.onMappingNotifyEvent?.(event)
 }
-events[35] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+events[35] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
   const event = unmarshallGeGenericEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  xConnection.onGeGenericEvent?.(event)
+  await xConnection.onGeGenericEvent?.(event)
 }
 errors[1] = [unmarshallRequestError, BadRequest]
 errors[2] = [unmarshallValueError, BadValue]
