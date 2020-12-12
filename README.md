@@ -2,9 +2,9 @@
 
 X11 TypeScript Bindings. 
 
-Wip, although probably already quite usable. Not published on NPM yet.
+Wip, although probably already quite usable.
 
-Currently only works in Node.
+Works in Node and browser.
 
 Originally created for use in [Greenfield](https://github.com/udevbe/greenfield/issues/12).
 
