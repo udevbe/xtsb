@@ -1,6 +1,6 @@
 {
   "name": "xtsb",
-  "version": "0.0.1-alpha.3",
+  "version": "0.0.1-alpha.4",
   "description": "",
   "keywords": [],
   "main": "dist/main/index.node.js",
