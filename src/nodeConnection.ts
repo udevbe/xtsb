@@ -29,7 +29,7 @@ const connectionTypeToName: ConnectionTypeToName = {
   1: 'DECnet',
   2: 'Chaos',
   5: 'ServerInterpreted',
-  6: 'Internet6'
+  6: 'Internet6',
 }
 
 interface Cookie {
@@ -68,12 +68,7 @@ async function readXauthority(xAuthority?: string): Promise<Uint8Array | null> {
 function parseXauth(buf: Uint8Array): Cookie[] {
   let offset = 0
   const auth: Cookie[] = []
-  const cookieProperties: (keyof Omit<Cookie, 'type'>)[] = [
-    'address',
-    'display',
-    'authName',
-    'authData'
-  ]
+  const cookieProperties: (keyof Omit<Cookie, 'type'>)[] = ['address', 'display', 'authName', 'authData']
 
   while (offset < buf.length) {
     const type = buf[offset + 1] | (buf[offset] << 8)
@@ -81,7 +76,7 @@ function parseXauth(buf: Uint8Array): Cookie[] {
       throw new Error('Unknown address type')
     }
     const cookie: Partial<Cookie> = {
-      type: type as keyof ConnectionTypeToName
+      type: type as keyof ConnectionTypeToName,
     }
 
     offset += 2
@@ -110,11 +105,7 @@ function parseXauth(buf: Uint8Array): Cookie[] {
   return auth
 }
 
-async function connectSocket(
-  host: string,
-  displayNum: string,
-  socketPath?: string
-): Promise<net.Socket> {
+async function connectSocket(host: string, displayNum: string, socketPath?: string): Promise<net.Socket> {
   return new Promise((resolve, reject) => {
     const socket = socketPath
       ? net.createConnection(socketPath)
@@ -135,9 +126,7 @@ async function connectSocket(
   })
 }
 
-function connectSocketFD(
-  fd: number
-): net.Socket {
+function connectSocketFD(fd: number): net.Socket {
   const socket = new net.Socket({ fd })
   socket.on('error', (err: NodeJS.ErrnoException) => {
     socket.destroy(err)
@@ -149,7 +138,7 @@ export async function getAuthenticationCookie(
   displayNum: string,
   authHost: string,
   socketFamily?: 'IPv4' | 'IPv6',
-  xAuthority?: string
+  xAuthority?: string,
 ): Promise<{ authName: string; authData: string }> {
   let family: number
   if (socketFamily === 'IPv4') {
@@ -165,15 +154,14 @@ export async function getAuthenticationCookie(
   if (!data) {
     return {
       authName: '',
-      authData: ''
+      authData: '',
     }
   }
   const auth = parseXauth(data)
-  for (let cookieNum in auth) {
+  for (const cookieNum in auth) {
     const cookie = auth[cookieNum]
     if (
-      (connectionTypeToName[cookie.type] === 'Wild' ||
-        (cookie.type === family && cookie.address === authHost)) &&
+      (connectionTypeToName[cookie.type] === 'Wild' || (cookie.type === family && cookie.address === authHost)) &&
       (cookie.display.length === 0 || cookie.display === displayNum)
     ) {
       return cookie
@@ -182,94 +170,91 @@ export async function getAuthenticationCookie(
   // If no cookie is found, proceed without authentication
   return {
     authName: '',
-    authData: ''
+    authData: '',
   }
 }
 
-export const nodeFDConnectionSetup: (fd: number) => SetupConnection =
-  fd => async () => {
-    const display = process.env.DISPLAY
-    if (display === undefined) {
-      throw new Error('No DISPLAY environment variable set.')
-    }
-
-    const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
-    if (!displayMatch) {
-      throw new Error('Cannot parse display')
-    }
-    const displayNum = displayMatch[2] ?? '0'
-
-
-    const socket = connectSocketFD(fd)
-    const xConnectionSocket: XConnectionSocket = {
-      write(data: Uint8Array) {
-        socket.write(data)
-      },
-
-      close() {
-        socket.end()
-      }
-    }
-    socket.on('data', (data) => xConnectionSocket.onData?.(data))
-
-    const authHost = os.hostname()
-    const cookie = await getAuthenticationCookie(displayNum, authHost)
-    const setup = await authenticate(xConnectionSocket, displayNum, authHost, undefined, cookie)
-
-    return { setup, xConnectionSocket }
+export const nodeFDConnectionSetup: (fd: number) => SetupConnection = (fd) => async () => {
+  const display = process.env.DISPLAY
+  if (display === undefined) {
+    throw new Error('No DISPLAY environment variable set.')
   }
 
-export const nodeConnectionSetup: (options: XConnectionOptions) => SetupConnection =
-  options => async () => {
-    const display = options?.display ?? process.env.DISPLAY ?? ':0'
-    const xAuthority = options?.xAuthority
-
-    const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
-    if (!displayMatch) {
-      throw new Error('Cannot parse display')
-    }
-
-    const host = displayMatch[1]
-    const displayNum = displayMatch[2] ?? '0'
-    const screenNum = displayMatch[3] ?? '0'
-
-    let socketPath: string | undefined
-    // try local socket on non-windows platforms
-    if (['cygwin', 'win32', 'win64'].indexOf(process.platform) < 0) {
-      // FIXME check if mac is ok?
-      // @ts-ignore
-      if (process.platform === 'darwin' || process.platform === 'mac') {
-        // socket path on OSX is /tmp/launch-(some id)/org.x:0
-        if (display[0] === '/') {
-          socketPath = display
-        }
-      } else if (!host) {
-        socketPath = '/tmp/.X11-unix/X' + displayNum
-      }
-    }
-
-    const socket = await connectSocket(host, displayNum, socketPath)
-    const xConnectionSocket: XConnectionSocket = {
-      write(data: Uint8Array) {
-        socket.write(data)
-      },
-
-      close() {
-        socket.end()
-      }
-    }
-    socket.on('data', (data) => xConnectionSocket.onData?.(data))
-
-    let authHost = socket.remoteAddress
-    let socketFamily = socket.remoteFamily as 'IPv4' | 'IPv6' | undefined
-
-    if (!authHost || authHost === '127.0.0.1' || authHost === '::1') {
-      authHost = os.hostname()
-      socketFamily = undefined
-    }
-
-    const cookie = await getAuthenticationCookie(displayNum, authHost, socketFamily, xAuthority)
-    const setup = await authenticate(xConnectionSocket, displayNum, authHost, socketFamily, cookie)
-
-    return { setup, xConnectionSocket }
+  const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
+  if (!displayMatch) {
+    throw new Error('Cannot parse display')
   }
+  const displayNum = displayMatch[2] ?? '0'
+
+  const socket = connectSocketFD(fd)
+  const xConnectionSocket: XConnectionSocket = {
+    write(data: Uint8Array) {
+      socket.write(data)
+    },
+
+    close() {
+      socket.end()
+    },
+  }
+  socket.on('data', (data) => xConnectionSocket.onData?.(data))
+
+  const authHost = os.hostname()
+  const cookie = await getAuthenticationCookie(displayNum, authHost)
+  const setup = await authenticate(xConnectionSocket, displayNum, authHost, undefined, cookie)
+
+  return { setup, xConnectionSocket }
+}
+
+export const nodeConnectionSetup: (options: XConnectionOptions) => SetupConnection = (options) => async () => {
+  const display = options?.display ?? process.env.DISPLAY ?? ':0'
+  const xAuthority = options?.xAuthority
+
+  const displayMatch = display.match(/^(?:[^:]*?\/)?(.*):(\d+)(?:.(\d+))?$/)
+  if (!displayMatch) {
+    throw new Error('Cannot parse display')
+  }
+
+  const host = displayMatch[1]
+  const displayNum = displayMatch[2] ?? '0'
+  const screenNum = displayMatch[3] ?? '0'
+
+  let socketPath: string | undefined
+  // try local socket on non-windows platforms
+  if (['cygwin', 'win32', 'win64'].indexOf(process.platform) < 0) {
+    // FIXME check if mac is ok?
+    // @ts-ignore
+    if (process.platform === 'darwin' || process.platform === 'mac') {
+      // socket path on OSX is /tmp/launch-(some id)/org.x:0
+      if (display[0] === '/') {
+        socketPath = display
+      }
+    } else if (!host) {
+      socketPath = '/tmp/.X11-unix/X' + displayNum
+    }
+  }
+
+  const socket = await connectSocket(host, displayNum, socketPath)
+  const xConnectionSocket: XConnectionSocket = {
+    write(data: Uint8Array) {
+      socket.write(data)
+    },
+
+    close() {
+      socket.end()
+    },
+  }
+  socket.on('data', (data) => xConnectionSocket.onData?.(data))
+
+  let authHost = socket.remoteAddress
+  let socketFamily = socket.remoteFamily as 'IPv4' | 'IPv6' | undefined
+
+  if (!authHost || authHost === '127.0.0.1' || authHost === '::1') {
+    authHost = os.hostname()
+    socketFamily = undefined
+  }
+
+  const cookie = await getAuthenticationCookie(displayNum, authHost, socketFamily, xAuthority)
+  const setup = await authenticate(xConnectionSocket, displayNum, authHost, socketFamily, cookie)
+
+  return { setup, xConnectionSocket }
+}

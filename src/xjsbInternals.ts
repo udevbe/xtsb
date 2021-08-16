@@ -6,7 +6,7 @@ export interface RequestChecker {
 }
 
 export type UnmarshallResult<T> = {
-  value: T,
+  value: T
   offset: number
 }
 
@@ -15,17 +15,22 @@ export interface Unmarshaller<T> {
 }
 
 export interface EventHandler<T> {
-  (event: T): void
+  (event: T): void | Promise<void>
 }
 
 interface RawEventHandler {
-  (xConnection: XConnection, rawEvent: Uint8Array): void
+  (xConnection: XConnection, rawEvent: Uint8Array): void | Promise<void>
 }
 
 export const events: { [key: number]: RawEventHandler } = {}
 export const errors: { [key: number]: [Unmarshaller<any>, new (errorBody: any) => Error] } = {}
 
-export function xcbComplexList<T>(buffer: ArrayBuffer, offset: number, listLength: number, unmarshall: Unmarshaller<T>): UnmarshallResult<T[]> {
+export function xcbComplexList<T>(
+  buffer: ArrayBuffer,
+  offset: number,
+  listLength: number,
+  unmarshall: Unmarshaller<T>,
+): UnmarshallResult<T[]> {
   const value: T[] = []
   for (let i = 0; i < listLength; i++) {
     const valueWithOffset = unmarshall(buffer, offset)
@@ -35,9 +40,15 @@ export function xcbComplexList<T>(buffer: ArrayBuffer, offset: number, listLengt
   return { value, offset }
 }
 
-export function xcbSimpleList<T extends TypedArray>(buffer: ArrayBuffer, offset: number, listLength: number, typedArrayConstructor: new (buffer: ArrayBuffer, offset: number, listLength: number) => T, primitiveLength: number): UnmarshallResult<T> {
+export function xcbSimpleList<T extends TypedArray>(
+  buffer: ArrayBuffer,
+  offset: number,
+  listLength: number,
+  typedArrayConstructor: new (buffer: ArrayBuffer, offset: number, listLength: number) => T,
+  primitiveLength: number,
+): UnmarshallResult<T> {
   const value = new typedArrayConstructor(buffer, offset, listLength)
-  offset += (listLength * primitiveLength)
+  offset += listLength * primitiveLength
   return { value, offset }
 }
 
@@ -52,14 +63,19 @@ export function concatArrayBuffers(buffers: ArrayBuffer[], totalByteLength: numb
 
   const concat = new Uint8Array(totalByteLength)
   let offset = 0
-  buffers.forEach(value => {
+  buffers.forEach((value) => {
     concat.set(new Uint8Array(value), offset)
     offset += value.byteLength
   })
   return concat.buffer
 }
 
-export function marshallXcbComplexList<T>(buffer: ArrayBuffer, offset: number, listLength: number, unmarshall: Unmarshaller<T>): UnmarshallResult<T[]> {
+export function marshallXcbComplexList<T>(
+  buffer: ArrayBuffer,
+  offset: number,
+  listLength: number,
+  unmarshall: Unmarshaller<T>,
+): UnmarshallResult<T[]> {
   const value: T[] = []
   for (let i = 0; i < listLength; i++) {
     const valueWithOffset = unmarshall(buffer, offset)

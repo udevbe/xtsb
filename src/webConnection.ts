@@ -3,10 +3,12 @@ import { Setup } from './xcb'
 
 function isSetup(setup: any): setup is Setup {
   // TODO we could check all Setup attributes but it would be a long list...
-  return setup.rootsLen !== undefined
-    && setup.protocolMinorVersion !== undefined
-    && setup.protocolMajorVersion !== undefined
-    && setup.length !== undefined
+  return (
+    setup.rootsLen !== undefined &&
+    setup.protocolMinorVersion !== undefined &&
+    setup.protocolMajorVersion !== undefined &&
+    setup.length !== undefined
+  )
 }
 
 function createXConnectionSocket(webSocket: WebSocket): XConnectionSocket {
@@ -17,10 +19,11 @@ function createXConnectionSocket(webSocket: WebSocket): XConnectionSocket {
     },
     write(data: Uint8Array) {
       webSocket.send(data)
-    }
+    },
   }
-  webSocket.onmessage = (ev: MessageEvent<ArrayBuffer>) => xConnectionSocket.onData?.(new Uint8Array(ev.data, 0, ev.data.byteLength))
-  webSocket.onerror = ev => {
+  webSocket.onmessage = (ev: MessageEvent<ArrayBuffer>) =>
+    xConnectionSocket.onData?.(new Uint8Array(ev.data, 0, ev.data.byteLength))
+  webSocket.onerror = (ev) => {
     xConnectionSocket.close()
     console.error('XConnection is in error: ' + ev)
   }
@@ -29,7 +32,7 @@ function createXConnectionSocket(webSocket: WebSocket): XConnectionSocket {
 
 async function auth(webSocket: WebSocket) {
   return new Promise<Setup>((resolve, reject) => {
-    webSocket.onmessage = ev => {
+    webSocket.onmessage = (ev) => {
       const message = JSON.parse(ev.data)
       if (isSetup(message)) {
         resolve(message)
@@ -37,15 +40,14 @@ async function auth(webSocket: WebSocket) {
         reject('Expected xcb Setup, got: ' + ev)
       }
     }
-    webSocket.onerror = ev => {
+    webSocket.onerror = (ev) => {
       reject('WebSocket is in error: ' + ev)
     }
   })
 }
 
-export const webConnectionSetup: (webSocket: WebSocket) => SetupConnection =
-  (webSocket) => async () => {
-    const setup = await auth(webSocket)
-    const xConnectionSocket = createXConnectionSocket(webSocket)
-    return { setup, xConnectionSocket }
-  }
+export const webConnectionSetup: (webSocket: WebSocket) => SetupConnection = (webSocket) => async () => {
+  const setup = await auth(webSocket)
+  const xConnectionSocket = createXConnectionSocket(webSocket)
+  return { setup, xConnectionSocket }
+}

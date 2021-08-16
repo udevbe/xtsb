@@ -8,18 +8,20 @@ import {
   XConnection,
   getShape,
   getXFixes,
-  getRender, ColormapAlloc
+  getRender,
+  ColormapAlloc,
 } from '../src'
+// @ts-ignore
 import { setupXvfb } from './setupXvfb'
 
 interface VisualAndColormap {
-  visualId: number,
+  visualId: number
   colormap: number
 }
 
 async function setupVisualAndColormap(xConnection: XConnection): Promise<VisualAndColormap> {
-  const visuals = xConnection.setup.roots.map(screen => {
-    const depth = screen.allowedDepths.find(depth => depth.depth === 32)
+  const visuals = xConnection.setup.roots.map((screen) => {
+    const depth = screen.allowedDepths.find((depth) => depth.depth === 32)
     return depth?.visuals
   })?.[0]
 
@@ -33,7 +35,7 @@ async function setupVisualAndColormap(xConnection: XConnection): Promise<VisualA
 
   return {
     visualId,
-    colormap
+    colormap,
   }
 }
 
@@ -44,37 +46,23 @@ describe('Connection', () => {
 
   let connection: XConnection
 
-  beforeAll(async (done) => {
+  beforeAll(async () => {
     const { xProc, xAuthority } = await setupXvfb(display)
     xvfbProc = xProc
     connection = await connect(nodeConnectionSetup({ display, xAuthority }))
-    done()
   })
 
-  afterAll((done) => {
+  afterAll(() => {
     connection.close()
     xvfbProc.kill()
-    done()
   })
 
-  it('can receive a reply from a request.', async (done) => {
+  it('can receive a reply from a request.', async () => {
     // Given
     const windowId = connection.allocateID()
 
     // When
-    connection.createWindow(
-      0,
-      windowId,
-      connection.setup.roots[0].root,
-      0,
-      0,
-      1,
-      1,
-      0,
-      WindowClass.InputOutput,
-      0,
-      {}
-    )
+    connection.createWindow(0, windowId, connection.setup.roots[0].root, 0, 0, 1, 1, 0, WindowClass.InputOutput, 0, {})
     const queryTreeReply = await connection.queryTree(windowId)
 
     // Then
@@ -82,34 +70,21 @@ describe('Connection', () => {
     expect(queryTreeReply.root).toBe(connection.setup.roots[0].root)
     expect(queryTreeReply.childrenLen).toBe(0)
     expect(queryTreeReply.children.length).toBe(0)
-    done()
   })
 
-  it('can receive an error from a result request.', async (done) => {
+  it('can receive an error from a result request.', (done) => {
     // Given
     const windowId = connection.allocateID()
 
     // When
-    connection.createWindow(
-      0,
-      windowId,
-      connection.setup.roots[0].root,
-      0,
-      0,
-      1,
-      1,
-      0,
-      WindowClass.InputOutput,
-      0,
-      {}
-    )
+    connection.createWindow(0, windowId, connection.setup.roots[0].root, 0, 0, 1, 1, 0, WindowClass.InputOutput, 0, {})
     connection.queryTree(123).catch((error) => {
       expect(error).toBeInstanceOf(BadWindow)
       done()
     })
   })
 
-  it('can receive an error from checked a request.', async (done) => {
+  it('can receive an error from checked a request.', (done) => {
     // Given
     const windowId = connection.allocateID()
 
@@ -123,81 +98,65 @@ describe('Connection', () => {
       })
   })
 
-  it('can receive events.', async (done) => {
+  it('can receive events.', async () => {
     // Given
     const { colormap, visualId } = await setupVisualAndColormap(connection)
     const windowId = connection.allocateID()
 
     // When
-    await connection.createWindow(
-      32,
-      windowId,
-      connection.setup.roots[0].root,
-      0,
-      0,
-      484,
-      341,
-      0,
-      WindowClass.InputOutput,
-      visualId,
-      {
-        colormap,
-        eventMask: EventMask.KeyPress |
-          EventMask.KeyRelease |
-          EventMask.ButtonPress |
-          EventMask.ButtonRelease |
-          EventMask.PointerMotion |
-          EventMask.EnterWindow |
-          EventMask.LeaveWindow |
-          EventMask.SubstructureNotify |
-          EventMask.SubstructureRedirect |
-          EventMask.StructureNotify,
-        borderPixel: connection.setup.roots[0].blackPixel
-      }
-    ).check()
-    connection.onDestroyNotifyEvent = (event) => {
-      connection.onDestroyNotifyEvent = undefined
-      expect(event.window).toBe(windowId)
-      done()
-    }
+    await connection
+      .createWindow(
+        32,
+        windowId,
+        connection.setup.roots[0].root,
+        0,
+        0,
+        484,
+        341,
+        0,
+        WindowClass.InputOutput,
+        visualId,
+        {
+          colormap,
+          eventMask:
+            EventMask.KeyPress |
+            EventMask.KeyRelease |
+            EventMask.ButtonPress |
+            EventMask.ButtonRelease |
+            EventMask.PointerMotion |
+            EventMask.EnterWindow |
+            EventMask.LeaveWindow |
+            EventMask.SubstructureNotify |
+            EventMask.SubstructureRedirect |
+            EventMask.StructureNotify,
+          borderPixel: connection.setup.roots[0].blackPixel,
+        },
+      )
+      .check()
 
-    connection.destroyWindow(windowId)
+    await new Promise<void>((resolve) => {
+      connection.onDestroyNotifyEvent = (event) => {
+        connection.onDestroyNotifyEvent = undefined
+        expect(event.window).toBe(windowId)
+        resolve()
+      }
+
+      connection.destroyWindow(windowId).check()
+    })
   })
 
-  it('can wait on a successful checked request.', async (done) => {
+  it('can wait on a successful checked request.', async () => {
     // Given
     const windowId0 = connection.allocateID()
     const windowId1 = connection.allocateID()
 
     // When
-    connection.createWindow(
-      0,
-      windowId0,
-      connection.setup.roots[0].root,
-      0,
-      0,
-      1,
-      1,
-      0,
-      WindowClass.InputOutput,
-      0,
-      { eventMask: EventMask.StructureNotify }
-    )
+    connection.createWindow(0, windowId0, connection.setup.roots[0].root, 0, 0, 1, 1, 0, WindowClass.InputOutput, 0, {
+      eventMask: EventMask.StructureNotify,
+    })
     await connection.destroyWindow(windowId0).check()
     await connection
-      .createWindow(
-        0,
-        windowId1,
-        connection.setup.roots[0].root,
-        0,
-        0,
-        1,
-        1,
-        0,
-        WindowClass.InputOutput,
-        0,
-        {}
-      )
+      .createWindow(0, windowId1, connection.setup.roots[0].root, 0, 0, 1, 1, 0, WindowClass.InputOutput, 0, {})
       .check()
     const queryTreeReply = await connection.queryTree(windowId1)
 
@@ -206,12 +165,11 @@ describe('Connection', () => {
     expect(queryTreeReply.root).toBe(connection.setup.roots[0].root)
     expect(queryTreeReply.childrenLen).toBe(0)
     expect(queryTreeReply.children.length).toBe(0)
-    done()
   })
 
-  it('can query extensions', async (done) => {
+  it('can query extensions', async () => {
     const listExtensionsReply = await connection.listExtensions()
-    listExtensionsReply.names.forEach(value => {
+    listExtensionsReply.names.forEach((value) => {
       expect(value).not.toBeUndefined()
       expect(typeof value.name.chars()).toBe('string')
     })
@@ -223,7 +181,5 @@ describe('Connection', () => {
     expect(xFixes).not.toBeUndefined()
     expect(render).not.toBeUndefined()
     expect(shape).not.toBeUndefined()
-
-    done()
   })
 })

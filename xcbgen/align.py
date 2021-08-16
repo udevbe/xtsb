@@ -2,7 +2,7 @@
 This module contains helper classes for alignment arithmetic and checks
 '''
 
-from fractions import gcd
+from math import gcd
 
 class Alignment(object):
 

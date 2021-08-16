@@ -1,5 +1,5 @@
 import { TextDecoder, TextEncoder } from 'util'
-import { pack, unpack } from '../src/struct'
+import { calcsize, pack, unpack } from '../src/struct'
 
 describe('struct lib', () => {
   const firstValue = 1
@@ -98,14 +98,7 @@ describe('struct lib', () => {
   })
   it('can unpack float LE', (done) => {
     // Given
-    const float32Array = new Float32Array([
-      firstValue,
-      secondValue,
-      thirdValue,
-      fourthValue,
-      fifthValue,
-      sixthValue,
-    ])
+    const float32Array = new Float32Array([firstValue, secondValue, thirdValue, fourthValue, fifthValue, sixthValue])
 
     // When
     const unpackResult = unpack('<6f', float32Array.buffer)
@@ -122,14 +115,7 @@ describe('struct lib', () => {
   })
   it('can unpack double LE', (done) => {
     // Given
-    const float64Array = new Float64Array([
-      firstValue,
-      secondValue,
-      thirdValue,
-      fourthValue,
-      fifthValue,
-      sixthValue,
-    ])
+    const float64Array = new Float64Array([firstValue, secondValue, thirdValue, fourthValue, fifthValue, sixthValue])
 
     // When
     const unpackResult = unpack('<6d', float64Array.buffer)

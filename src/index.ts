@@ -10,5 +10,3 @@ export * as Composite from './xcbComposite'
 export * from './connection'
 export * from './nodeConnection'
 export * from './webConnection'
-
-

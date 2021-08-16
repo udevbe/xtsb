@@ -1,14 +1,14 @@
+import { PIXMAP, WINDOW } from './xcb'
+import { REGION } from './xcbXFixes'
 //
 // This file generated automatically from composite.xml by ts_client.py.
 // Edit at your peril.
 //
-import { chars, XConnection } from './connection'
+
+import { XConnection, chars } from './connection'
 import Protocol from './Protocol'
-// tslint:disable-next-line:no-duplicate-imports
-import { pack, unpackFrom } from './struct'
-import { PIXMAP, WINDOW } from './xcb'
-import { REGION } from './xcbXFixes'
-import type { RequestChecker, Unmarshaller } from './xjsbInternals'
+import type { Unmarshaller, RequestChecker } from './xjsbInternals'
+import { unpackFrom, pack } from './struct'
 
 export class Composite extends Protocol {
   static MAJOR_VERSION = 0
@@ -34,11 +34,10 @@ export async function getComposite(xConnection: XConnection): Promise<Composite>
   firstEvent = queryExtensionReply.firstEvent
   firstError = queryExtensionReply.firstError
   protocolExtension = new Composite(xConnection, majorOpcode)
-  errorInits.forEach(init => init(firstError))
-  eventInits.forEach(init => init(firstEvent))
+  errorInits.forEach((init) => init(firstError))
+  eventInits.forEach((init) => init(firstEvent))
   return protocolExtension
 }
-
 
 export const enum Redirect {
   Automatic = 0,
@@ -61,9 +60,9 @@ export const unmarshallQueryVersionReply: Unmarshaller<QueryVersionReply> = (buf
     value: {
       responseType,
       majorVersion,
-      minorVersion
+      minorVersion,
     },
-    offset
+    offset,
   }
 }
 
@@ -81,12 +80,11 @@ export const unmarshallGetOverlayWindowReply: Unmarshaller<GetOverlayWindowReply
   return {
     value: {
       responseType,
-      overlayWin
+      overlayWin,
     },
-    offset
+    offset,
   }
 }
-
 
 declare module './xcbComposite' {
   interface Composite {
@@ -94,14 +92,22 @@ declare module './xcbComposite' {
   }
 }
 
-Composite.prototype.queryVersion = function(clientMajorVersion: number, clientMinorVersion: number): QueryVersionCookie {
+Composite.prototype.queryVersion = function (
+  clientMajorVersion: number,
+  clientMinorVersion: number,
+): QueryVersionCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', clientMajorVersion, clientMinorVersion))
 
-  return this.xConnection.sendRequest<QueryVersionReply>(requestParts, this.majorOpcode, unmarshallQueryVersionReply, 0, 'queryVersion')
+  return this.xConnection.sendRequest<QueryVersionReply>(
+    requestParts,
+    this.majorOpcode,
+    unmarshallQueryVersionReply,
+    0,
+    'queryVersion',
+  )
 }
-
 
 declare module './xcbComposite' {
   interface Composite {
@@ -109,7 +115,7 @@ declare module './xcbComposite' {
   }
 }
 
-Composite.prototype.redirectWindow = function(window: WINDOW, update: Redirect): RequestChecker {
+Composite.prototype.redirectWindow = function (window: WINDOW, update: Redirect): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIB3x', window, update))
@@ -117,14 +123,13 @@ Composite.prototype.redirectWindow = function(window: WINDOW, update: Redirect):
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 1, 'redirectWindow')
 }
 
-
 declare module './xcbComposite' {
   interface Composite {
     redirectSubwindows(window: WINDOW, update: Redirect): RequestChecker
   }
 }
 
-Composite.prototype.redirectSubwindows = function(window: WINDOW, update: Redirect): RequestChecker {
+Composite.prototype.redirectSubwindows = function (window: WINDOW, update: Redirect): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIB3x', window, update))
@@ -132,14 +137,13 @@ Composite.prototype.redirectSubwindows = function(window: WINDOW, update: Redire
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 2, 'redirectSubwindows')
 }
 
-
 declare module './xcbComposite' {
   interface Composite {
     unredirectWindow(window: WINDOW, update: Redirect): RequestChecker
   }
 }
 
-Composite.prototype.unredirectWindow = function(window: WINDOW, update: Redirect): RequestChecker {
+Composite.prototype.unredirectWindow = function (window: WINDOW, update: Redirect): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIB3x', window, update))
@@ -147,14 +151,13 @@ Composite.prototype.unredirectWindow = function(window: WINDOW, update: Redirect
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 3, 'unredirectWindow')
 }
 
-
 declare module './xcbComposite' {
   interface Composite {
     unredirectSubwindows(window: WINDOW, update: Redirect): RequestChecker
   }
 }
 
-Composite.prototype.unredirectSubwindows = function(window: WINDOW, update: Redirect): RequestChecker {
+Composite.prototype.unredirectSubwindows = function (window: WINDOW, update: Redirect): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIB3x', window, update))
@@ -162,14 +165,13 @@ Composite.prototype.unredirectSubwindows = function(window: WINDOW, update: Redi
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 4, 'unredirectSubwindows')
 }
 
-
 declare module './xcbComposite' {
   interface Composite {
     createRegionFromBorderClip(region: REGION, window: WINDOW): RequestChecker
   }
 }
 
-Composite.prototype.createRegionFromBorderClip = function(region: REGION, window: WINDOW): RequestChecker {
+Composite.prototype.createRegionFromBorderClip = function (region: REGION, window: WINDOW): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', region, window))
@@ -177,14 +179,13 @@ Composite.prototype.createRegionFromBorderClip = function(region: REGION, window
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 5, 'createRegionFromBorderClip')
 }
 
-
 declare module './xcbComposite' {
   interface Composite {
     nameWindowPixmap(window: WINDOW, pixmap: PIXMAP): RequestChecker
   }
 }
 
-Composite.prototype.nameWindowPixmap = function(window: WINDOW, pixmap: PIXMAP): RequestChecker {
+Composite.prototype.nameWindowPixmap = function (window: WINDOW, pixmap: PIXMAP): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', window, pixmap))
@@ -192,21 +193,25 @@ Composite.prototype.nameWindowPixmap = function(window: WINDOW, pixmap: PIXMAP):
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 6, 'nameWindowPixmap')
 }
 
-
 declare module './xcbComposite' {
   interface Composite {
     getOverlayWindow(window: WINDOW): GetOverlayWindowCookie
   }
 }
 
-Composite.prototype.getOverlayWindow = function(window: WINDOW): GetOverlayWindowCookie {
+Composite.prototype.getOverlayWindow = function (window: WINDOW): GetOverlayWindowCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', window))
 
-  return this.xConnection.sendRequest<GetOverlayWindowReply>(requestParts, this.majorOpcode, unmarshallGetOverlayWindowReply, 7, 'getOverlayWindow')
+  return this.xConnection.sendRequest<GetOverlayWindowReply>(
+    requestParts,
+    this.majorOpcode,
+    unmarshallGetOverlayWindowReply,
+    7,
+    'getOverlayWindow',
+  )
 }
-
 
 declare module './xcbComposite' {
   interface Composite {
@@ -214,11 +219,10 @@ declare module './xcbComposite' {
   }
 }
 
-Composite.prototype.releaseOverlayWindow = function(window: WINDOW): RequestChecker {
+Composite.prototype.releaseOverlayWindow = function (window: WINDOW): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', window))
 
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 8, 'releaseOverlayWindow')
 }
-

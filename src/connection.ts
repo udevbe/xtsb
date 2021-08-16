@@ -20,7 +20,7 @@ declare global {
 }
 
 export type TypedArray =
-  Int8Array
+  | Int8Array
   | Uint8Array
   | Int16Array
   | Uint16Array
@@ -30,11 +30,11 @@ export type TypedArray =
   | Float32Array
   | Float64Array
 
-Int8Array.prototype.chars = function() {
+Int8Array.prototype.chars = function () {
   return textDecoder.decode(this)
 }
 
-Uint8Array.prototype.chars = function() {
+Uint8Array.prototype.chars = function () {
   return textDecoder.decode(this)
 }
 
@@ -79,9 +79,9 @@ const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (buffer, 
     value: {
       responseType,
       revertTo,
-      focus
+      focus,
     },
-    offset
+    offset,
   }
 }
 
@@ -95,7 +95,7 @@ export class XConnection {
   private nextResourceId: number
   private readonly resourceIdShift: number
 
-  private requestSequenceNumber: number = 0
+  private requestSequenceNumber = 0
   private readonly replyResolvers: ReplyResolver[] = []
 
   private readonly receivedEvents: Uint8Array[] = []
@@ -119,7 +119,7 @@ export class XConnection {
   }
 
   flush() {
-    this.sendBuffer.forEach(value => this.socket.write(value))
+    this.sendBuffer.forEach((value) => this.socket.write(value))
     this.sendBuffer = []
   }
 
@@ -159,9 +159,12 @@ export class XConnection {
 
     // check if we need to prepend previously received partial data
     if (this.receiveBuffer.length > 0) {
-      const length = this.receiveBuffer.reduce((previousValue, currentValue) => previousValue + currentValue.byteLength, 0)
+      const length = this.receiveBuffer.reduce(
+        (previousValue, currentValue) => previousValue + currentValue.byteLength,
+        0,
+      )
       const previousData = new Uint8Array(length)
-      this.receiveBuffer.forEach(value => {
+      this.receiveBuffer.forEach((value) => {
         previousData.set(value, offset)
         offset += value.byteLength
       })
@@ -198,8 +201,10 @@ export class XConnection {
         const replySequenceNumber = header[2] | (header[3] << 8)
         const length = 32 + 4 * (header[4] | (header[5] << 8) | (header[6] << 16) | (header[7] << 24))
         // check if we have enough bytes remaining to construct the reply
-        if (length > (bytesRemaining - offset)) {
-          this.receiveBuffer.push(new Uint8Array(messages.buffer, messages.byteOffset + offset, bytesRemaining - offset))
+        if (length > bytesRemaining - offset) {
+          this.receiveBuffer.push(
+            new Uint8Array(messages.buffer, messages.byteOffset + offset, bytesRemaining - offset),
+          )
           return
         }
         this.resolvePreviousReplyResolvers(replySequenceNumber)
@@ -228,12 +233,20 @@ export class XConnection {
 
     let nextEvent
     while ((nextEvent = this.receivedEvents[0]) !== undefined) {
-      await events[nextEvent[0] & 0x7F](this, nextEvent)
+      const voidOrPromise = events[nextEvent[0] & 0x7f](this, nextEvent)
+      if (voidOrPromise instanceof Promise) {
+        await voidOrPromise
+      }
       this.receivedEvents.shift()
     }
   }
 
-  sendVoidRequest(requestParts: ArrayBuffer[], opcode: number, minorOpcode: number, requestName: string): RequestChecker {
+  sendVoidRequest(
+    requestParts: ArrayBuffer[],
+    opcode: number,
+    minorOpcode: number,
+    requestName: string,
+  ): RequestChecker {
     const requestBuffer = createRequestBuffer(requestParts)
     requestBuffer[0] = opcode
     if (minorOpcode) {
@@ -241,14 +254,14 @@ export class XConnection {
     }
     new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(
       requestBuffer.buffer,
-      requestBuffer.byteOffset
+      requestBuffer.byteOffset,
     ).length
 
     const voidRequestPromise = new Promise<void>((resolve, reject) => {
       this.replyResolvers.push({
         resolve,
         resolveWithError: this.resolveWithError(reject),
-        requestName
+        requestName,
       })
 
       this.requestSequenceNumber++
@@ -261,7 +274,7 @@ export class XConnection {
         // tslint:disable-next-line:no-floating-promises
         this.sendRequest<GetInputFocusReply>([new ArrayBuffer(4)], 43, unmarshallGetInputFocusReply, 0, 'GetInputFocus')
         return voidRequestPromise
-      }
+      },
     }
   }
 
@@ -270,24 +283,23 @@ export class XConnection {
     opcode: number,
     replyUnmarshaller: Unmarshaller<T>,
     minorOpcode: number,
-    requestName: string
+    requestName: string,
   ): Promise<T> {
     const requestBuffer = createRequestBuffer(requestParts)
     requestBuffer[0] = opcode
     if (minorOpcode) {
       requestBuffer[1] = minorOpcode
     }
-    new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] =
-      new Uint32Array(
-        requestBuffer.buffer,
-        requestBuffer.byteOffset
-      ).length
+    new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(
+      requestBuffer.buffer,
+      requestBuffer.byteOffset,
+    ).length
 
     const promise = new Promise<Uint8Array>((resolve, reject) => {
       this.replyResolvers.push({
         resolve,
         resolveWithError: this.resolveWithError(reject),
-        requestName
+        requestName,
       })
     }).then((rawReply) => replyUnmarshaller(rawReply.buffer, rawReply.byteOffset).value)
 
@@ -313,21 +325,18 @@ export class XConnection {
 }
 
 function createRequestBuffer(requestParts: ArrayBuffer[]): Uint8Array {
-  const requestSize = requestParts.reduce(
-    (previousValue, currentValue) => previousValue + currentValue.byteLength,
-    0
-  )
+  const requestSize = requestParts.reduce((previousValue, currentValue) => previousValue + currentValue.byteLength, 0)
   return requestParts.reduce<{ buffer: Uint8Array; offset: number }>(
     ({ buffer, offset }, currentValue) => {
       buffer.set(new Uint8Array(currentValue), offset)
       return { buffer, offset: offset + currentValue.byteLength }
     },
-    { buffer: new Uint8Array(requestSize), offset: 0 }
+    { buffer: new Uint8Array(requestSize), offset: 0 },
   ).buffer
 }
 
 export interface SetupConnection {
-  (): Promise<{ setup: Setup, xConnectionSocket: XConnectionSocket }>
+  (): Promise<{ setup: Setup; xConnectionSocket: XConnectionSocket }>
 }
 
 export async function connect(setupConnection: SetupConnection): Promise<XConnection> {

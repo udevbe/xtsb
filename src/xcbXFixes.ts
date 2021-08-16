@@ -1,21 +1,20 @@
-import {TIMESTAMP, CURSOR, unmarshallRECTANGLE, RECTANGLE, WINDOW, PIXMAP, ATOM, GCONTEXT} from './xcb'
-import {SK} from './xcbShape'
-import {PICTURE} from './xcbRender'
+import { WINDOW, TIMESTAMP, CURSOR, ATOM, GCONTEXT, unmarshallRECTANGLE, RECTANGLE, PIXMAP } from './xcb'
+import { SK } from './xcbShape'
+import { PICTURE } from './xcbRender'
 //
 // This file generated automatically from xfixes.xml by ts_client.py.
 // Edit at your peril.
 //
 
-import { XConnection, chars, pad} from './connection'
+import { XConnection, chars, pad } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
-// tslint:disable-next-line:no-duplicate-imports
 import { xcbSimpleList, xcbComplexList, typePad, events, errors, concatArrayBuffers } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 export class XFixes extends Protocol {
- static MAJOR_VERSION = 5
- static MINOR_VERSION = 0
+  static MAJOR_VERSION = 5
+  static MINOR_VERSION = 0
 }
 
 const errorInits: ((firstError: number) => void)[] = []
@@ -37,11 +36,10 @@ export async function getXFixes(xConnection: XConnection): Promise<XFixes> {
   firstEvent = queryExtensionReply.firstEvent
   firstError = queryExtensionReply.firstError
   protocolExtension = new XFixes(xConnection, majorOpcode)
-  errorInits.forEach(init => init(firstError))
-  eventInits.forEach(init => init(firstEvent))
+  errorInits.forEach((init) => init(firstError))
+  eventInits.forEach((init) => init(firstEvent))
   return protocolExtension
 }
-
 
 export type QueryVersionCookie = Promise<QueryVersionReply>
 
@@ -51,8 +49,8 @@ export type QueryVersionReply = {
   minorVersion: number
 }
 
-export const unmarshallQueryVersionReply: Unmarshaller<QueryVersionReply> = (buffer, offset=0) => {
-  const [ responseType, majorVersion, minorVersion ] = unpackFrom('<Bx2x4xII16x', buffer, offset)
+export const unmarshallQueryVersionReply: Unmarshaller<QueryVersionReply> = (buffer, offset = 0) => {
+  const [responseType, majorVersion, minorVersion] = unpackFrom('<Bx2x4xII16x', buffer, offset)
   offset += 32
 
   return {
@@ -61,35 +59,35 @@ export const unmarshallQueryVersionReply: Unmarshaller<QueryVersionReply> = (buf
       majorVersion,
       minorVersion,
     },
-    offset
+    offset,
   }
 }
 
 export const enum SaveSetMode {
-  Insert= 0,
-  Delete= 1,
+  Insert = 0,
+  Delete = 1,
 }
 
 export const enum SaveSetTarget {
-  Nearest= 0,
-  Root= 1,
+  Nearest = 0,
+  Root = 1,
 }
 
 export const enum SaveSetMapping {
-  Map= 0,
-  Unmap= 1,
+  Map = 0,
+  Unmap = 1,
 }
 
 export const enum SelectionEvent {
-  SetSelectionOwner= 0,
-  SelectionWindowDestroy= 1,
-  SelectionClientClose= 2,
+  SetSelectionOwner = 0,
+  SelectionWindowDestroy = 1,
+  SelectionClientClose = 2,
 }
 
 export const enum SelectionEventMask {
-  SetSelectionOwner= 1,
-  SelectionWindowDestroy= 2,
-  SelectionClientClose= 4,
+  SetSelectionOwner = 1,
+  SelectionWindowDestroy = 2,
+  SelectionClientClose = 4,
 }
 
 export type SelectionNotifyEvent = {
@@ -102,8 +100,12 @@ export type SelectionNotifyEvent = {
   selectionTimestamp: TIMESTAMP
 }
 
-export const unmarshallSelectionNotifyEvent: Unmarshaller<SelectionNotifyEvent> = (buffer, offset=0) => {
-  const [ responseType, subtype, window, owner, selection, timestamp, selectionTimestamp ] = unpackFrom('<BB2xIIIII8x', buffer, offset)
+export const unmarshallSelectionNotifyEvent: Unmarshaller<SelectionNotifyEvent> = (buffer, offset = 0) => {
+  const [responseType, subtype, window, owner, selection, timestamp, selectionTimestamp] = unpackFrom(
+    '<BB2xIIIII8x',
+    buffer,
+    offset,
+  )
   offset += 32
 
   return {
@@ -116,20 +118,20 @@ export const unmarshallSelectionNotifyEvent: Unmarshaller<SelectionNotifyEvent> 
       timestamp,
       selectionTimestamp,
     },
-    offset
+    offset,
   }
 }
 export const marshallSelectionNotifyEvent = (instance: SelectionNotifyEvent): ArrayBuffer => {
-  let byteLength = 0
+  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { subtype, window, owner, selection, timestamp, selectionTimestamp } = instance
     buffers.push(pack('<xB2xIIIII8x', subtype, window, owner, selection, timestamp, selectionTimestamp))
   }
-  new Uint8Array(buffers[0])[0] = firstEvent+0
+  new Uint8Array(buffers[0])[0] = firstEvent + 0
   return concatArrayBuffers(buffers, byteLength)
 }
-export interface SelectionNotifyEventHandler extends EventHandler<SelectionNotifyEvent> {}
+export type SelectionNotifyEventHandler = EventHandler<SelectionNotifyEvent>
 
 declare module './xcbXFixes' {
   interface XFixes {
@@ -137,13 +139,12 @@ declare module './xcbXFixes' {
   }
 }
 
-
 export const enum CursorNotify {
-  DisplayCursor= 0,
+  DisplayCursor = 0,
 }
 
 export const enum CursorNotifyMask {
-  DisplayCursor= 1,
+  DisplayCursor = 1,
 }
 
 export type CursorNotifyEvent = {
@@ -155,8 +156,8 @@ export type CursorNotifyEvent = {
   name: ATOM
 }
 
-export const unmarshallCursorNotifyEvent: Unmarshaller<CursorNotifyEvent> = (buffer, offset=0) => {
-  const [ responseType, subtype, window, cursorSerial, timestamp, name ] = unpackFrom('<BB2xIIII12x', buffer, offset)
+export const unmarshallCursorNotifyEvent: Unmarshaller<CursorNotifyEvent> = (buffer, offset = 0) => {
+  const [responseType, subtype, window, cursorSerial, timestamp, name] = unpackFrom('<BB2xIIII12x', buffer, offset)
   offset += 32
 
   return {
@@ -168,27 +169,26 @@ export const unmarshallCursorNotifyEvent: Unmarshaller<CursorNotifyEvent> = (buf
       timestamp,
       name,
     },
-    offset
+    offset,
   }
 }
 export const marshallCursorNotifyEvent = (instance: CursorNotifyEvent): ArrayBuffer => {
-  let byteLength = 0
+  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { subtype, window, cursorSerial, timestamp, name } = instance
     buffers.push(pack('<xB2xIIII12x', subtype, window, cursorSerial, timestamp, name))
   }
-  new Uint8Array(buffers[0])[0] = firstEvent+1
+  new Uint8Array(buffers[0])[0] = firstEvent + 1
   return concatArrayBuffers(buffers, byteLength)
 }
-export interface CursorNotifyEventHandler extends EventHandler<CursorNotifyEvent> {}
+export type CursorNotifyEventHandler = EventHandler<CursorNotifyEvent>
 
 declare module './xcbXFixes' {
   interface XFixes {
     onCursorNotifyEvent?: CursorNotifyEventHandler
   }
 }
-
 
 export type GetCursorImageCookie = Promise<GetCursorImageReply>
 
@@ -204,10 +204,10 @@ export type GetCursorImageReply = {
   cursorImage: Uint32Array
 }
 
-export const unmarshallGetCursorImageReply: Unmarshaller<GetCursorImageReply> = (buffer, offset=0) => {
-  const [ responseType, x, y, width, height, xhot, yhot, cursorSerial ] = unpackFrom('<Bx2x4xhhHHHHI8x', buffer, offset)
+export const unmarshallGetCursorImageReply: Unmarshaller<GetCursorImageReply> = (buffer, offset = 0) => {
+  const [responseType, x, y, width, height, xhot, yhot, cursorSerial] = unpackFrom('<Bx2x4xhhHHHHI8x', buffer, offset)
   offset += 32
-  const cursorImageWithOffset = xcbSimpleList(buffer, offset, (width * height), Uint32Array, 4)
+  const cursorImageWithOffset = xcbSimpleList(buffer, offset, width * height, Uint32Array, 4)
   offset = cursorImageWithOffset.offset
   const cursorImage = cursorImageWithOffset.value
 
@@ -223,7 +223,7 @@ export const unmarshallGetCursorImageReply: Unmarshaller<GetCursorImageReply> = 
       cursorSerial,
       cursorImage,
     },
-    offset
+    offset,
   }
 }
 
@@ -231,38 +231,38 @@ export type BadRegionError = {
   responseType: number
 }
 
-export const unmarshallBadRegionError: Unmarshaller<BadRegionError> = (buffer, offset=0) => {
-  const [ responseType ] = unpackFrom('<Bx2x', buffer, offset)
+export const unmarshallBadRegionError: Unmarshaller<BadRegionError> = (buffer, offset = 0) => {
+  const [responseType] = unpackFrom('<Bx2x', buffer, offset)
   offset += 4
 
   return {
     value: {
       responseType,
     },
-    offset
+    offset,
   }
 }
 export const marshallBadRegionError = (instance: BadRegionError): ArrayBuffer => {
-  let byteLength = 0
+  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadRegion extends Error {
   readonly xError: BadRegionError
-  constructor (error: BadRegionError) {
+  constructor(error: BadRegionError) {
     super()
     Object.setPrototypeOf(this, BadRegion.prototype)
     this.name = 'RegionError'
     this.xError = error
   }
-  toString () {
+  toString() {
     return JSON.stringify(this.xError)
   }
 }
 
 export const enum Region {
-  None= 0,
+  None = 0,
 }
 
 export type FetchRegionCookie = Promise<FetchRegionReply>
@@ -273,14 +273,14 @@ export type FetchRegionReply = {
   rectangles: RECTANGLE[]
 }
 
-export const unmarshallFetchRegionReply: Unmarshaller<FetchRegionReply> = (buffer, offset=0) => {
-  const [ responseType ] = unpackFrom('<Bx2x4x', buffer, offset)
+export const unmarshallFetchRegionReply: Unmarshaller<FetchRegionReply> = (buffer, offset = 0) => {
+  const [responseType] = unpackFrom('<Bx2x4x', buffer, offset)
   offset += 8
   const extentsWithOffset = unmarshallRECTANGLE(buffer, offset)
   const extents = extentsWithOffset.value
   offset = extentsWithOffset.offset
   offset += typePad(8, offset)
-  const rectanglesWithOffset = xcbComplexList(buffer, offset, (length / 2), unmarshallRECTANGLE)
+  const rectanglesWithOffset = xcbComplexList(buffer, offset, length / 2, unmarshallRECTANGLE)
   offset = rectanglesWithOffset.offset
   const rectangles = rectanglesWithOffset.value
 
@@ -290,7 +290,7 @@ export const unmarshallFetchRegionReply: Unmarshaller<FetchRegionReply> = (buffe
       extents,
       rectangles,
     },
-    offset
+    offset,
   }
 }
 
@@ -303,8 +303,8 @@ export type GetCursorNameReply = {
   name: Int8Array
 }
 
-export const unmarshallGetCursorNameReply: Unmarshaller<GetCursorNameReply> = (buffer, offset=0) => {
-  const [ responseType, atom, nbytes ] = unpackFrom('<Bx2x4xIH18x', buffer, offset)
+export const unmarshallGetCursorNameReply: Unmarshaller<GetCursorNameReply> = (buffer, offset = 0) => {
+  const [responseType, atom, nbytes] = unpackFrom('<Bx2x4xIH18x', buffer, offset)
   offset += 32
   const nameWithOffset = xcbSimpleList(buffer, offset, nbytes, Int8Array, 1)
   offset = nameWithOffset.offset
@@ -317,7 +317,7 @@ export const unmarshallGetCursorNameReply: Unmarshaller<GetCursorNameReply> = (b
       nbytes,
       name,
     },
-    offset
+    offset,
   }
 }
 
@@ -338,10 +338,14 @@ export type GetCursorImageAndNameReply = {
   name: Int8Array
 }
 
-export const unmarshallGetCursorImageAndNameReply: Unmarshaller<GetCursorImageAndNameReply> = (buffer, offset=0) => {
-  const [ responseType, x, y, width, height, xhot, yhot, cursorSerial, cursorAtom, nbytes ] = unpackFrom('<Bx2x4xhhHHHHIIH2x', buffer, offset)
+export const unmarshallGetCursorImageAndNameReply: Unmarshaller<GetCursorImageAndNameReply> = (buffer, offset = 0) => {
+  const [responseType, x, y, width, height, xhot, yhot, cursorSerial, cursorAtom, nbytes] = unpackFrom(
+    '<Bx2x4xhhHHHHIIH2x',
+    buffer,
+    offset,
+  )
   offset += 32
-  const cursorImageWithOffset = xcbSimpleList(buffer, offset, (width * height), Uint32Array, 4)
+  const cursorImageWithOffset = xcbSimpleList(buffer, offset, width * height, Uint32Array, 4)
   offset = cursorImageWithOffset.offset
   const cursorImage = cursorImageWithOffset.value
   offset += typePad(1, offset)
@@ -364,40 +368,49 @@ export const unmarshallGetCursorImageAndNameReply: Unmarshaller<GetCursorImageAn
       cursorImage,
       name,
     },
-    offset
+    offset,
   }
 }
 
 export const enum BarrierDirections {
-  PositiveX= 1,
-  PositiveY= 2,
-  NegativeX= 4,
-  NegativeY= 8,
+  PositiveX = 1,
+  PositiveY = 2,
+  NegativeX = 4,
+  NegativeY = 8,
 }
-
 
 declare module './xcbXFixes' {
   interface XFixes {
-    queryVersion (clientMajorVersion: number, clientMinorVersion: number): QueryVersionCookie
+    queryVersion(clientMajorVersion: number, clientMinorVersion: number): QueryVersionCookie
   }
 }
 
-XFixes.prototype.queryVersion = function(clientMajorVersion: number, clientMinorVersion: number): QueryVersionCookie {
+XFixes.prototype.queryVersion = function (clientMajorVersion: number, clientMinorVersion: number): QueryVersionCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', clientMajorVersion, clientMinorVersion))
 
-  return this.xConnection.sendRequest<QueryVersionReply>(requestParts, this.majorOpcode, unmarshallQueryVersionReply, 0, 'queryVersion')
+  return this.xConnection.sendRequest<QueryVersionReply>(
+    requestParts,
+    this.majorOpcode,
+    unmarshallQueryVersionReply,
+    0,
+    'queryVersion',
+  )
 }
-
 
 declare module './xcbXFixes' {
   interface XFixes {
-    changeSaveSet (mode: SaveSetMode, target: SaveSetTarget, map: SaveSetMapping, window: WINDOW): RequestChecker
+    changeSaveSet(mode: SaveSetMode, target: SaveSetTarget, map: SaveSetMapping, window: WINDOW): RequestChecker
   }
 }
 
-XFixes.prototype.changeSaveSet = function(mode: SaveSetMode, target: SaveSetTarget, map: SaveSetMapping, window: WINDOW): RequestChecker {
+XFixes.prototype.changeSaveSet = function (
+  mode: SaveSetMode,
+  target: SaveSetTarget,
+  map: SaveSetMapping,
+  window: WINDOW,
+): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xBBBxI', mode, target, map, window))
@@ -405,14 +418,13 @@ XFixes.prototype.changeSaveSet = function(mode: SaveSetMode, target: SaveSetTarg
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 1, 'changeSaveSet')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    selectSelectionInput (window: WINDOW, selection: ATOM, eventMask: number): RequestChecker
+    selectSelectionInput(window: WINDOW, selection: ATOM, eventMask: number): RequestChecker
   }
 }
 
-XFixes.prototype.selectSelectionInput = function(window: WINDOW, selection: ATOM, eventMask: number): RequestChecker {
+XFixes.prototype.selectSelectionInput = function (window: WINDOW, selection: ATOM, eventMask: number): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIII', window, selection, eventMask))
@@ -420,14 +432,13 @@ XFixes.prototype.selectSelectionInput = function(window: WINDOW, selection: ATOM
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 2, 'selectSelectionInput')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    selectCursorInput (window: WINDOW, eventMask: number): RequestChecker
+    selectCursorInput(window: WINDOW, eventMask: number): RequestChecker
   }
 }
 
-XFixes.prototype.selectCursorInput = function(window: WINDOW, eventMask: number): RequestChecker {
+XFixes.prototype.selectCursorInput = function (window: WINDOW, eventMask: number): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', window, eventMask))
@@ -435,51 +446,56 @@ XFixes.prototype.selectCursorInput = function(window: WINDOW, eventMask: number)
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 3, 'selectCursorInput')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    getCursorImage (): GetCursorImageCookie
+    getCursorImage(): GetCursorImageCookie
   }
 }
 
-XFixes.prototype.getCursorImage = function(): GetCursorImageCookie {
+XFixes.prototype.getCursorImage = function (): GetCursorImageCookie {
   const requestParts: ArrayBuffer[] = []
 
-  requestParts.push(pack('<xx2x', ))
+  requestParts.push(pack('<xx2x'))
 
-  return this.xConnection.sendRequest<GetCursorImageReply>(requestParts, this.majorOpcode, unmarshallGetCursorImageReply, 4, 'getCursorImage')
+  return this.xConnection.sendRequest<GetCursorImageReply>(
+    requestParts,
+    this.majorOpcode,
+    unmarshallGetCursorImageReply,
+    4,
+    'getCursorImage',
+  )
 }
-
 
 export type REGION = number
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    createRegion (region: REGION, rectanglesLen: number, rectangles: RECTANGLE[]): RequestChecker
+    createRegion(region: REGION, rectanglesLen: number, rectangles: RECTANGLE[]): RequestChecker
   }
 }
 
-XFixes.prototype.createRegion = function(region: REGION, rectanglesLen: number, rectangles: RECTANGLE[]): RequestChecker {
+XFixes.prototype.createRegion = function (
+  region: REGION,
+  rectanglesLen: number,
+  rectangles: RECTANGLE[],
+): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', region))
-  rectangles.forEach(({  x,   y,   width,   height}) => {
-  requestParts.push(pack('<hhHH', x, y, width, height))
-
+  rectangles.forEach(({ x, y, width, height }) => {
+    requestParts.push(pack('<hhHH', x, y, width, height))
   })
 
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 5, 'createRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    createRegionFromBitmap (region: REGION, bitmap: PIXMAP): RequestChecker
+    createRegionFromBitmap(region: REGION, bitmap: PIXMAP): RequestChecker
   }
 }
 
-XFixes.prototype.createRegionFromBitmap = function(region: REGION, bitmap: PIXMAP): RequestChecker {
+XFixes.prototype.createRegionFromBitmap = function (region: REGION, bitmap: PIXMAP): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', region, bitmap))
@@ -487,14 +503,13 @@ XFixes.prototype.createRegionFromBitmap = function(region: REGION, bitmap: PIXMA
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 6, 'createRegionFromBitmap')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    createRegionFromWindow (region: REGION, window: WINDOW, kind: SK): RequestChecker
+    createRegionFromWindow(region: REGION, window: WINDOW, kind: SK): RequestChecker
   }
 }
 
-XFixes.prototype.createRegionFromWindow = function(region: REGION, window: WINDOW, kind: SK): RequestChecker {
+XFixes.prototype.createRegionFromWindow = function (region: REGION, window: WINDOW, kind: SK): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIIB3x', region, window, kind))
@@ -502,14 +517,13 @@ XFixes.prototype.createRegionFromWindow = function(region: REGION, window: WINDO
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 7, 'createRegionFromWindow')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    createRegionFromGC (region: REGION, gc: GCONTEXT): RequestChecker
+    createRegionFromGC(region: REGION, gc: GCONTEXT): RequestChecker
   }
 }
 
-XFixes.prototype.createRegionFromGC = function(region: REGION, gc: GCONTEXT): RequestChecker {
+XFixes.prototype.createRegionFromGC = function (region: REGION, gc: GCONTEXT): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', region, gc))
@@ -517,14 +531,13 @@ XFixes.prototype.createRegionFromGC = function(region: REGION, gc: GCONTEXT): Re
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 8, 'createRegionFromGC')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    createRegionFromPicture (region: REGION, picture: PICTURE): RequestChecker
+    createRegionFromPicture(region: REGION, picture: PICTURE): RequestChecker
   }
 }
 
-XFixes.prototype.createRegionFromPicture = function(region: REGION, picture: PICTURE): RequestChecker {
+XFixes.prototype.createRegionFromPicture = function (region: REGION, picture: PICTURE): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', region, picture))
@@ -532,14 +545,13 @@ XFixes.prototype.createRegionFromPicture = function(region: REGION, picture: PIC
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 9, 'createRegionFromPicture')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    destroyRegion (region: REGION): RequestChecker
+    destroyRegion(region: REGION): RequestChecker
   }
 }
 
-XFixes.prototype.destroyRegion = function(region: REGION): RequestChecker {
+XFixes.prototype.destroyRegion = function (region: REGION): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', region))
@@ -547,33 +559,30 @@ XFixes.prototype.destroyRegion = function(region: REGION): RequestChecker {
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 10, 'destroyRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    setRegion (region: REGION, rectanglesLen: number, rectangles: RECTANGLE[]): RequestChecker
+    setRegion(region: REGION, rectanglesLen: number, rectangles: RECTANGLE[]): RequestChecker
   }
 }
 
-XFixes.prototype.setRegion = function(region: REGION, rectanglesLen: number, rectangles: RECTANGLE[]): RequestChecker {
+XFixes.prototype.setRegion = function (region: REGION, rectanglesLen: number, rectangles: RECTANGLE[]): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', region))
-  rectangles.forEach(({  x,   y,   width,   height}) => {
-  requestParts.push(pack('<hhHH', x, y, width, height))
-
+  rectangles.forEach(({ x, y, width, height }) => {
+    requestParts.push(pack('<hhHH', x, y, width, height))
   })
 
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 11, 'setRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    copyRegion (source: REGION, destination: REGION): RequestChecker
+    copyRegion(source: REGION, destination: REGION): RequestChecker
   }
 }
 
-XFixes.prototype.copyRegion = function(source: REGION, destination: REGION): RequestChecker {
+XFixes.prototype.copyRegion = function (source: REGION, destination: REGION): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', source, destination))
@@ -581,14 +590,13 @@ XFixes.prototype.copyRegion = function(source: REGION, destination: REGION): Req
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 12, 'copyRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    unionRegion (source1: REGION, source2: REGION, destination: REGION): RequestChecker
+    unionRegion(source1: REGION, source2: REGION, destination: REGION): RequestChecker
   }
 }
 
-XFixes.prototype.unionRegion = function(source1: REGION, source2: REGION, destination: REGION): RequestChecker {
+XFixes.prototype.unionRegion = function (source1: REGION, source2: REGION, destination: REGION): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIII', source1, source2, destination))
@@ -596,14 +604,13 @@ XFixes.prototype.unionRegion = function(source1: REGION, source2: REGION, destin
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 13, 'unionRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    intersectRegion (source1: REGION, source2: REGION, destination: REGION): RequestChecker
+    intersectRegion(source1: REGION, source2: REGION, destination: REGION): RequestChecker
   }
 }
 
-XFixes.prototype.intersectRegion = function(source1: REGION, source2: REGION, destination: REGION): RequestChecker {
+XFixes.prototype.intersectRegion = function (source1: REGION, source2: REGION, destination: REGION): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIII', source1, source2, destination))
@@ -611,14 +618,13 @@ XFixes.prototype.intersectRegion = function(source1: REGION, source2: REGION, de
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 14, 'intersectRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    subtractRegion (source1: REGION, source2: REGION, destination: REGION): RequestChecker
+    subtractRegion(source1: REGION, source2: REGION, destination: REGION): RequestChecker
   }
 }
 
-XFixes.prototype.subtractRegion = function(source1: REGION, source2: REGION, destination: REGION): RequestChecker {
+XFixes.prototype.subtractRegion = function (source1: REGION, source2: REGION, destination: REGION): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIII', source1, source2, destination))
@@ -626,14 +632,13 @@ XFixes.prototype.subtractRegion = function(source1: REGION, source2: REGION, des
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 15, 'subtractRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    invertRegion (source: REGION, bounds: RECTANGLE, destination: REGION): RequestChecker
+    invertRegion(source: REGION, bounds: RECTANGLE, destination: REGION): RequestChecker
   }
 }
 
-XFixes.prototype.invertRegion = function(source: REGION, bounds: RECTANGLE, destination: REGION): RequestChecker {
+XFixes.prototype.invertRegion = function (source: REGION, bounds: RECTANGLE, destination: REGION): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', source))
@@ -644,14 +649,13 @@ XFixes.prototype.invertRegion = function(source: REGION, bounds: RECTANGLE, dest
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 16, 'invertRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    translateRegion (region: REGION, dx: number, dy: number): RequestChecker
+    translateRegion(region: REGION, dx: number, dy: number): RequestChecker
   }
 }
 
-XFixes.prototype.translateRegion = function(region: REGION, dx: number, dy: number): RequestChecker {
+XFixes.prototype.translateRegion = function (region: REGION, dx: number, dy: number): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIhh', region, dx, dy))
@@ -659,14 +663,13 @@ XFixes.prototype.translateRegion = function(region: REGION, dx: number, dy: numb
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 17, 'translateRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    regionExtents (source: REGION, destination: REGION): RequestChecker
+    regionExtents(source: REGION, destination: REGION): RequestChecker
   }
 }
 
-XFixes.prototype.regionExtents = function(source: REGION, destination: REGION): RequestChecker {
+XFixes.prototype.regionExtents = function (source: REGION, destination: REGION): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', source, destination))
@@ -674,29 +677,38 @@ XFixes.prototype.regionExtents = function(source: REGION, destination: REGION): 
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 18, 'regionExtents')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    fetchRegion (region: REGION): FetchRegionCookie
+    fetchRegion(region: REGION): FetchRegionCookie
   }
 }
 
-XFixes.prototype.fetchRegion = function(region: REGION): FetchRegionCookie {
+XFixes.prototype.fetchRegion = function (region: REGION): FetchRegionCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', region))
 
-  return this.xConnection.sendRequest<FetchRegionReply>(requestParts, this.majorOpcode, unmarshallFetchRegionReply, 19, 'fetchRegion')
+  return this.xConnection.sendRequest<FetchRegionReply>(
+    requestParts,
+    this.majorOpcode,
+    unmarshallFetchRegionReply,
+    19,
+    'fetchRegion',
+  )
 }
-
 
 declare module './xcbXFixes' {
   interface XFixes {
-    setGCClipRegion (gc: GCONTEXT, region: REGION, xOrigin: number, yOrigin: number): RequestChecker
+    setGCClipRegion(gc: GCONTEXT, region: REGION, xOrigin: number, yOrigin: number): RequestChecker
   }
 }
 
-XFixes.prototype.setGCClipRegion = function(gc: GCONTEXT, region: REGION, xOrigin: number, yOrigin: number): RequestChecker {
+XFixes.prototype.setGCClipRegion = function (
+  gc: GCONTEXT,
+  region: REGION,
+  xOrigin: number,
+  yOrigin: number,
+): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIIhh', gc, region, xOrigin, yOrigin))
@@ -704,14 +716,19 @@ XFixes.prototype.setGCClipRegion = function(gc: GCONTEXT, region: REGION, xOrigi
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 20, 'setGCClipRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    setWindowShapeRegion (dest: WINDOW, destKind: SK, xOffset: number, yOffset: number, region: REGION): RequestChecker
+    setWindowShapeRegion(dest: WINDOW, destKind: SK, xOffset: number, yOffset: number, region: REGION): RequestChecker
   }
 }
 
-XFixes.prototype.setWindowShapeRegion = function(dest: WINDOW, destKind: SK, xOffset: number, yOffset: number, region: REGION): RequestChecker {
+XFixes.prototype.setWindowShapeRegion = function (
+  dest: WINDOW,
+  destKind: SK,
+  xOffset: number,
+  yOffset: number,
+  region: REGION,
+): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIB3xhhI', dest, destKind, xOffset, yOffset, region))
@@ -719,14 +736,18 @@ XFixes.prototype.setWindowShapeRegion = function(dest: WINDOW, destKind: SK, xOf
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 21, 'setWindowShapeRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    setPictureClipRegion (picture: PICTURE, region: REGION, xOrigin: number, yOrigin: number): RequestChecker
+    setPictureClipRegion(picture: PICTURE, region: REGION, xOrigin: number, yOrigin: number): RequestChecker
   }
 }
 
-XFixes.prototype.setPictureClipRegion = function(picture: PICTURE, region: REGION, xOrigin: number, yOrigin: number): RequestChecker {
+XFixes.prototype.setPictureClipRegion = function (
+  picture: PICTURE,
+  region: REGION,
+  xOrigin: number,
+  yOrigin: number,
+): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIIhh', picture, region, xOrigin, yOrigin))
@@ -734,14 +755,13 @@ XFixes.prototype.setPictureClipRegion = function(picture: PICTURE, region: REGIO
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 22, 'setPictureClipRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    setCursorName (cursor: CURSOR, name: Int8Array): RequestChecker
+    setCursorName(cursor: CURSOR, name: Int8Array): RequestChecker
   }
 }
 
-XFixes.prototype.setCursorName = function(cursor: CURSOR, name: Int8Array): RequestChecker {
+XFixes.prototype.setCursorName = function (cursor: CURSOR, name: Int8Array): RequestChecker {
   const nbytes = name.length
   const requestParts: ArrayBuffer[] = []
 
@@ -751,44 +771,53 @@ XFixes.prototype.setCursorName = function(cursor: CURSOR, name: Int8Array): Requ
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 23, 'setCursorName')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    getCursorName (cursor: CURSOR): GetCursorNameCookie
+    getCursorName(cursor: CURSOR): GetCursorNameCookie
   }
 }
 
-XFixes.prototype.getCursorName = function(cursor: CURSOR): GetCursorNameCookie {
+XFixes.prototype.getCursorName = function (cursor: CURSOR): GetCursorNameCookie {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', cursor))
 
-  return this.xConnection.sendRequest<GetCursorNameReply>(requestParts, this.majorOpcode, unmarshallGetCursorNameReply, 24, 'getCursorName')
+  return this.xConnection.sendRequest<GetCursorNameReply>(
+    requestParts,
+    this.majorOpcode,
+    unmarshallGetCursorNameReply,
+    24,
+    'getCursorName',
+  )
 }
-
 
 declare module './xcbXFixes' {
   interface XFixes {
-    getCursorImageAndName (): GetCursorImageAndNameCookie
+    getCursorImageAndName(): GetCursorImageAndNameCookie
   }
 }
 
-XFixes.prototype.getCursorImageAndName = function(): GetCursorImageAndNameCookie {
+XFixes.prototype.getCursorImageAndName = function (): GetCursorImageAndNameCookie {
   const requestParts: ArrayBuffer[] = []
 
-  requestParts.push(pack('<xx2x', ))
+  requestParts.push(pack('<xx2x'))
 
-  return this.xConnection.sendRequest<GetCursorImageAndNameReply>(requestParts, this.majorOpcode, unmarshallGetCursorImageAndNameReply, 25, 'getCursorImageAndName')
+  return this.xConnection.sendRequest<GetCursorImageAndNameReply>(
+    requestParts,
+    this.majorOpcode,
+    unmarshallGetCursorImageAndNameReply,
+    25,
+    'getCursorImageAndName',
+  )
 }
-
 
 declare module './xcbXFixes' {
   interface XFixes {
-    changeCursor (source: CURSOR, destination: CURSOR): RequestChecker
+    changeCursor(source: CURSOR, destination: CURSOR): RequestChecker
   }
 }
 
-XFixes.prototype.changeCursor = function(source: CURSOR, destination: CURSOR): RequestChecker {
+XFixes.prototype.changeCursor = function (source: CURSOR, destination: CURSOR): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xII', source, destination))
@@ -796,14 +825,13 @@ XFixes.prototype.changeCursor = function(source: CURSOR, destination: CURSOR): R
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 26, 'changeCursor')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    changeCursorByName (src: CURSOR, name: Int8Array): RequestChecker
+    changeCursorByName(src: CURSOR, name: Int8Array): RequestChecker
   }
 }
 
-XFixes.prototype.changeCursorByName = function(src: CURSOR, name: Int8Array): RequestChecker {
+XFixes.prototype.changeCursorByName = function (src: CURSOR, name: Int8Array): RequestChecker {
   const nbytes = name.length
   const requestParts: ArrayBuffer[] = []
 
@@ -813,14 +841,27 @@ XFixes.prototype.changeCursorByName = function(src: CURSOR, name: Int8Array): Re
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 27, 'changeCursorByName')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    expandRegion (source: REGION, destination: REGION, left: number, right: number, top: number, bottom: number): RequestChecker
+    expandRegion(
+      source: REGION,
+      destination: REGION,
+      left: number,
+      right: number,
+      top: number,
+      bottom: number,
+    ): RequestChecker
   }
 }
 
-XFixes.prototype.expandRegion = function(source: REGION, destination: REGION, left: number, right: number, top: number, bottom: number): RequestChecker {
+XFixes.prototype.expandRegion = function (
+  source: REGION,
+  destination: REGION,
+  left: number,
+  right: number,
+  top: number,
+  bottom: number,
+): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xIIHHHH', source, destination, left, right, top, bottom))
@@ -828,14 +869,13 @@ XFixes.prototype.expandRegion = function(source: REGION, destination: REGION, le
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 28, 'expandRegion')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    hideCursor (window: WINDOW): RequestChecker
+    hideCursor(window: WINDOW): RequestChecker
   }
 }
 
-XFixes.prototype.hideCursor = function(window: WINDOW): RequestChecker {
+XFixes.prototype.hideCursor = function (window: WINDOW): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', window))
@@ -843,14 +883,13 @@ XFixes.prototype.hideCursor = function(window: WINDOW): RequestChecker {
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 29, 'hideCursor')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    showCursor (window: WINDOW): RequestChecker
+    showCursor(window: WINDOW): RequestChecker
   }
 }
 
-XFixes.prototype.showCursor = function(window: WINDOW): RequestChecker {
+XFixes.prototype.showCursor = function (window: WINDOW): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', window))
@@ -858,17 +897,33 @@ XFixes.prototype.showCursor = function(window: WINDOW): RequestChecker {
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 30, 'showCursor')
 }
 
-
 export type BARRIER = number
-
 
 declare module './xcbXFixes' {
   interface XFixes {
-    createPointerBarrier (barrier: BARRIER, window: WINDOW, x1: number, y1: number, x2: number, y2: number, directions: number, devices: Uint16Array): RequestChecker
+    createPointerBarrier(
+      barrier: BARRIER,
+      window: WINDOW,
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number,
+      directions: number,
+      devices: Uint16Array,
+    ): RequestChecker
   }
 }
 
-XFixes.prototype.createPointerBarrier = function(barrier: BARRIER, window: WINDOW, x1: number, y1: number, x2: number, y2: number, directions: number, devices: Uint16Array): RequestChecker {
+XFixes.prototype.createPointerBarrier = function (
+  barrier: BARRIER,
+  window: WINDOW,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  directions: number,
+  devices: Uint16Array,
+): RequestChecker {
   const numDevices = devices.length
   const requestParts: ArrayBuffer[] = []
 
@@ -878,14 +933,13 @@ XFixes.prototype.createPointerBarrier = function(barrier: BARRIER, window: WINDO
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 31, 'createPointerBarrier')
 }
 
-
 declare module './xcbXFixes' {
   interface XFixes {
-    deletePointerBarrier (barrier: BARRIER): RequestChecker
+    deletePointerBarrier(barrier: BARRIER): RequestChecker
   }
 }
 
-XFixes.prototype.deletePointerBarrier = function(barrier: BARRIER): RequestChecker {
+XFixes.prototype.deletePointerBarrier = function (barrier: BARRIER): RequestChecker {
   const requestParts: ArrayBuffer[] = []
 
   requestParts.push(pack('<xx2xI', barrier))
@@ -894,19 +948,19 @@ XFixes.prototype.deletePointerBarrier = function(barrier: BARRIER): RequestCheck
 }
 
 eventInits.push((firstEvent) => {
-  events[firstEvent+0] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
-    if(protocolExtension === undefined) return
+  events[firstEvent + 0] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+    if (protocolExtension === undefined) return
     const event = unmarshallSelectionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-    await protocolExtension.onSelectionNotifyEvent?.(event)
+    return protocolExtension.onSelectionNotifyEvent?.(event)
   }
 })
 eventInits.push((firstEvent) => {
-  events[firstEvent+1] = async (xConnection: XConnection, rawEvent: Uint8Array) => {
-    if(protocolExtension === undefined) return
+  events[firstEvent + 1] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+    if (protocolExtension === undefined) return
     const event = unmarshallCursorNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-    await protocolExtension.onCursorNotifyEvent?.(event)
+    return protocolExtension.onCursorNotifyEvent?.(event)
   }
 })
-errorInits.push(firstError => {
-  errors[firstError+0] = [unmarshallBadRegionError, BadRegion]
+errorInits.push((firstError) => {
+  errors[firstError + 0] = [unmarshallBadRegionError, BadRegion]
 })

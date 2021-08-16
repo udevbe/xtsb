@@ -1016,19 +1016,19 @@ def ts_event(self, name):
   _ts_setlevel(2)
   if _ns.is_ext:
     _ts('eventInits.push((firstEvent) => {')
-    _ts('  events[firstEvent+%s] = async (xConnection: XConnection, rawEvent: Uint8Array) => {',
+    _ts('  events[firstEvent+%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {',
         self.opcodes[name])
     _ts('    if(protocolExtension === undefined) return')
     _ts('    const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
         self.ts_event_name)
-    _ts('    await protocolExtension.on%s?.(event)', self.ts_event_name)
+    _ts('    return protocolExtension.on%s?.(event)', self.ts_event_name)
     _ts('  }')
     _ts('})')
   else:
-    _ts('events[%s] = async (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
+    _ts('events[%s] = (xConnection: XConnection, rawEvent: Uint8Array) => {', self.opcodes[name])
     _ts('  const event = unmarshall%s(rawEvent.buffer, rawEvent.byteOffset).value',
         self.ts_event_name)
-    _ts('  await xConnection.on%s?.(event)', self.ts_event_name)
+    _ts('  return xConnection.on%s?.(event)', self.ts_event_name)
     _ts('}')
 
 

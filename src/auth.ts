@@ -39,7 +39,7 @@ export async function authenticate(
   displayNum: string,
   authHost: string,
   socketFamily: 'IPv4' | 'IPv6' | undefined,
-  cookie?: { authName: string; authData: string }
+  cookie?: { authName: string; authData: string },
 ): Promise<Setup> {
   return new Promise<Setup>(async (resolve) => {
     xConnectionSocket.onData = (data) => {
@@ -47,7 +47,6 @@ export async function authenticate(
       const setup = readServerHello(data)
       resolve(setup)
     }
-    // tslint:disable-next-line:no-floating-promises
     writeClientHello(xConnectionSocket, displayNum, authHost, socketFamily, cookie)
   })
 }
@@ -57,11 +56,10 @@ async function writeClientHello(
   displayNum: string,
   authHost: string,
   socketFamily: 'IPv4' | 'IPv6' | undefined,
-  cookie?: { authName: string; authData: string }
+  cookie?: { authName: string; authData: string },
 ): Promise<void> {
-  // TODO handle cookie read error
-  if (!cookie) {
-    throw new Error('No Cookie found :(')
+  if (!cookie || paddedString(cookie.authData).length === 0 || paddedString(cookie.authName).length === 0) {
+    throw new Error('No Xauth Cookie found :(')
   }
 
   const byteOrder = getByteOrder()
@@ -75,22 +73,18 @@ async function writeClientHello(
     cookie.authName.length,
     cookie.authData.length,
     paddedString(cookie.authName),
-    paddedString(cookie.authData)
+    paddedString(cookie.authData),
   )
 
   xConnectionSocket.write(new Uint8Array(authReq))
 }
 
 const unmarshallVISUALTYPE: Unmarshaller<VISUALTYPE> = (buffer, offset = 0) => {
-  const [
-    visualId,
-    _class,
-    bitsPerRgbValue,
-    colormapEntries,
-    redMask,
-    greenMask,
-    blueMask,
-  ] = unpackFrom('<IBBHIII4x', buffer, offset)
+  const [visualId, _class, bitsPerRgbValue, colormapEntries, redMask, greenMask, blueMask] = unpackFrom(
+    '<IBBHIII4x',
+    buffer,
+    offset,
+  )
   offset += 24
 
   return {
@@ -249,11 +243,7 @@ const unmarshallSetup: Unmarshaller<Setup> = (buffer, offset = 0) => {
 }
 
 const unmarshallSetupFailed: Unmarshaller<SetupFailed> = (buffer, offset = 0) => {
-  const [status, reasonLen, protocolMajorVersion, protocolMinorVersion, length] = unpackFrom(
-    '<BBHHH',
-    buffer,
-    offset
-  )
+  const [status, reasonLen, protocolMajorVersion, protocolMinorVersion, length] = unpackFrom('<BBHHH', buffer, offset)
   offset += 8
   const reasonWithOffset = xcbSimpleList(buffer, offset, reasonLen, Int8Array, 1)
   offset = reasonWithOffset.offset
