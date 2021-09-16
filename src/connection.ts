@@ -38,7 +38,7 @@ Uint8Array.prototype.chars = function () {
   return textDecoder.decode(this)
 }
 
-export function pad(buffer: ArrayBuffer) {
+export function pad(buffer: ArrayBuffer): ArrayBuffer {
   if (buffer.byteLength % 4 === 0) {
     return buffer
   }
@@ -69,6 +69,7 @@ type ReplyResolver = {
   resolve: (value?: any | PromiseLike<any>) => void
   resolveWithError: (reason?: any) => void
   requestName: string
+  sequenceNumber: number
 }
 
 const unmarshallGetInputFocusReply: Unmarshaller<GetInputFocusReply> = (buffer, offset = 0) => {
@@ -90,20 +91,16 @@ export class XConnection {
   readonly setup: Setup
 
   defaultExceptionHandler?: (error: Error) => void
-
+  onPreEventLoop?: () => void
+  onPostEventLoop?: () => void
   private readonly unusedIds: number[] = []
   private nextResourceId: number
   private readonly resourceIdShift: number
-
   private requestSequenceNumber = 0
   private readonly replyResolvers: ReplyResolver[] = []
-
   private readonly receivedEvents: Uint8Array[] = []
   private sendBuffer: Uint8Array[] = []
   private receiveBuffer: Uint8Array[] = []
-
-  onPreEventLoop?: () => void
-  onPostEventLoop?: () => void
 
   constructor(socket: XConnectionSocket, setup: Setup) {
     this.nextResourceId = 0
@@ -118,22 +115,25 @@ export class XConnection {
     socket.onData = (data) => this.onData(data)
   }
 
-  flush() {
+  flush(): void {
     this.sendBuffer.forEach((value) => this.socket.write(value))
     this.sendBuffer = []
   }
 
-  resolveWithError(reject: (reason?: any) => void) {
+  resolveWithError(promise: Promise<any>, reject: (reason?: any) => void, requestName: string, sequenceNumber: number) {
     return (rawError: Uint8Array) => {
       const errorCode = rawError[1]
       const [errorUnmarshaller, ErrorClass] = errors[errorCode]
       const errorBody = errorUnmarshaller(rawError.buffer, rawError.byteOffset)
-      const error = new ErrorClass(errorBody.value)
-      if (this.defaultExceptionHandler) {
-        this.defaultExceptionHandler(error)
-      } else {
-        reject(error)
-      }
+      const error = new ErrorClass({ error: errorBody.value, requestName, sequenceNumber })
+      promise.catch((error: Error) => {
+        if (this.defaultExceptionHandler) {
+          this.defaultExceptionHandler(error)
+        } else {
+          throw error
+        }
+      })
+      reject(error)
     }
   }
 
@@ -145,12 +145,113 @@ export class XConnection {
     return (++this.nextResourceId << this.resourceIdShift) + this.setup.resourceIdBase
   }
 
-  releaseID(id: number) {
+  releaseID(id: number): void {
     this.unusedIds.push(id)
   }
 
-  close() {
+  close(): void {
     this.socket.close()
+  }
+
+  sendVoidRequest(
+    requestParts: ArrayBuffer[],
+    opcode: number,
+    minorOpcode: number,
+    requestName: string,
+  ): RequestChecker {
+    const requestBuffer = createRequestBuffer(requestParts)
+    requestBuffer[0] = opcode
+    if (minorOpcode) {
+      requestBuffer[1] = minorOpcode
+    }
+    new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(
+      requestBuffer.buffer,
+      requestBuffer.byteOffset,
+    ).length
+
+    let resolvePromise: (value: void | PromiseLike<void>) => void
+    let rejectPromise: (reason?: any) => void
+    const voidRequestPromise = new Promise<void>((resolve, reject) => {
+      resolvePromise = resolve
+      rejectPromise = reject
+    })
+    this.replyResolvers.push({
+      // @ts-ignore
+      resolve: resolvePromise,
+      resolveWithError: this.resolveWithError(
+        voidRequestPromise,
+        // @ts-ignore
+        rejectPromise,
+        requestName,
+        this.requestSequenceNumber,
+      ),
+      requestName,
+      sequenceNumber: ++this.requestSequenceNumber,
+    })
+    this.sendBuffer.push(requestBuffer)
+
+    return {
+      [Symbol.toStringTag]: voidRequestPromise[Symbol.toStringTag],
+      check: (): Promise<void> => {
+        // fire a poor man 'sync' call to ensure the xserver has processed our previous actual call.
+        // tslint:disable-next-line:no-floating-promises
+        this.sendRequest<GetInputFocusReply>([new ArrayBuffer(4)], 43, unmarshallGetInputFocusReply, 0, 'GetInputFocus')
+        return voidRequestPromise
+      },
+      catch<TResult = never>(
+        onrejected?: ((reason: any) => PromiseLike<TResult> | TResult) | undefined | null,
+      ): Promise<void | TResult> {
+        return voidRequestPromise.catch(onrejected)
+      },
+      then<TResult1 = void, TResult2 = never>(
+        onfulfilled?: ((value: void) => PromiseLike<TResult1> | TResult1) | undefined | null,
+        onrejected?: ((reason: any) => PromiseLike<TResult2> | TResult2) | undefined | null,
+      ): Promise<TResult1 | TResult2> {
+        return voidRequestPromise.then(onfulfilled, onrejected)
+      },
+      finally(onfinally?: (() => void) | undefined | null): Promise<void> {
+        return voidRequestPromise.finally(onfinally)
+      },
+    }
+  }
+
+  sendRequest<T>(
+    requestParts: ArrayBuffer[],
+    opcode: number,
+    replyUnmarshaller: Unmarshaller<T>,
+    minorOpcode: number,
+    requestName: string,
+  ): Promise<T> {
+    const requestBuffer = createRequestBuffer(requestParts)
+    requestBuffer[0] = opcode
+    if (minorOpcode) {
+      requestBuffer[1] = minorOpcode
+    }
+    new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(
+      requestBuffer.buffer,
+      requestBuffer.byteOffset,
+    ).length
+
+    let promiseResolve: (value?: any | PromiseLike<any>) => void
+    let promiseReject: (reason?: any) => void
+    const promise = new Promise<Uint8Array>((resolve, reject) => {
+      promiseResolve = resolve
+      promiseReject = reject
+    })
+
+    this.requestSequenceNumber++
+    this.replyResolvers.push({
+      // @ts-ignore
+      resolve: promiseResolve,
+      // @ts-ignore
+      resolveWithError: this.resolveWithError(promise, promiseReject, requestName, this.requestSequenceNumber),
+      requestName,
+      sequenceNumber: this.requestSequenceNumber,
+    })
+
+    this.sendBuffer.push(requestBuffer)
+    this.flush()
+    return promise.then((rawReply) => replyUnmarshaller(rawReply.buffer, rawReply.byteOffset).value)
   }
 
   private onData(data: Uint8Array) {
@@ -194,7 +295,7 @@ export class XConnection {
         const packet = new Uint8Array(messages.buffer, messages.byteOffset + offset, length)
         const replySequenceNumber = packet[2] | (packet[3] << 8)
         this.resolvePreviousReplyResolvers(replySequenceNumber)
-        const replyResolver = this.findReplyResolver(replySequenceNumber)
+        const replyResolver = this.findAndRemoveReplyResolver(replySequenceNumber)
         replyResolver.resolveWithError(packet)
         offset += length
       } else if (type === 1) {
@@ -208,7 +309,7 @@ export class XConnection {
           return
         }
         this.resolvePreviousReplyResolvers(replySequenceNumber)
-        const replyResolver = this.findReplyResolver(replySequenceNumber)
+        const replyResolver = this.findAndRemoveReplyResolver(replySequenceNumber)
         const packet = new Uint8Array(messages.buffer, messages.byteOffset + offset, length)
         replyResolver.resolve(packet)
         offset += length
@@ -241,86 +342,21 @@ export class XConnection {
     }
   }
 
-  sendVoidRequest(
-    requestParts: ArrayBuffer[],
-    opcode: number,
-    minorOpcode: number,
-    requestName: string,
-  ): RequestChecker {
-    const requestBuffer = createRequestBuffer(requestParts)
-    requestBuffer[0] = opcode
-    if (minorOpcode) {
-      requestBuffer[1] = minorOpcode
-    }
-    new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(
-      requestBuffer.buffer,
-      requestBuffer.byteOffset,
-    ).length
-
-    const voidRequestPromise = new Promise<void>((resolve, reject) => {
-      this.replyResolvers.push({
-        resolve,
-        resolveWithError: this.resolveWithError(reject),
-        requestName,
-      })
-
-      this.requestSequenceNumber++
-      this.sendBuffer.push(requestBuffer)
-    })
-
-    return {
-      check: (): Promise<void> => {
-        // fire a poor man 'sync' call to ensure the xserver has processed our previous actual call.
-        // tslint:disable-next-line:no-floating-promises
-        this.sendRequest<GetInputFocusReply>([new ArrayBuffer(4)], 43, unmarshallGetInputFocusReply, 0, 'GetInputFocus')
-        return voidRequestPromise
-      },
-    }
-  }
-
-  sendRequest<T>(
-    requestParts: ArrayBuffer[],
-    opcode: number,
-    replyUnmarshaller: Unmarshaller<T>,
-    minorOpcode: number,
-    requestName: string,
-  ): Promise<T> {
-    const requestBuffer = createRequestBuffer(requestParts)
-    requestBuffer[0] = opcode
-    if (minorOpcode) {
-      requestBuffer[1] = minorOpcode
-    }
-    new Uint16Array(requestBuffer.buffer, requestBuffer.byteOffset)[1] = new Uint32Array(
-      requestBuffer.buffer,
-      requestBuffer.byteOffset,
-    ).length
-
-    const promise = new Promise<Uint8Array>((resolve, reject) => {
-      this.replyResolvers.push({
-        resolve,
-        resolveWithError: this.resolveWithError(reject),
-        requestName,
-      })
-    }).then((rawReply) => replyUnmarshaller(rawReply.buffer, rawReply.byteOffset).value)
-
-    this.requestSequenceNumber++
-    this.sendBuffer.push(requestBuffer)
-    this.flush()
-    return promise
-  }
-
-  private findReplyResolver(replySequenceNumber: number): ReplyResolver {
+  private findAndRemoveReplyResolver(replySequenceNumber: number): ReplyResolver {
     const requestNumberOffset = this.requestSequenceNumber - replySequenceNumber
     const replyResolverIndex = this.replyResolvers.length - requestNumberOffset - 1
-    return this.replyResolvers[replyResolverIndex]
+    const replyResolver = this.replyResolvers[replyResolverIndex]
+    this.replyResolvers.splice(replyResolverIndex, 1)
+    return replyResolver
   }
 
   private resolvePreviousReplyResolvers(replySequenceNumber: number) {
     const requestNumberOffset = this.requestSequenceNumber - replySequenceNumber
     const replyResolverIndex = this.replyResolvers.length - requestNumberOffset - 1
-    this.replyResolvers
-      .splice(0, replyResolverIndex)
-      .forEach((previousReplyResolver) => previousReplyResolver.resolve())
+    const deletedElements = this.replyResolvers.splice(0, replyResolverIndex)
+    for (const previousReplyResolver of deletedElements) {
+      previousReplyResolver.resolve()
+    }
   }
 }
 

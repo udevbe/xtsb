@@ -1,4 +1,4 @@
-import { WINDOW, TIMESTAMP, CURSOR, ATOM, GCONTEXT, unmarshallRECTANGLE, RECTANGLE, PIXMAP } from './xcb'
+import { WINDOW, RECTANGLE, PIXMAP, ATOM, GCONTEXT, unmarshallRECTANGLE, CURSOR, TIMESTAMP } from './xcb'
 import { SK } from './xcbShape'
 import { PICTURE } from './xcbRender'
 //
@@ -122,14 +122,13 @@ export const unmarshallSelectionNotifyEvent: Unmarshaller<SelectionNotifyEvent> 
   }
 }
 export const marshallSelectionNotifyEvent = (instance: SelectionNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { subtype, window, owner, selection, timestamp, selectionTimestamp } = instance
     buffers.push(pack('<xB2xIIIII8x', subtype, window, owner, selection, timestamp, selectionTimestamp))
   }
-  new Uint8Array(buffers[0])[0] = firstEvent + 0
-  return concatArrayBuffers(buffers, byteLength)
+  new Uint8Array(buffers[0])[0] = firstEvent
+  return concatArrayBuffers(buffers, 32)
 }
 export type SelectionNotifyEventHandler = EventHandler<SelectionNotifyEvent>
 
@@ -173,14 +172,13 @@ export const unmarshallCursorNotifyEvent: Unmarshaller<CursorNotifyEvent> = (buf
   }
 }
 export const marshallCursorNotifyEvent = (instance: CursorNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { subtype, window, cursorSerial, timestamp, name } = instance
     buffers.push(pack('<xB2xIIII12x', subtype, window, cursorSerial, timestamp, name))
   }
   new Uint8Array(buffers[0])[0] = firstEvent + 1
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type CursorNotifyEventHandler = EventHandler<CursorNotifyEvent>
 
@@ -227,11 +225,11 @@ export const unmarshallGetCursorImageReply: Unmarshaller<GetCursorImageReply> = 
   }
 }
 
-export type BadRegionError = {
+export type RegionError = {
   responseType: number
 }
 
-export const unmarshallBadRegionError: Unmarshaller<BadRegionError> = (buffer, offset = 0) => {
+export const unmarshallBadRegionError: Unmarshaller<RegionError> = (buffer, offset = 0) => {
   const [responseType] = unpackFrom('<Bx2x', buffer, offset)
   offset += 4
 
@@ -242,22 +240,18 @@ export const unmarshallBadRegionError: Unmarshaller<BadRegionError> = (buffer, o
     offset,
   }
 }
-export const marshallBadRegionError = (instance: BadRegionError): ArrayBuffer => {
+export const marshallBadRegionError = (instance: RegionError): ArrayBuffer => {
   const byteLength = 0
   const buffers: ArrayBuffer[] = []
   return concatArrayBuffers(buffers, byteLength)
 }
 
 export class BadRegion extends Error {
-  readonly xError: BadRegionError
-  constructor(error: BadRegionError) {
-    super()
-    Object.setPrototypeOf(this, BadRegion.prototype)
+  readonly xError: RegionError
+  constructor(error: RegionError) {
+    super(JSON.stringify(error))
     this.name = 'RegionError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -948,7 +942,7 @@ XFixes.prototype.deletePointerBarrier = function (barrier: BARRIER): RequestChec
 }
 
 eventInits.push((firstEvent) => {
-  events[firstEvent + 0] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+  events[firstEvent] = (xConnection: XConnection, rawEvent: Uint8Array) => {
     if (protocolExtension === undefined) return
     const event = unmarshallSelectionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
     return protocolExtension.onSelectionNotifyEvent?.(event)
@@ -962,5 +956,5 @@ eventInits.push((firstEvent) => {
   }
 })
 errorInits.push((firstError) => {
-  errors[firstError + 0] = [unmarshallBadRegionError, BadRegion]
+  errors[firstError] = [unmarshallBadRegionError, BadRegion]
 })

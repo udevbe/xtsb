@@ -1,4 +1,4 @@
-import { STR, RECTANGLE, CURSOR, COLORMAP, unmarshallSTR, PIXMAP, VISUALID, ATOM, DRAWABLE, SubwindowMode } from './xcb'
+import { ATOM, STR, RECTANGLE, CURSOR, VISUALID, SubwindowMode, PIXMAP, DRAWABLE, unmarshallSTR, COLORMAP } from './xcb'
 //
 // This file generated automatically from render.xml by ts_client.py.
 // Edit at your peril.
@@ -180,13 +180,9 @@ export const marshallPictFormatError = (instance: PictFormatError): ArrayBuffer 
 export class BadPictFormat extends Error {
   readonly xError: PictFormatError
   constructor(error: PictFormatError) {
-    super()
-    Object.setPrototypeOf(this, BadPictFormat.prototype)
+    super(JSON.stringify(error))
     this.name = 'PictFormatError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -214,13 +210,9 @@ export const marshallPictureError = (instance: PictureError): ArrayBuffer => {
 export class BadPicture extends Error {
   readonly xError: PictureError
   constructor(error: PictureError) {
-    super()
-    Object.setPrototypeOf(this, BadPicture.prototype)
+    super(JSON.stringify(error))
     this.name = 'PictureError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -248,13 +240,9 @@ export const marshallPictOpError = (instance: PictOpError): ArrayBuffer => {
 export class BadPictOp extends Error {
   readonly xError: PictOpError
   constructor(error: PictOpError) {
-    super()
-    Object.setPrototypeOf(this, BadPictOp.prototype)
+    super(JSON.stringify(error))
     this.name = 'PictOpError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -282,13 +270,9 @@ export const marshallGlyphSetError = (instance: GlyphSetError): ArrayBuffer => {
 export class BadGlyphSet extends Error {
   readonly xError: GlyphSetError
   constructor(error: GlyphSetError) {
-    super()
-    Object.setPrototypeOf(this, BadGlyphSet.prototype)
+    super(JSON.stringify(error))
     this.name = 'GlyphSetError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -316,13 +300,9 @@ export const marshallGlyphError = (instance: GlyphError): ArrayBuffer => {
 export class BadGlyph extends Error {
   readonly xError: GlyphError
   constructor(error: GlyphError) {
-    super()
-    Object.setPrototypeOf(this, BadGlyph.prototype)
+    super(JSON.stringify(error))
     this.name = 'GlyphError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -2031,7 +2011,7 @@ Render.prototype.createConicalGradient = function (
 }
 
 errorInits.push((firstError) => {
-  errors[firstError + 0] = [unmarshallPictFormatError, BadPictFormat]
+  errors[firstError] = [unmarshallPictFormatError, BadPictFormat]
 })
 errorInits.push((firstError) => {
   errors[firstError + 1] = [unmarshallPictureError, BadPicture]

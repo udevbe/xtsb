@@ -1,7 +1,7 @@
 import TypedArray = NodeJS.TypedArray
 import { XConnection } from './connection'
 
-export interface RequestChecker {
+export interface RequestChecker extends Promise<void> {
   check(): Promise<void>
 }
 
@@ -57,7 +57,7 @@ export function typePad(alignSize: number, offset: number): number {
 }
 
 export function concatArrayBuffers(buffers: ArrayBuffer[], totalByteLength: number): ArrayBuffer {
-  if (buffers.length === 1) {
+  if (buffers.length === 1 && buffers[0].byteLength === totalByteLength) {
     return buffers[0]
   }
 

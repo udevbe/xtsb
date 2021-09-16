@@ -1,4 +1,4 @@
-import { PIXMAP, ClipOrdering, RECTANGLE, TIMESTAMP, unmarshallRECTANGLE, WINDOW } from './xcb'
+import { WINDOW, PIXMAP, unmarshallRECTANGLE, ClipOrdering, TIMESTAMP, RECTANGLE } from './xcb'
 //
 // This file generated automatically from shape.xml by ts_client.py.
 // Edit at your peril.
@@ -86,7 +86,6 @@ export const unmarshallNotifyEvent: Unmarshaller<NotifyEvent> = (buffer, offset 
   }
 }
 export const marshallNotifyEvent = (instance: NotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { shapeKind, affectedWindow, extentsX, extentsY, extentsWidth, extentsHeight, serverTime, shaped } = instance
@@ -104,8 +103,8 @@ export const marshallNotifyEvent = (instance: NotifyEvent): ArrayBuffer => {
       ),
     )
   }
-  new Uint8Array(buffers[0])[0] = firstEvent + 0
-  return concatArrayBuffers(buffers, byteLength)
+  new Uint8Array(buffers[0])[0] = firstEvent
+  return concatArrayBuffers(buffers, 32)
 }
 export type NotifyEventHandler = EventHandler<NotifyEvent>
 
@@ -449,7 +448,7 @@ Shape.prototype.getRectangles = function (window: WINDOW, sourceKind: SK): GetRe
 }
 
 eventInits.push((firstEvent) => {
-  events[firstEvent + 0] = (xConnection: XConnection, rawEvent: Uint8Array) => {
+  events[firstEvent] = (xConnection: XConnection, rawEvent: Uint8Array) => {
     if (protocolExtension === undefined) return
     const event = unmarshallNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
     return protocolExtension.onNotifyEvent?.(event)

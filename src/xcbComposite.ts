@@ -1,4 +1,4 @@
-import { PIXMAP, WINDOW } from './xcb'
+import { WINDOW, PIXMAP } from './xcb'
 import { REGION } from './xcbXFixes'
 //
 // This file generated automatically from composite.xml by ts_client.py.

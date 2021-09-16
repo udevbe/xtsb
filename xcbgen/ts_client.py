@@ -484,8 +484,9 @@ def _ts_marshall_complex(self, name):
   if self.is_event:
     _ts('  new Uint8Array(buffers[0])[0] = %s',
         'firstEvent+%s ' % self.opcodes[name] if _ns.is_ext else self.opcodes[name])
-
-  _ts('  return concatArrayBuffers(buffers, byteLength)')
+    _ts('  return concatArrayBuffers(buffers, 32)')
+  else:
+    _ts('  return concatArrayBuffers(buffers, byteLength)')
   _ts('}')
 
 
@@ -1069,13 +1070,9 @@ def ts_error(self, name):
   _ts('export class %s extends Error {', self.ts_except_name)
   _ts('  readonly xError: %s', self.ts_error_name)
   _ts('  constructor (error: %s) {', self.ts_error_name)
-  _ts('    super()')
-  _ts('    Object.setPrototypeOf(this, %s.prototype)', self.ts_except_name)
+  _ts('    super(JSON.stringify(error))')
   _ts('    this.name = \'%s\'', self.ts_error_name)
   _ts('    this.xError = error')
-  _ts('  }')
-  _ts('  toString () {')
-  _ts('    return JSON.stringify(this.xError)')
   _ts('  }')
   _ts('}')
 

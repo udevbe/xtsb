@@ -883,7 +883,6 @@ export const unmarshallKeyPressEvent: Unmarshaller<KeyPressEvent> = (buffer, off
   }
 }
 export const marshallKeyPressEvent = (instance: KeyPressEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen } = instance
@@ -892,7 +891,7 @@ export const marshallKeyPressEvent = (instance: KeyPressEvent): ArrayBuffer => {
     )
   }
   new Uint8Array(buffers[0])[0] = 2
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type KeyPressEventHandler = EventHandler<KeyPressEvent>
 
@@ -987,7 +986,6 @@ export const unmarshallKeyReleaseEvent: Unmarshaller<KeyReleaseEvent> = (buffer,
   }
 }
 export const marshallKeyReleaseEvent = (instance: KeyReleaseEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen } = instance
@@ -996,7 +994,7 @@ export const marshallKeyReleaseEvent = (instance: KeyReleaseEvent): ArrayBuffer 
     )
   }
   new Uint8Array(buffers[0])[0] = 3
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type KeyReleaseEventHandler = EventHandler<KeyReleaseEvent>
 
@@ -1100,7 +1098,6 @@ export const unmarshallButtonPressEvent: Unmarshaller<ButtonPressEvent> = (buffe
   }
 }
 export const marshallButtonPressEvent = (instance: ButtonPressEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen } = instance
@@ -1109,7 +1106,7 @@ export const marshallButtonPressEvent = (instance: ButtonPressEvent): ArrayBuffe
     )
   }
   new Uint8Array(buffers[0])[0] = 4
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type ButtonPressEventHandler = EventHandler<ButtonPressEvent>
 
@@ -1204,7 +1201,6 @@ export const unmarshallButtonReleaseEvent: Unmarshaller<ButtonReleaseEvent> = (b
   }
 }
 export const marshallButtonReleaseEvent = (instance: ButtonReleaseEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen } = instance
@@ -1213,7 +1209,7 @@ export const marshallButtonReleaseEvent = (instance: ButtonReleaseEvent): ArrayB
     )
   }
   new Uint8Array(buffers[0])[0] = 5
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type ButtonReleaseEventHandler = EventHandler<ButtonReleaseEvent>
 
@@ -1313,7 +1309,6 @@ export const unmarshallMotionNotifyEvent: Unmarshaller<MotionNotifyEvent> = (buf
   }
 }
 export const marshallMotionNotifyEvent = (instance: MotionNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen } = instance
@@ -1322,7 +1317,7 @@ export const marshallMotionNotifyEvent = (instance: MotionNotifyEvent): ArrayBuf
     )
   }
   new Uint8Array(buffers[0])[0] = 6
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type MotionNotifyEventHandler = EventHandler<MotionNotifyEvent>
 
@@ -1422,7 +1417,6 @@ export const unmarshallEnterNotifyEvent: Unmarshaller<EnterNotifyEvent> = (buffe
   }
 }
 export const marshallEnterNotifyEvent = (instance: EnterNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus } = instance
@@ -1445,7 +1439,7 @@ export const marshallEnterNotifyEvent = (instance: EnterNotifyEvent): ArrayBuffe
     )
   }
   new Uint8Array(buffers[0])[0] = 7
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type EnterNotifyEventHandler = EventHandler<EnterNotifyEvent>
 
@@ -1527,7 +1521,6 @@ export const unmarshallLeaveNotifyEvent: Unmarshaller<LeaveNotifyEvent> = (buffe
   }
 }
 export const marshallLeaveNotifyEvent = (instance: LeaveNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { detail, time, root, event, child, rootX, rootY, eventX, eventY, state, mode, sameScreenFocus } = instance
@@ -1550,7 +1543,7 @@ export const marshallLeaveNotifyEvent = (instance: LeaveNotifyEvent): ArrayBuffe
     )
   }
   new Uint8Array(buffers[0])[0] = 8
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type LeaveNotifyEventHandler = EventHandler<LeaveNotifyEvent>
 
@@ -1596,14 +1589,13 @@ export const unmarshallFocusInEvent: Unmarshaller<FocusInEvent> = (buffer, offse
   }
 }
 export const marshallFocusInEvent = (instance: FocusInEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { detail, event, mode } = instance
     buffers.push(pack('<xB2xIB3x', detail, event, mode))
   }
   new Uint8Array(buffers[0])[0] = 9
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type FocusInEventHandler = EventHandler<FocusInEvent>
 
@@ -1649,14 +1641,13 @@ export const unmarshallFocusOutEvent: Unmarshaller<FocusOutEvent> = (buffer, off
   }
 }
 export const marshallFocusOutEvent = (instance: FocusOutEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { detail, event, mode } = instance
     buffers.push(pack('<xB2xIB3x', detail, event, mode))
   }
   new Uint8Array(buffers[0])[0] = 10
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type FocusOutEventHandler = EventHandler<FocusOutEvent>
 
@@ -1687,15 +1678,13 @@ export const unmarshallKeymapNotifyEvent: Unmarshaller<KeymapNotifyEvent> = (buf
   }
 }
 export const marshallKeymapNotifyEvent = (instance: KeymapNotifyEvent): ArrayBuffer => {
-  let byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const buffer = instance.keys.buffer
     buffers.push(buffer)
-    byteLength += buffer.byteLength
   }
   new Uint8Array(buffers[0])[0] = 11
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type KeymapNotifyEventHandler = EventHandler<KeymapNotifyEvent>
 
@@ -1760,14 +1749,13 @@ export const unmarshallExposeEvent: Unmarshaller<ExposeEvent> = (buffer, offset 
   }
 }
 export const marshallExposeEvent = (instance: ExposeEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { window, x, y, width, height, count } = instance
     buffers.push(pack('<xx2xIHHHHH2x', window, x, y, width, height, count))
   }
   new Uint8Array(buffers[0])[0] = 12
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type ExposeEventHandler = EventHandler<ExposeEvent>
 
@@ -1813,14 +1801,13 @@ export const unmarshallGraphicsExposureEvent: Unmarshaller<GraphicsExposureEvent
   }
 }
 export const marshallGraphicsExposureEvent = (instance: GraphicsExposureEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { drawable, x, y, width, height, minorOpcode, count, majorOpcode } = instance
     buffers.push(pack('<xx2xIHHHHHHB3x', drawable, x, y, width, height, minorOpcode, count, majorOpcode))
   }
   new Uint8Array(buffers[0])[0] = 13
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type GraphicsExposureEventHandler = EventHandler<GraphicsExposureEvent>
 
@@ -1852,14 +1839,13 @@ export const unmarshallNoExposureEvent: Unmarshaller<NoExposureEvent> = (buffer,
   }
 }
 export const marshallNoExposureEvent = (instance: NoExposureEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { drawable, minorOpcode, majorOpcode } = instance
     buffers.push(pack('<xx2xIHBx', drawable, minorOpcode, majorOpcode))
   }
   new Uint8Array(buffers[0])[0] = 14
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type NoExposureEventHandler = EventHandler<NoExposureEvent>
 
@@ -1895,14 +1881,13 @@ export const unmarshallVisibilityNotifyEvent: Unmarshaller<VisibilityNotifyEvent
   }
 }
 export const marshallVisibilityNotifyEvent = (instance: VisibilityNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { window, state } = instance
     buffers.push(pack('<xx2xIB3x', window, state))
   }
   new Uint8Array(buffers[0])[0] = 15
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type VisibilityNotifyEventHandler = EventHandler<VisibilityNotifyEvent>
 
@@ -1948,14 +1933,13 @@ export const unmarshallCreateNotifyEvent: Unmarshaller<CreateNotifyEvent> = (buf
   }
 }
 export const marshallCreateNotifyEvent = (instance: CreateNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { parent, window, x, y, width, height, borderWidth, overrideRedirect } = instance
     buffers.push(pack('<xx2xIIhhHHHBx', parent, window, x, y, width, height, borderWidth, overrideRedirect))
   }
   new Uint8Array(buffers[0])[0] = 16
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type CreateNotifyEventHandler = EventHandler<CreateNotifyEvent>
 
@@ -2000,14 +1984,13 @@ export const unmarshallDestroyNotifyEvent: Unmarshaller<DestroyNotifyEvent> = (b
   }
 }
 export const marshallDestroyNotifyEvent = (instance: DestroyNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { event, window } = instance
     buffers.push(pack('<xx2xII', event, window))
   }
   new Uint8Array(buffers[0])[0] = 17
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type DestroyNotifyEventHandler = EventHandler<DestroyNotifyEvent>
 
@@ -2058,14 +2041,13 @@ export const unmarshallUnmapNotifyEvent: Unmarshaller<UnmapNotifyEvent> = (buffe
   }
 }
 export const marshallUnmapNotifyEvent = (instance: UnmapNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { event, window, fromConfigure } = instance
     buffers.push(pack('<xx2xIIB3x', event, window, fromConfigure))
   }
   new Uint8Array(buffers[0])[0] = 18
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type UnmapNotifyEventHandler = EventHandler<UnmapNotifyEvent>
 
@@ -2115,14 +2097,13 @@ export const unmarshallMapNotifyEvent: Unmarshaller<MapNotifyEvent> = (buffer, o
   }
 }
 export const marshallMapNotifyEvent = (instance: MapNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { event, window, overrideRedirect } = instance
     buffers.push(pack('<xx2xIIB3x', event, window, overrideRedirect))
   }
   new Uint8Array(buffers[0])[0] = 19
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type MapNotifyEventHandler = EventHandler<MapNotifyEvent>
 
@@ -2166,14 +2147,13 @@ export const unmarshallMapRequestEvent: Unmarshaller<MapRequestEvent> = (buffer,
   }
 }
 export const marshallMapRequestEvent = (instance: MapRequestEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { parent, window } = instance
     buffers.push(pack('<xx2xII', parent, window))
   }
   new Uint8Array(buffers[0])[0] = 20
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type MapRequestEventHandler = EventHandler<MapRequestEvent>
 
@@ -2211,14 +2191,13 @@ export const unmarshallReparentNotifyEvent: Unmarshaller<ReparentNotifyEvent> = 
   }
 }
 export const marshallReparentNotifyEvent = (instance: ReparentNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { event, window, parent, x, y, overrideRedirect } = instance
     buffers.push(pack('<xx2xIIIhhB3x', event, window, parent, x, y, overrideRedirect))
   }
   new Uint8Array(buffers[0])[0] = 21
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type ReparentNotifyEventHandler = EventHandler<ReparentNotifyEvent>
 
@@ -2306,7 +2285,6 @@ export const unmarshallConfigureNotifyEvent: Unmarshaller<ConfigureNotifyEvent> 
   }
 }
 export const marshallConfigureNotifyEvent = (instance: ConfigureNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { event, window, aboveSibling, x, y, width, height, borderWidth, overrideRedirect } = instance
@@ -2315,7 +2293,7 @@ export const marshallConfigureNotifyEvent = (instance: ConfigureNotifyEvent): Ar
     )
   }
   new Uint8Array(buffers[0])[0] = 22
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type ConfigureNotifyEventHandler = EventHandler<ConfigureNotifyEvent>
 
@@ -2365,7 +2343,6 @@ export const unmarshallConfigureRequestEvent: Unmarshaller<ConfigureRequestEvent
   }
 }
 export const marshallConfigureRequestEvent = (instance: ConfigureRequestEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { stackMode, parent, window, sibling, x, y, width, height, borderWidth, valueMask } = instance
@@ -2374,7 +2351,7 @@ export const marshallConfigureRequestEvent = (instance: ConfigureRequestEvent): 
     )
   }
   new Uint8Array(buffers[0])[0] = 23
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type ConfigureRequestEventHandler = EventHandler<ConfigureRequestEvent>
 
@@ -2408,14 +2385,13 @@ export const unmarshallGravityNotifyEvent: Unmarshaller<GravityNotifyEvent> = (b
   }
 }
 export const marshallGravityNotifyEvent = (instance: GravityNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { event, window, x, y } = instance
     buffers.push(pack('<xx2xIIhh', event, window, x, y))
   }
   new Uint8Array(buffers[0])[0] = 24
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type GravityNotifyEventHandler = EventHandler<GravityNotifyEvent>
 
@@ -2447,14 +2423,13 @@ export const unmarshallResizeRequestEvent: Unmarshaller<ResizeRequestEvent> = (b
   }
 }
 export const marshallResizeRequestEvent = (instance: ResizeRequestEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { window, width, height } = instance
     buffers.push(pack('<xx2xIHH', window, width, height))
   }
   new Uint8Array(buffers[0])[0] = 25
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type ResizeRequestEventHandler = EventHandler<ResizeRequestEvent>
 
@@ -2509,14 +2484,13 @@ export const unmarshallCirculateNotifyEvent: Unmarshaller<CirculateNotifyEvent> 
   }
 }
 export const marshallCirculateNotifyEvent = (instance: CirculateNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { event, window, place } = instance
     buffers.push(pack('<xx2xII4xB3x', event, window, place))
   }
   new Uint8Array(buffers[0])[0] = 26
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type CirculateNotifyEventHandler = EventHandler<CirculateNotifyEvent>
 
@@ -2566,14 +2540,13 @@ export const unmarshallCirculateRequestEvent: Unmarshaller<CirculateRequestEvent
   }
 }
 export const marshallCirculateRequestEvent = (instance: CirculateRequestEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { event, window, place } = instance
     buffers.push(pack('<xx2xII4xB3x', event, window, place))
   }
   new Uint8Array(buffers[0])[0] = 27
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type CirculateRequestEventHandler = EventHandler<CirculateRequestEvent>
 
@@ -2632,14 +2605,13 @@ export const unmarshallPropertyNotifyEvent: Unmarshaller<PropertyNotifyEvent> = 
   }
 }
 export const marshallPropertyNotifyEvent = (instance: PropertyNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { window, atom, time, state } = instance
     buffers.push(pack('<xx2xIIIB3x', window, atom, time, state))
   }
   new Uint8Array(buffers[0])[0] = 28
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type PropertyNotifyEventHandler = EventHandler<PropertyNotifyEvent>
 
@@ -2671,14 +2643,13 @@ export const unmarshallSelectionClearEvent: Unmarshaller<SelectionClearEvent> = 
   }
 }
 export const marshallSelectionClearEvent = (instance: SelectionClearEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { time, owner, selection } = instance
     buffers.push(pack('<xx2xIII', time, owner, selection))
   }
   new Uint8Array(buffers[0])[0] = 29
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type SelectionClearEventHandler = EventHandler<SelectionClearEvent>
 
@@ -2793,14 +2764,13 @@ export const unmarshallSelectionRequestEvent: Unmarshaller<SelectionRequestEvent
   }
 }
 export const marshallSelectionRequestEvent = (instance: SelectionRequestEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { time, owner, requestor, selection, target, property } = instance
     buffers.push(pack('<xx2xIIIIII', time, owner, requestor, selection, target, property))
   }
   new Uint8Array(buffers[0])[0] = 30
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type SelectionRequestEventHandler = EventHandler<SelectionRequestEvent>
 
@@ -2836,14 +2806,13 @@ export const unmarshallSelectionNotifyEvent: Unmarshaller<SelectionNotifyEvent> 
   }
 }
 export const marshallSelectionNotifyEvent = (instance: SelectionNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { time, requestor, selection, target, property } = instance
     buffers.push(pack('<xx2xIIIII', time, requestor, selection, target, property))
   }
   new Uint8Array(buffers[0])[0] = 31
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type SelectionNotifyEventHandler = EventHandler<SelectionNotifyEvent>
 
@@ -2904,14 +2873,13 @@ export const unmarshallColormapNotifyEvent: Unmarshaller<ColormapNotifyEvent> = 
   }
 }
 export const marshallColormapNotifyEvent = (instance: ColormapNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { window, colormap, _new, state } = instance
     buffers.push(pack('<xx2xIIBB2x', window, colormap, _new, state))
   }
   new Uint8Array(buffers[0])[0] = 32
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type ColormapNotifyEventHandler = EventHandler<ColormapNotifyEvent>
 
@@ -3017,18 +2985,15 @@ export const unmarshallClientMessageEvent: Unmarshaller<ClientMessageEvent> = (b
   }
 }
 export const marshallClientMessageEvent = (instance: ClientMessageEvent): ArrayBuffer => {
-  let byteLength = 0
   const buffers: ArrayBuffer[] = []
   const { format, window, _type } = instance
   buffers.push(pack('<xB2xII', format, window, _type))
-  byteLength += 12
   {
     const buffer = marshallClientMessageData(instance.data)
     buffers.push(buffer)
-    byteLength += buffer.byteLength
   }
   new Uint8Array(buffers[0])[0] = 33
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type ClientMessageEventHandler = EventHandler<ClientMessageEvent>
 
@@ -3079,14 +3044,13 @@ export const unmarshallMappingNotifyEvent: Unmarshaller<MappingNotifyEvent> = (b
   }
 }
 export const marshallMappingNotifyEvent = (instance: MappingNotifyEvent): ArrayBuffer => {
-  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { request, firstKeycode, count } = instance
     buffers.push(pack('<xx2xBBBx', request, firstKeycode, count))
   }
   new Uint8Array(buffers[0])[0] = 34
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type MappingNotifyEventHandler = EventHandler<MappingNotifyEvent>
 
@@ -3115,11 +3079,10 @@ export const unmarshallGeGenericEvent: Unmarshaller<GeGenericEvent> = (buffer, o
     offset,
   }
 }
-export const marshallGeGenericEvent = (instance: GeGenericEvent): ArrayBuffer => {
-  const byteLength = 0
+export const marshallGeGenericEvent = (): ArrayBuffer => {
   const buffers: ArrayBuffer[] = []
   new Uint8Array(buffers[0])[0] = 35
-  return concatArrayBuffers(buffers, byteLength)
+  return concatArrayBuffers(buffers, 32)
 }
 export type GeGenericEventHandler = EventHandler<GeGenericEvent>
 
@@ -3163,13 +3126,9 @@ export const marshallRequestError = (instance: RequestError): ArrayBuffer => {
 export class BadRequest extends Error {
   readonly xError: RequestError
   constructor(error: RequestError) {
-    super()
-    Object.setPrototypeOf(this, BadRequest.prototype)
+    super(JSON.stringify(error))
     this.name = 'RequestError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3207,13 +3166,9 @@ export const marshallValueError = (instance: ValueError): ArrayBuffer => {
 export class BadValue extends Error {
   readonly xError: ValueError
   constructor(error: ValueError) {
-    super()
-    Object.setPrototypeOf(this, BadValue.prototype)
+    super(JSON.stringify(error))
     this.name = 'ValueError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3251,13 +3206,9 @@ export const marshallWindowError = (instance: WindowError): ArrayBuffer => {
 export class BadWindow extends Error {
   readonly xError: WindowError
   constructor(error: WindowError) {
-    super()
-    Object.setPrototypeOf(this, BadWindow.prototype)
+    super(JSON.stringify(error))
     this.name = 'WindowError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3295,13 +3246,9 @@ export const marshallPixmapError = (instance: PixmapError): ArrayBuffer => {
 export class BadPixmap extends Error {
   readonly xError: PixmapError
   constructor(error: PixmapError) {
-    super()
-    Object.setPrototypeOf(this, BadPixmap.prototype)
+    super(JSON.stringify(error))
     this.name = 'PixmapError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3339,13 +3286,9 @@ export const marshallAtomError = (instance: AtomError): ArrayBuffer => {
 export class BadAtom extends Error {
   readonly xError: AtomError
   constructor(error: AtomError) {
-    super()
-    Object.setPrototypeOf(this, BadAtom.prototype)
+    super(JSON.stringify(error))
     this.name = 'AtomError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3383,13 +3326,9 @@ export const marshallCursorError = (instance: CursorError): ArrayBuffer => {
 export class BadCursor extends Error {
   readonly xError: CursorError
   constructor(error: CursorError) {
-    super()
-    Object.setPrototypeOf(this, BadCursor.prototype)
+    super(JSON.stringify(error))
     this.name = 'CursorError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3427,13 +3366,9 @@ export const marshallFontError = (instance: FontError): ArrayBuffer => {
 export class BadFont extends Error {
   readonly xError: FontError
   constructor(error: FontError) {
-    super()
-    Object.setPrototypeOf(this, BadFont.prototype)
+    super(JSON.stringify(error))
     this.name = 'FontError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3471,13 +3406,9 @@ export const marshallMatchError = (instance: MatchError): ArrayBuffer => {
 export class BadMatch extends Error {
   readonly xError: MatchError
   constructor(error: MatchError) {
-    super()
-    Object.setPrototypeOf(this, BadMatch.prototype)
+    super(JSON.stringify(error))
     this.name = 'MatchError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3515,13 +3446,9 @@ export const marshallDrawableError = (instance: DrawableError): ArrayBuffer => {
 export class BadDrawable extends Error {
   readonly xError: DrawableError
   constructor(error: DrawableError) {
-    super()
-    Object.setPrototypeOf(this, BadDrawable.prototype)
+    super(JSON.stringify(error))
     this.name = 'DrawableError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3559,13 +3486,9 @@ export const marshallAccessError = (instance: AccessError): ArrayBuffer => {
 export class BadAccess extends Error {
   readonly xError: AccessError
   constructor(error: AccessError) {
-    super()
-    Object.setPrototypeOf(this, BadAccess.prototype)
+    super(JSON.stringify(error))
     this.name = 'AccessError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3603,13 +3526,9 @@ export const marshallAllocError = (instance: AllocError): ArrayBuffer => {
 export class BadAlloc extends Error {
   readonly xError: AllocError
   constructor(error: AllocError) {
-    super()
-    Object.setPrototypeOf(this, BadAlloc.prototype)
+    super(JSON.stringify(error))
     this.name = 'AllocError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3647,13 +3566,9 @@ export const marshallColormapError = (instance: ColormapError): ArrayBuffer => {
 export class BadColormap extends Error {
   readonly xError: ColormapError
   constructor(error: ColormapError) {
-    super()
-    Object.setPrototypeOf(this, BadColormap.prototype)
+    super(JSON.stringify(error))
     this.name = 'ColormapError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3691,13 +3606,9 @@ export const marshallGContextError = (instance: GContextError): ArrayBuffer => {
 export class BadGContext extends Error {
   readonly xError: GContextError
   constructor(error: GContextError) {
-    super()
-    Object.setPrototypeOf(this, BadGContext.prototype)
+    super(JSON.stringify(error))
     this.name = 'GContextError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3735,13 +3646,9 @@ export const marshallIDChoiceError = (instance: IDChoiceError): ArrayBuffer => {
 export class BadIDChoice extends Error {
   readonly xError: IDChoiceError
   constructor(error: IDChoiceError) {
-    super()
-    Object.setPrototypeOf(this, BadIDChoice.prototype)
+    super(JSON.stringify(error))
     this.name = 'IDChoiceError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3779,13 +3686,9 @@ export const marshallNameError = (instance: NameError): ArrayBuffer => {
 export class BadName extends Error {
   readonly xError: NameError
   constructor(error: NameError) {
-    super()
-    Object.setPrototypeOf(this, BadName.prototype)
+    super(JSON.stringify(error))
     this.name = 'NameError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3823,13 +3726,9 @@ export const marshallLengthError = (instance: LengthError): ArrayBuffer => {
 export class BadLength extends Error {
   readonly xError: LengthError
   constructor(error: LengthError) {
-    super()
-    Object.setPrototypeOf(this, BadLength.prototype)
+    super(JSON.stringify(error))
     this.name = 'LengthError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
@@ -3867,13 +3766,9 @@ export const marshallImplementationError = (instance: ImplementationError): Arra
 export class BadImplementation extends Error {
   readonly xError: ImplementationError
   constructor(error: ImplementationError) {
-    super()
-    Object.setPrototypeOf(this, BadImplementation.prototype)
+    super(JSON.stringify(error))
     this.name = 'ImplementationError'
     this.xError = error
-  }
-  toString() {
-    return JSON.stringify(this.xError)
   }
 }
 
