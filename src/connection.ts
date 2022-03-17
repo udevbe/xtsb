@@ -291,6 +291,7 @@ export class XConnection {
       const type = header[0]
 
       if (type === 0) {
+        // error
         const length = 32
         const packet = new Uint8Array(messages.buffer, messages.byteOffset + offset, length)
         const replySequenceNumber = packet[2] | (packet[3] << 8)
@@ -299,6 +300,7 @@ export class XConnection {
         replyResolver.resolveWithError(packet)
         offset += length
       } else if (type === 1) {
+        // reply
         const replySequenceNumber = header[2] | (header[3] << 8)
         const length = 32 + 4 * (header[4] | (header[5] << 8) | (header[6] << 16) | (header[7] << 24))
         // check if we have enough bytes remaining to construct the reply

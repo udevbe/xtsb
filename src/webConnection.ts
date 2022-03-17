@@ -33,7 +33,8 @@ function createXConnectionSocket(webSocket: WebSocket): XConnectionSocket {
 async function auth(webSocket: WebSocket) {
   return new Promise<Setup>((resolve, reject) => {
     webSocket.onmessage = (ev) => {
-      const message = JSON.parse(ev.data)
+      const messageData = typeof ev.data === 'string' ? ev.data : new TextDecoder().decode(ev.data)
+      const message = JSON.parse(messageData)
       if (isSetup(message)) {
         resolve(message)
       } else {
