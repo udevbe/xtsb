@@ -5,15 +5,8 @@
 
 import { XConnection, pad, TypedArray } from './connection'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
-import {
-  xcbSimpleList,
-  xcbComplexList,
-  typePad,
-  notUndefined,
-  events,
-  errors,
-  concatArrayBuffers,
-} from './xjsbInternals'
+// tslint:disable-next-line:no-duplicate-imports
+import { xcbSimpleList, xcbComplexList, typePad, notUndefined, errors, concatArrayBuffers } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 export type CHAR2B = {
@@ -890,16 +883,10 @@ export const marshallKeyPressEvent = (instance: KeyPressEvent): ArrayBuffer => {
       pack('<xB2xIIIIhhhhHBx', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen),
     )
   }
-  new Uint8Array(buffers[0])[0] = 2
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type KeyPressEventHandler = EventHandler<KeyPressEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onKeyPressEvent?: KeyPressEventHandler
-  }
-}
 
 /**
  *
@@ -993,16 +980,10 @@ export const marshallKeyReleaseEvent = (instance: KeyReleaseEvent): ArrayBuffer 
       pack('<xB2xIIIIhhhhHBx', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen),
     )
   }
-  new Uint8Array(buffers[0])[0] = 3
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type KeyReleaseEventHandler = EventHandler<KeyReleaseEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onKeyReleaseEvent?: KeyReleaseEventHandler
-  }
-}
 
 export const enum ButtonMask {
   _1 = 256,
@@ -1105,16 +1086,10 @@ export const marshallButtonPressEvent = (instance: ButtonPressEvent): ArrayBuffe
       pack('<xB2xIIIIhhhhHBx', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen),
     )
   }
-  new Uint8Array(buffers[0])[0] = 4
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type ButtonPressEventHandler = EventHandler<ButtonPressEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onButtonPressEvent?: ButtonPressEventHandler
-  }
-}
 
 /**
  *
@@ -1208,16 +1183,10 @@ export const marshallButtonReleaseEvent = (instance: ButtonReleaseEvent): ArrayB
       pack('<xB2xIIIIhhhhHBx', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen),
     )
   }
-  new Uint8Array(buffers[0])[0] = 5
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type ButtonReleaseEventHandler = EventHandler<ButtonReleaseEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onButtonReleaseEvent?: ButtonReleaseEventHandler
-  }
-}
 
 export const enum Motion {
   Normal = 0,
@@ -1316,16 +1285,10 @@ export const marshallMotionNotifyEvent = (instance: MotionNotifyEvent): ArrayBuf
       pack('<xB2xIIIIhhhhHBx', detail, time, root, event, child, rootX, rootY, eventX, eventY, state, sameScreen),
     )
   }
-  new Uint8Array(buffers[0])[0] = 6
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type MotionNotifyEventHandler = EventHandler<MotionNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onMotionNotifyEvent?: MotionNotifyEventHandler
-  }
-}
 
 export const enum NotifyDetail {
   Ancestor = 0,
@@ -1438,16 +1401,10 @@ export const marshallEnterNotifyEvent = (instance: EnterNotifyEvent): ArrayBuffe
       ),
     )
   }
-  new Uint8Array(buffers[0])[0] = 7
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type EnterNotifyEventHandler = EventHandler<EnterNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onEnterNotifyEvent?: EnterNotifyEventHandler
-  }
-}
 
 /**
  *
@@ -1542,16 +1499,10 @@ export const marshallLeaveNotifyEvent = (instance: LeaveNotifyEvent): ArrayBuffe
       ),
     )
   }
-  new Uint8Array(buffers[0])[0] = 8
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type LeaveNotifyEventHandler = EventHandler<LeaveNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onLeaveNotifyEvent?: LeaveNotifyEventHandler
-  }
-}
 
 /**
  *
@@ -1594,16 +1545,10 @@ export const marshallFocusInEvent = (instance: FocusInEvent): ArrayBuffer => {
     const { detail, event, mode } = instance
     buffers.push(pack('<xB2xIB3x', detail, event, mode))
   }
-  new Uint8Array(buffers[0])[0] = 9
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type FocusInEventHandler = EventHandler<FocusInEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onFocusInEvent?: FocusInEventHandler
-  }
-}
 
 /**
  *
@@ -1646,16 +1591,10 @@ export const marshallFocusOutEvent = (instance: FocusOutEvent): ArrayBuffer => {
     const { detail, event, mode } = instance
     buffers.push(pack('<xB2xIB3x', detail, event, mode))
   }
-  new Uint8Array(buffers[0])[0] = 10
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type FocusOutEventHandler = EventHandler<FocusOutEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onFocusOutEvent?: FocusOutEventHandler
-  }
-}
 
 export type KeymapNotifyEvent = {
   responseType: number
@@ -1678,21 +1617,17 @@ export const unmarshallKeymapNotifyEvent: Unmarshaller<KeymapNotifyEvent> = (buf
   }
 }
 export const marshallKeymapNotifyEvent = (instance: KeymapNotifyEvent): ArrayBuffer => {
+  let byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const buffer = instance.keys.buffer
     buffers.push(buffer)
+    byteLength += buffer.byteLength
   }
-  new Uint8Array(buffers[0])[0] = 11
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type KeymapNotifyEventHandler = EventHandler<KeymapNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onKeymapNotifyEvent?: KeymapNotifyEventHandler
-  }
-}
 
 /**
  *
@@ -1754,16 +1689,10 @@ export const marshallExposeEvent = (instance: ExposeEvent): ArrayBuffer => {
     const { window, x, y, width, height, count } = instance
     buffers.push(pack('<xx2xIHHHHH2x', window, x, y, width, height, count))
   }
-  new Uint8Array(buffers[0])[0] = 12
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type ExposeEventHandler = EventHandler<ExposeEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onExposeEvent?: ExposeEventHandler
-  }
-}
 
 export type GraphicsExposureEvent = {
   responseType: number
@@ -1806,16 +1735,10 @@ export const marshallGraphicsExposureEvent = (instance: GraphicsExposureEvent): 
     const { drawable, x, y, width, height, minorOpcode, count, majorOpcode } = instance
     buffers.push(pack('<xx2xIHHHHHHB3x', drawable, x, y, width, height, minorOpcode, count, majorOpcode))
   }
-  new Uint8Array(buffers[0])[0] = 13
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type GraphicsExposureEventHandler = EventHandler<GraphicsExposureEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onGraphicsExposureEvent?: GraphicsExposureEventHandler
-  }
-}
 
 export type NoExposureEvent = {
   responseType: number
@@ -1844,16 +1767,10 @@ export const marshallNoExposureEvent = (instance: NoExposureEvent): ArrayBuffer 
     const { drawable, minorOpcode, majorOpcode } = instance
     buffers.push(pack('<xx2xIHBx', drawable, minorOpcode, majorOpcode))
   }
-  new Uint8Array(buffers[0])[0] = 14
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type NoExposureEventHandler = EventHandler<NoExposureEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onNoExposureEvent?: NoExposureEventHandler
-  }
-}
 
 export const enum Visibility {
   Unobscured = 0,
@@ -1886,16 +1803,10 @@ export const marshallVisibilityNotifyEvent = (instance: VisibilityNotifyEvent): 
     const { window, state } = instance
     buffers.push(pack('<xx2xIB3x', window, state))
   }
-  new Uint8Array(buffers[0])[0] = 15
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type VisibilityNotifyEventHandler = EventHandler<VisibilityNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onVisibilityNotifyEvent?: VisibilityNotifyEventHandler
-  }
-}
 
 export type CreateNotifyEvent = {
   responseType: number
@@ -1938,16 +1849,10 @@ export const marshallCreateNotifyEvent = (instance: CreateNotifyEvent): ArrayBuf
     const { parent, window, x, y, width, height, borderWidth, overrideRedirect } = instance
     buffers.push(pack('<xx2xIIhhHHHBx', parent, window, x, y, width, height, borderWidth, overrideRedirect))
   }
-  new Uint8Array(buffers[0])[0] = 16
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type CreateNotifyEventHandler = EventHandler<CreateNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onCreateNotifyEvent?: CreateNotifyEventHandler
-  }
-}
 
 /**
  *
@@ -1989,16 +1894,10 @@ export const marshallDestroyNotifyEvent = (instance: DestroyNotifyEvent): ArrayB
     const { event, window } = instance
     buffers.push(pack('<xx2xII', event, window))
   }
-  new Uint8Array(buffers[0])[0] = 17
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type DestroyNotifyEventHandler = EventHandler<DestroyNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onDestroyNotifyEvent?: DestroyNotifyEventHandler
-  }
-}
 
 /**
  *
@@ -2046,16 +1945,10 @@ export const marshallUnmapNotifyEvent = (instance: UnmapNotifyEvent): ArrayBuffe
     const { event, window, fromConfigure } = instance
     buffers.push(pack('<xx2xIIB3x', event, window, fromConfigure))
   }
-  new Uint8Array(buffers[0])[0] = 18
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type UnmapNotifyEventHandler = EventHandler<UnmapNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onUnmapNotifyEvent?: UnmapNotifyEventHandler
-  }
-}
 
 /**
  *
@@ -2102,16 +1995,10 @@ export const marshallMapNotifyEvent = (instance: MapNotifyEvent): ArrayBuffer =>
     const { event, window, overrideRedirect } = instance
     buffers.push(pack('<xx2xIIB3x', event, window, overrideRedirect))
   }
-  new Uint8Array(buffers[0])[0] = 19
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type MapNotifyEventHandler = EventHandler<MapNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onMapNotifyEvent?: MapNotifyEventHandler
-  }
-}
 
 /**
  *
@@ -2152,16 +2039,10 @@ export const marshallMapRequestEvent = (instance: MapRequestEvent): ArrayBuffer 
     const { parent, window } = instance
     buffers.push(pack('<xx2xII', parent, window))
   }
-  new Uint8Array(buffers[0])[0] = 20
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type MapRequestEventHandler = EventHandler<MapRequestEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onMapRequestEvent?: MapRequestEventHandler
-  }
-}
 
 export type ReparentNotifyEvent = {
   responseType: number
@@ -2196,16 +2077,10 @@ export const marshallReparentNotifyEvent = (instance: ReparentNotifyEvent): Arra
     const { event, window, parent, x, y, overrideRedirect } = instance
     buffers.push(pack('<xx2xIIIhhB3x', event, window, parent, x, y, overrideRedirect))
   }
-  new Uint8Array(buffers[0])[0] = 21
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type ReparentNotifyEventHandler = EventHandler<ReparentNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onReparentNotifyEvent?: ReparentNotifyEventHandler
-  }
-}
 
 /**
  *
@@ -2292,16 +2167,10 @@ export const marshallConfigureNotifyEvent = (instance: ConfigureNotifyEvent): Ar
       pack('<xx2xIIIhhHHHBx', event, window, aboveSibling, x, y, width, height, borderWidth, overrideRedirect),
     )
   }
-  new Uint8Array(buffers[0])[0] = 22
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type ConfigureNotifyEventHandler = EventHandler<ConfigureNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onConfigureNotifyEvent?: ConfigureNotifyEventHandler
-  }
-}
 
 export type ConfigureRequestEvent = {
   responseType: number
@@ -2350,16 +2219,10 @@ export const marshallConfigureRequestEvent = (instance: ConfigureRequestEvent): 
       pack('<xB2xIIIhhHHHH', stackMode, parent, window, sibling, x, y, width, height, borderWidth, valueMask),
     )
   }
-  new Uint8Array(buffers[0])[0] = 23
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type ConfigureRequestEventHandler = EventHandler<ConfigureRequestEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onConfigureRequestEvent?: ConfigureRequestEventHandler
-  }
-}
 
 export type GravityNotifyEvent = {
   responseType: number
@@ -2390,16 +2253,10 @@ export const marshallGravityNotifyEvent = (instance: GravityNotifyEvent): ArrayB
     const { event, window, x, y } = instance
     buffers.push(pack('<xx2xIIhh', event, window, x, y))
   }
-  new Uint8Array(buffers[0])[0] = 24
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type GravityNotifyEventHandler = EventHandler<GravityNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onGravityNotifyEvent?: GravityNotifyEventHandler
-  }
-}
 
 export type ResizeRequestEvent = {
   responseType: number
@@ -2428,16 +2285,10 @@ export const marshallResizeRequestEvent = (instance: ResizeRequestEvent): ArrayB
     const { window, width, height } = instance
     buffers.push(pack('<xx2xIHH', window, width, height))
   }
-  new Uint8Array(buffers[0])[0] = 25
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type ResizeRequestEventHandler = EventHandler<ResizeRequestEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onResizeRequestEvent?: ResizeRequestEventHandler
-  }
-}
 
 export const enum Place {
   OnTop = 0,
@@ -2489,16 +2340,10 @@ export const marshallCirculateNotifyEvent = (instance: CirculateNotifyEvent): Ar
     const { event, window, place } = instance
     buffers.push(pack('<xx2xII4xB3x', event, window, place))
   }
-  new Uint8Array(buffers[0])[0] = 26
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type CirculateNotifyEventHandler = EventHandler<CirculateNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onCirculateNotifyEvent?: CirculateNotifyEventHandler
-  }
-}
 
 /**
  *
@@ -2545,16 +2390,10 @@ export const marshallCirculateRequestEvent = (instance: CirculateRequestEvent): 
     const { event, window, place } = instance
     buffers.push(pack('<xx2xII4xB3x', event, window, place))
   }
-  new Uint8Array(buffers[0])[0] = 27
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type CirculateRequestEventHandler = EventHandler<CirculateRequestEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onCirculateRequestEvent?: CirculateRequestEventHandler
-  }
-}
 
 export const enum Property {
   NewValue = 0,
@@ -2610,16 +2449,10 @@ export const marshallPropertyNotifyEvent = (instance: PropertyNotifyEvent): Arra
     const { window, atom, time, state } = instance
     buffers.push(pack('<xx2xIIIB3x', window, atom, time, state))
   }
-  new Uint8Array(buffers[0])[0] = 28
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type PropertyNotifyEventHandler = EventHandler<PropertyNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onPropertyNotifyEvent?: PropertyNotifyEventHandler
-  }
-}
 
 export type SelectionClearEvent = {
   responseType: number
@@ -2648,16 +2481,10 @@ export const marshallSelectionClearEvent = (instance: SelectionClearEvent): Arra
     const { time, owner, selection } = instance
     buffers.push(pack('<xx2xIII', time, owner, selection))
   }
-  new Uint8Array(buffers[0])[0] = 29
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type SelectionClearEventHandler = EventHandler<SelectionClearEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onSelectionClearEvent?: SelectionClearEventHandler
-  }
-}
 
 export const enum Time {
   CurrentTime = 0,
@@ -2769,16 +2596,10 @@ export const marshallSelectionRequestEvent = (instance: SelectionRequestEvent): 
     const { time, owner, requestor, selection, target, property } = instance
     buffers.push(pack('<xx2xIIIIII', time, owner, requestor, selection, target, property))
   }
-  new Uint8Array(buffers[0])[0] = 30
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type SelectionRequestEventHandler = EventHandler<SelectionRequestEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onSelectionRequestEvent?: SelectionRequestEventHandler
-  }
-}
 
 export type SelectionNotifyEvent = {
   responseType: number
@@ -2811,16 +2632,10 @@ export const marshallSelectionNotifyEvent = (instance: SelectionNotifyEvent): Ar
     const { time, requestor, selection, target, property } = instance
     buffers.push(pack('<xx2xIIIII', time, requestor, selection, target, property))
   }
-  new Uint8Array(buffers[0])[0] = 31
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type SelectionNotifyEventHandler = EventHandler<SelectionNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onSelectionNotifyEvent?: SelectionNotifyEventHandler
-  }
-}
 
 export const enum ColormapState {
   Uninstalled = 0,
@@ -2878,16 +2693,10 @@ export const marshallColormapNotifyEvent = (instance: ColormapNotifyEvent): Arra
     const { window, colormap, _new, state } = instance
     buffers.push(pack('<xx2xIIBB2x', window, colormap, _new, state))
   }
-  new Uint8Array(buffers[0])[0] = 32
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type ColormapNotifyEventHandler = EventHandler<ColormapNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onColormapNotifyEvent?: ColormapNotifyEventHandler
-  }
-}
 
 export type ClientMessageData = Partial<{
   data8: Uint8Array
@@ -2985,23 +2794,20 @@ export const unmarshallClientMessageEvent: Unmarshaller<ClientMessageEvent> = (b
   }
 }
 export const marshallClientMessageEvent = (instance: ClientMessageEvent): ArrayBuffer => {
+  let byteLength = 0
   const buffers: ArrayBuffer[] = []
   const { format, window, _type } = instance
   buffers.push(pack('<xB2xII', format, window, _type))
+  byteLength += 12
   {
     const buffer = marshallClientMessageData(instance.data)
     buffers.push(buffer)
+    byteLength += buffer.byteLength
   }
-  new Uint8Array(buffers[0])[0] = 33
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type ClientMessageEventHandler = EventHandler<ClientMessageEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onClientMessageEvent?: ClientMessageEventHandler
-  }
-}
 
 export const enum Mapping {
   Modifier = 0,
@@ -3049,16 +2855,10 @@ export const marshallMappingNotifyEvent = (instance: MappingNotifyEvent): ArrayB
     const { request, firstKeycode, count } = instance
     buffers.push(pack('<xx2xBBBx', request, firstKeycode, count))
   }
-  new Uint8Array(buffers[0])[0] = 34
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type MappingNotifyEventHandler = EventHandler<MappingNotifyEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onMappingNotifyEvent?: MappingNotifyEventHandler
-  }
-}
 
 /**
  *
@@ -3079,18 +2879,12 @@ export const unmarshallGeGenericEvent: Unmarshaller<GeGenericEvent> = (buffer, o
     offset,
   }
 }
-export const marshallGeGenericEvent = (): ArrayBuffer => {
+export const marshallGeGenericEvent = (instance: GeGenericEvent): ArrayBuffer => {
   const buffers: ArrayBuffer[] = []
-  new Uint8Array(buffers[0])[0] = 35
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type GeGenericEventHandler = EventHandler<GeGenericEvent>
-
-declare module './connection' {
-  interface XConnection {
-    onGeGenericEvent?: GeGenericEventHandler
-  }
-}
 
 export type RequestError = {
   responseType: number
@@ -9629,142 +9423,40 @@ XConnection.prototype.noOperation = function (): RequestChecker {
   return this.sendVoidRequest(requestParts, 127, 0, 'noOperation')
 }
 
-events[2] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallKeyPressEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onKeyPressEvent?.(event)
-}
-events[3] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallKeyReleaseEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onKeyReleaseEvent?.(event)
-}
-events[4] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallButtonPressEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onButtonPressEvent?.(event)
-}
-events[5] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallButtonReleaseEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onButtonReleaseEvent?.(event)
-}
-events[6] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallMotionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onMotionNotifyEvent?.(event)
-}
-events[7] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallEnterNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onEnterNotifyEvent?.(event)
-}
-events[8] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallLeaveNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onLeaveNotifyEvent?.(event)
-}
-events[9] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallFocusInEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onFocusInEvent?.(event)
-}
-events[10] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallFocusOutEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onFocusOutEvent?.(event)
-}
-events[11] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallKeymapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onKeymapNotifyEvent?.(event)
-}
-events[12] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallExposeEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onExposeEvent?.(event)
-}
-events[13] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallGraphicsExposureEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onGraphicsExposureEvent?.(event)
-}
-events[14] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallNoExposureEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onNoExposureEvent?.(event)
-}
-events[15] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallVisibilityNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onVisibilityNotifyEvent?.(event)
-}
-events[16] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallCreateNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onCreateNotifyEvent?.(event)
-}
-events[17] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallDestroyNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onDestroyNotifyEvent?.(event)
-}
-events[18] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallUnmapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onUnmapNotifyEvent?.(event)
-}
-events[19] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallMapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onMapNotifyEvent?.(event)
-}
-events[20] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallMapRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onMapRequestEvent?.(event)
-}
-events[21] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallReparentNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onReparentNotifyEvent?.(event)
-}
-events[22] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallConfigureNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onConfigureNotifyEvent?.(event)
-}
-events[23] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallConfigureRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onConfigureRequestEvent?.(event)
-}
-events[24] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallGravityNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onGravityNotifyEvent?.(event)
-}
-events[25] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallResizeRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onResizeRequestEvent?.(event)
-}
-events[26] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallCirculateNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onCirculateNotifyEvent?.(event)
-}
-events[27] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallCirculateRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onCirculateRequestEvent?.(event)
-}
-events[28] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallPropertyNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onPropertyNotifyEvent?.(event)
-}
-events[29] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallSelectionClearEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onSelectionClearEvent?.(event)
-}
-events[30] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallSelectionRequestEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onSelectionRequestEvent?.(event)
-}
-events[31] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallSelectionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onSelectionNotifyEvent?.(event)
-}
-events[32] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallColormapNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onColormapNotifyEvent?.(event)
-}
-events[33] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallClientMessageEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onClientMessageEvent?.(event)
-}
-events[34] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallMappingNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onMappingNotifyEvent?.(event)
-}
-events[35] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-  const event = unmarshallGeGenericEvent(rawEvent.buffer, rawEvent.byteOffset).value
-  return xConnection.onGeGenericEvent?.(event)
-}
+export const KeyPressEvent = 2 as const
+export const KeyReleaseEvent = 3 as const
+export const ButtonPressEvent = 4 as const
+export const ButtonReleaseEvent = 5 as const
+export const MotionNotifyEvent = 6 as const
+export const EnterNotifyEvent = 7 as const
+export const LeaveNotifyEvent = 8 as const
+export const FocusInEvent = 9 as const
+export const FocusOutEvent = 10 as const
+export const KeymapNotifyEvent = 11 as const
+export const ExposeEvent = 12 as const
+export const GraphicsExposureEvent = 13 as const
+export const NoExposureEvent = 14 as const
+export const VisibilityNotifyEvent = 15 as const
+export const CreateNotifyEvent = 16 as const
+export const DestroyNotifyEvent = 17 as const
+export const UnmapNotifyEvent = 18 as const
+export const MapNotifyEvent = 19 as const
+export const MapRequestEvent = 20 as const
+export const ReparentNotifyEvent = 21 as const
+export const ConfigureNotifyEvent = 22 as const
+export const ConfigureRequestEvent = 23 as const
+export const GravityNotifyEvent = 24 as const
+export const ResizeRequestEvent = 25 as const
+export const CirculateNotifyEvent = 26 as const
+export const CirculateRequestEvent = 27 as const
+export const PropertyNotifyEvent = 28 as const
+export const SelectionClearEvent = 29 as const
+export const SelectionRequestEvent = 30 as const
+export const SelectionNotifyEvent = 31 as const
+export const ColormapNotifyEvent = 32 as const
+export const ClientMessageEvent = 33 as const
+export const MappingNotifyEvent = 34 as const
+export const GeGenericEvent = 35 as const
 errors[1] = [unmarshallRequestError, BadRequest]
 errors[2] = [unmarshallValueError, BadValue]
 errors[3] = [unmarshallWindowError, BadWindow]

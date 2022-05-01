@@ -1,4 +1,4 @@
-import { WINDOW, RECTANGLE, PIXMAP, ATOM, GCONTEXT, unmarshallRECTANGLE, CURSOR, TIMESTAMP } from './xcb'
+import { PIXMAP, TIMESTAMP, unmarshallRECTANGLE, RECTANGLE, CURSOR, GCONTEXT, ATOM, WINDOW } from './xcb'
 import { SK } from './xcbShape'
 import { PICTURE } from './xcbRender'
 //
@@ -9,7 +9,8 @@ import { PICTURE } from './xcbRender'
 import { XConnection, chars, pad } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
-import { xcbSimpleList, xcbComplexList, typePad, events, errors, concatArrayBuffers } from './xjsbInternals'
+// tslint:disable-next-line:no-duplicate-imports
+import { xcbSimpleList, xcbComplexList, typePad, errors, concatArrayBuffers } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 export class XFixes extends Protocol {
@@ -18,11 +19,8 @@ export class XFixes extends Protocol {
 }
 
 const errorInits: ((firstError: number) => void)[] = []
-const eventInits: ((firstEvent: number) => void)[] = []
 
 let protocolExtension: XFixes | undefined = undefined
-let firstEvent: number
-let firstError: number
 
 export async function getXFixes(xConnection: XConnection): Promise<XFixes> {
   if (protocolExtension && protocolExtension.xConnection === xConnection) {
@@ -32,12 +30,9 @@ export async function getXFixes(xConnection: XConnection): Promise<XFixes> {
   if (queryExtensionReply.present === 0) {
     throw new Error('XFixes extension not present.')
   }
-  const { majorOpcode } = queryExtensionReply
-  firstEvent = queryExtensionReply.firstEvent
-  firstError = queryExtensionReply.firstError
-  protocolExtension = new XFixes(xConnection, majorOpcode)
+  const { majorOpcode, firstEvent, firstError } = queryExtensionReply
+  protocolExtension = new XFixes(xConnection, majorOpcode, firstEvent, firstError)
   errorInits.forEach((init) => init(firstError))
-  eventInits.forEach((init) => init(firstEvent))
   return protocolExtension
 }
 
@@ -127,16 +122,10 @@ export const marshallSelectionNotifyEvent = (instance: SelectionNotifyEvent): Ar
     const { subtype, window, owner, selection, timestamp, selectionTimestamp } = instance
     buffers.push(pack('<xB2xIIIII8x', subtype, window, owner, selection, timestamp, selectionTimestamp))
   }
-  new Uint8Array(buffers[0])[0] = firstEvent
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type SelectionNotifyEventHandler = EventHandler<SelectionNotifyEvent>
-
-declare module './xcbXFixes' {
-  interface XFixes {
-    onSelectionNotifyEvent?: SelectionNotifyEventHandler
-  }
-}
 
 export const enum CursorNotify {
   DisplayCursor = 0,
@@ -177,16 +166,10 @@ export const marshallCursorNotifyEvent = (instance: CursorNotifyEvent): ArrayBuf
     const { subtype, window, cursorSerial, timestamp, name } = instance
     buffers.push(pack('<xB2xIIII12x', subtype, window, cursorSerial, timestamp, name))
   }
-  new Uint8Array(buffers[0])[0] = firstEvent + 1
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type CursorNotifyEventHandler = EventHandler<CursorNotifyEvent>
-
-declare module './xcbXFixes' {
-  interface XFixes {
-    onCursorNotifyEvent?: CursorNotifyEventHandler
-  }
-}
 
 export type GetCursorImageCookie = Promise<GetCursorImageReply>
 
@@ -240,7 +223,7 @@ export const unmarshallBadRegionError: Unmarshaller<RegionError> = (buffer, offs
     offset,
   }
 }
-export const marshallBadRegionError = (instance: RegionError): ArrayBuffer => {
+export const marshallBadRegionError = (): ArrayBuffer => {
   const byteLength = 0
   const buffers: ArrayBuffer[] = []
   return concatArrayBuffers(buffers, byteLength)
@@ -941,20 +924,8 @@ XFixes.prototype.deletePointerBarrier = function (barrier: BARRIER): RequestChec
   return this.xConnection.sendVoidRequest(requestParts, this.majorOpcode, 32, 'deletePointerBarrier')
 }
 
-eventInits.push((firstEvent) => {
-  events[firstEvent] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-    if (protocolExtension === undefined) return
-    const event = unmarshallSelectionNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-    return protocolExtension.onSelectionNotifyEvent?.(event)
-  }
-})
-eventInits.push((firstEvent) => {
-  events[firstEvent + 1] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-    if (protocolExtension === undefined) return
-    const event = unmarshallCursorNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-    return protocolExtension.onCursorNotifyEvent?.(event)
-  }
-})
+export const SelectionNotifyEvent = 0 as const
+export const CursorNotifyEvent = 1 as const
 errorInits.push((firstError) => {
   errors[firstError] = [unmarshallBadRegionError, BadRegion]
 })

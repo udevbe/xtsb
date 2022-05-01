@@ -1,4 +1,4 @@
-import { WINDOW, PIXMAP } from './xcb'
+import { PIXMAP, WINDOW } from './xcb'
 import { REGION } from './xcbXFixes'
 //
 // This file generated automatically from composite.xml by ts_client.py.
@@ -8,6 +8,7 @@ import { REGION } from './xcbXFixes'
 import { XConnection, chars } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, RequestChecker } from './xjsbInternals'
+// tslint:disable-next-line:no-duplicate-imports
 import { unpackFrom, pack } from './struct'
 
 export class Composite extends Protocol {
@@ -16,11 +17,8 @@ export class Composite extends Protocol {
 }
 
 const errorInits: ((firstError: number) => void)[] = []
-const eventInits: ((firstEvent: number) => void)[] = []
 
 let protocolExtension: Composite | undefined = undefined
-let firstEvent: number
-let firstError: number
 
 export async function getComposite(xConnection: XConnection): Promise<Composite> {
   if (protocolExtension && protocolExtension.xConnection === xConnection) {
@@ -30,12 +28,9 @@ export async function getComposite(xConnection: XConnection): Promise<Composite>
   if (queryExtensionReply.present === 0) {
     throw new Error('Composite extension not present.')
   }
-  const { majorOpcode } = queryExtensionReply
-  firstEvent = queryExtensionReply.firstEvent
-  firstError = queryExtensionReply.firstError
-  protocolExtension = new Composite(xConnection, majorOpcode)
+  const { majorOpcode, firstEvent, firstError } = queryExtensionReply
+  protocolExtension = new Composite(xConnection, majorOpcode, firstEvent, firstError)
   errorInits.forEach((init) => init(firstError))
-  eventInits.forEach((init) => init(firstEvent))
   return protocolExtension
 }
 

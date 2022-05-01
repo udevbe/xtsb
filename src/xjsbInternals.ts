@@ -22,7 +22,6 @@ interface RawEventHandler {
   (xConnection: XConnection, rawEvent: Uint8Array): void | Promise<void>
 }
 
-export const events: { [key: number]: RawEventHandler } = {}
 export const errors: { [key: number]: [Unmarshaller<any>, new (errorBody: any) => Error] } = {}
 
 export function xcbComplexList<T>(

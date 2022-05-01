@@ -1,4 +1,4 @@
-import { ATOM, STR, RECTANGLE, CURSOR, VISUALID, SubwindowMode, PIXMAP, DRAWABLE, unmarshallSTR, COLORMAP } from './xcb'
+import { unmarshallSTR, SubwindowMode, VISUALID, PIXMAP, STR, DRAWABLE, RECTANGLE, CURSOR, COLORMAP, ATOM } from './xcb'
 //
 // This file generated automatically from render.xml by ts_client.py.
 // Edit at your peril.
@@ -7,6 +7,7 @@ import { ATOM, STR, RECTANGLE, CURSOR, VISUALID, SubwindowMode, PIXMAP, DRAWABLE
 import { XConnection, chars, pad } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, RequestChecker } from './xjsbInternals'
+// tslint:disable-next-line:no-duplicate-imports
 import { xcbSimpleList, xcbComplexList, typePad, notUndefined, errors, concatArrayBuffers } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
@@ -16,11 +17,8 @@ export class Render extends Protocol {
 }
 
 const errorInits: ((firstError: number) => void)[] = []
-const eventInits: ((firstEvent: number) => void)[] = []
 
 let protocolExtension: Render | undefined = undefined
-let firstEvent: number
-let firstError: number
 
 export async function getRender(xConnection: XConnection): Promise<Render> {
   if (protocolExtension && protocolExtension.xConnection === xConnection) {
@@ -30,12 +28,9 @@ export async function getRender(xConnection: XConnection): Promise<Render> {
   if (queryExtensionReply.present === 0) {
     throw new Error('Render extension not present.')
   }
-  const { majorOpcode } = queryExtensionReply
-  firstEvent = queryExtensionReply.firstEvent
-  firstError = queryExtensionReply.firstError
-  protocolExtension = new Render(xConnection, majorOpcode)
+  const { majorOpcode, firstEvent, firstError } = queryExtensionReply
+  protocolExtension = new Render(xConnection, majorOpcode, firstEvent, firstError)
   errorInits.forEach((init) => init(firstError))
-  eventInits.forEach((init) => init(firstEvent))
   return protocolExtension
 }
 
@@ -2011,7 +2006,7 @@ Render.prototype.createConicalGradient = function (
 }
 
 errorInits.push((firstError) => {
-  errors[firstError] = [unmarshallPictFormatError, BadPictFormat]
+  errors[firstError + 0] = [unmarshallPictFormatError, BadPictFormat]
 })
 errorInits.push((firstError) => {
   errors[firstError + 1] = [unmarshallPictureError, BadPicture]

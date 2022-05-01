@@ -1,6 +1,6 @@
 import { unpackFrom } from './struct'
 import { GetInputFocusReply, Setup } from './xcb'
-import { errors, events, RequestChecker, Unmarshaller } from './xjsbInternals'
+import { errors, RequestChecker, Unmarshaller } from './xjsbInternals'
 
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
@@ -90,6 +90,7 @@ export class XConnection {
   readonly socket: XConnectionSocket
   readonly setup: Setup
 
+  handleEvent?: (eventType: number, eventSequenceNumber: number, rawEvent: Uint8Array) => Promise<void> | void
   defaultExceptionHandler?: (error: Error) => void
   onPreEventLoop?: () => void
   onPostEventLoop?: () => void
@@ -175,6 +176,7 @@ export class XConnection {
       resolvePromise = resolve
       rejectPromise = reject
     })
+    this.requestSequenceNumber++
     this.replyResolvers.push({
       // @ts-ignore
       resolve: resolvePromise,
@@ -186,7 +188,7 @@ export class XConnection {
         this.requestSequenceNumber,
       ),
       requestName,
-      sequenceNumber: ++this.requestSequenceNumber,
+      sequenceNumber: this.requestSequenceNumber,
     })
     this.sendBuffer.push(requestBuffer)
 
@@ -317,8 +319,8 @@ export class XConnection {
         offset += length
       } else {
         // Event
-        if (offset === 0) {
-          this.onPreEventLoop?.()
+        if (offset === 0 && this.onPreEventLoop) {
+          this.onPreEventLoop()
         }
         const length = 32
         const packet = new Uint8Array(messages.buffer, messages.byteOffset + offset, length)
@@ -333,10 +335,14 @@ export class XConnection {
     if (this.receivedEvents.push(packet) > 1) {
       return
     }
+    if (this.handleEvent === undefined) {
+      return
+    }
 
     let nextEvent
     while ((nextEvent = this.receivedEvents[0]) !== undefined) {
-      const voidOrPromise = events[nextEvent[0] & 0x7f](this, nextEvent)
+      const eventSequenceNumber = packet[2] | (packet[3] << 8)
+      const voidOrPromise = this.handleEvent(nextEvent[0], eventSequenceNumber, nextEvent)
       if (voidOrPromise instanceof Promise) {
         await voidOrPromise
       }

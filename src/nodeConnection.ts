@@ -45,14 +45,14 @@ async function readXauthority(xAuthority?: string): Promise<Uint8Array | null> {
   const nixFilename = xAuthority || process.env.XAUTHORITY || path.join(os.homedir(), '.Xauthority')
   try {
     return await fsReadFile(nixFilename)
-  } catch (err) {
+  } catch (err: any) {
     if (err.code === 'ENOENT') {
       // TODO we could solve this with recursion instead of c/p the readFile logic here from before
       // Xming/windows uses %HOME%/Xauthority ( .Xauthority with no dot ) - try with this name
       const winFilename = process.env.XAUTHORITY ?? path.join(os.homedir(), 'Xauthority')
       try {
         return await fsReadFile(winFilename)
-      } catch (err) {
+      } catch (err: any) {
         if (err.code === 'ENOENT') {
           return null
         } else {

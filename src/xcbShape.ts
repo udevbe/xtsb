@@ -1,4 +1,4 @@
-import { WINDOW, PIXMAP, unmarshallRECTANGLE, ClipOrdering, TIMESTAMP, RECTANGLE } from './xcb'
+import { WINDOW, TIMESTAMP, ClipOrdering, unmarshallRECTANGLE, RECTANGLE, PIXMAP } from './xcb'
 //
 // This file generated automatically from shape.xml by ts_client.py.
 // Edit at your peril.
@@ -7,7 +7,8 @@ import { WINDOW, PIXMAP, unmarshallRECTANGLE, ClipOrdering, TIMESTAMP, RECTANGLE
 import { XConnection, chars } from './connection'
 import Protocol from './Protocol'
 import type { Unmarshaller, EventHandler, RequestChecker } from './xjsbInternals'
-import { xcbComplexList, events, concatArrayBuffers } from './xjsbInternals'
+// tslint:disable-next-line:no-duplicate-imports
+import { xcbComplexList, concatArrayBuffers } from './xjsbInternals'
 import { unpackFrom, pack } from './struct'
 
 export class Shape extends Protocol {
@@ -16,11 +17,8 @@ export class Shape extends Protocol {
 }
 
 const errorInits: ((firstError: number) => void)[] = []
-const eventInits: ((firstEvent: number) => void)[] = []
 
 let protocolExtension: Shape | undefined = undefined
-let firstEvent: number
-let firstError: number
 
 export async function getShape(xConnection: XConnection): Promise<Shape> {
   if (protocolExtension && protocolExtension.xConnection === xConnection) {
@@ -30,12 +28,9 @@ export async function getShape(xConnection: XConnection): Promise<Shape> {
   if (queryExtensionReply.present === 0) {
     throw new Error('Shape extension not present.')
   }
-  const { majorOpcode } = queryExtensionReply
-  firstEvent = queryExtensionReply.firstEvent
-  firstError = queryExtensionReply.firstError
-  protocolExtension = new Shape(xConnection, majorOpcode)
+  const { majorOpcode, firstEvent, firstError } = queryExtensionReply
+  protocolExtension = new Shape(xConnection, majorOpcode, firstEvent, firstError)
   errorInits.forEach((init) => init(firstError))
-  eventInits.forEach((init) => init(firstEvent))
   return protocolExtension
 }
 
@@ -86,6 +81,7 @@ export const unmarshallNotifyEvent: Unmarshaller<NotifyEvent> = (buffer, offset 
   }
 }
 export const marshallNotifyEvent = (instance: NotifyEvent): ArrayBuffer => {
+  const byteLength = 0
   const buffers: ArrayBuffer[] = []
   {
     const { shapeKind, affectedWindow, extentsX, extentsY, extentsWidth, extentsHeight, serverTime, shaped } = instance
@@ -103,16 +99,10 @@ export const marshallNotifyEvent = (instance: NotifyEvent): ArrayBuffer => {
       ),
     )
   }
-  new Uint8Array(buffers[0])[0] = firstEvent
+  new Uint8Array(buffers[0])[0] = instance.responseType
   return concatArrayBuffers(buffers, 32)
 }
 export type NotifyEventHandler = EventHandler<NotifyEvent>
-
-declare module './xcbShape' {
-  interface Shape {
-    onNotifyEvent?: NotifyEventHandler
-  }
-}
 
 export type QueryVersionCookie = Promise<QueryVersionReply>
 
@@ -447,10 +437,4 @@ Shape.prototype.getRectangles = function (window: WINDOW, sourceKind: SK): GetRe
   )
 }
 
-eventInits.push((firstEvent) => {
-  events[firstEvent] = (xConnection: XConnection, rawEvent: Uint8Array) => {
-    if (protocolExtension === undefined) return
-    const event = unmarshallNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
-    return protocolExtension.onNotifyEvent?.(event)
-  }
-})
+export const NotifyEvent = 0 as const

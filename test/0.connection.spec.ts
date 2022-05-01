@@ -1,15 +1,18 @@
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import {
   BadWindow,
+  ColormapAlloc,
   connect,
+  DestroyNotifyEvent,
   EventMask,
-  nodeConnectionSetup,
-  WindowClass,
-  XConnection,
+  getRender,
   getShape,
   getXFixes,
-  getRender,
-  ColormapAlloc,
+  nodeConnectionSetup,
+  unmarshallDestroyNotifyEvent,
+  WindowClass,
+  XConnection,
+  XFixes,
 } from '../src'
 // @ts-ignore
 import { setupXvfb } from './setupXvfb'
@@ -40,7 +43,7 @@ async function setupVisualAndColormap(xConnection: XConnection): Promise<VisualA
 }
 
 describe('Connection', () => {
-  const displayNum = '0'
+  const displayNum = '99'
   const display = `:${displayNum}`
   let xvfbProc: ChildProcessWithoutNullStreams
 
@@ -135,10 +138,12 @@ describe('Connection', () => {
       .check()
 
     await new Promise<void>((resolve) => {
-      connection.onDestroyNotifyEvent = (event) => {
-        connection.onDestroyNotifyEvent = undefined
-        expect(event.window).toBe(windowId)
-        resolve()
+      connection.handleEvent = (eventType, eventSequenceNumber, rawEvent) => {
+        if (eventType === DestroyNotifyEvent) {
+          const event = unmarshallDestroyNotifyEvent(rawEvent.buffer, rawEvent.byteOffset).value
+          expect(event.window).toBe(windowId)
+          resolve()
+        }
       }
 
       connection.destroyWindow(windowId).check()
@@ -181,5 +186,53 @@ describe('Connection', () => {
     expect(xFixes).not.toBeUndefined()
     expect(render).not.toBeUndefined()
     expect(shape).not.toBeUndefined()
+  })
+
+  it('can select an xfixes selection event', async () => {
+    const listExtensionsReply = await connection.listExtensions()
+    listExtensionsReply.names.forEach((value) => {
+      expect(value).not.toBeUndefined()
+      expect(typeof value.name.chars()).toBe('string')
+    })
+
+    const clipboard = (await connection.internAtom(0, new Int8Array(new TextEncoder().encode('CLIPBOARD').buffer))).atom
+
+    const windowId = connection.allocateID()
+    const { colormap, visualId } = await setupVisualAndColormap(connection)
+    await connection
+      .createWindow(
+        32,
+        windowId,
+        connection.setup.roots[0].root,
+        0,
+        0,
+        484,
+        341,
+        0,
+        WindowClass.InputOutput,
+        visualId,
+        {
+          colormap,
+          eventMask:
+            EventMask.KeyPress |
+            EventMask.KeyRelease |
+            EventMask.ButtonPress |
+            EventMask.ButtonRelease |
+            EventMask.PointerMotion |
+            EventMask.EnterWindow |
+            EventMask.LeaveWindow |
+            EventMask.SubstructureNotify |
+            EventMask.SubstructureRedirect |
+            EventMask.StructureNotify,
+          borderPixel: connection.setup.roots[0].blackPixel,
+        },
+      )
+      .check()
+    const xFixes = await getXFixes(connection)
+    const versionReply = await xFixes.queryVersion(XFixes.XFixes.MAJOR_VERSION, XFixes.XFixes.MINOR_VERSION)
+    if (versionReply.majorVersion < XFixes.XFixes.MAJOR_VERSION) {
+      throw new Error(`XServer does not support xfixes version ${XFixes.XFixes.MAJOR_VERSION}`)
+    }
+    await expect(xFixes.getCursorImage()).resolves.not.toThrow()
   })
 })

@@ -1,11 +1,10 @@
 import { XConnection } from './connection'
 
 export default class Protocol {
-  xConnection: XConnection
-  majorOpcode: number
-
-  constructor(xConnection: XConnection, majorOpcode: number) {
-    this.xConnection = xConnection
-    this.majorOpcode = majorOpcode
-  }
+  constructor(
+    public xConnection: XConnection,
+    public readonly majorOpcode: number,
+    public readonly firstEvent: number,
+    public readonly firstError: number,
+  ) {}
 }
