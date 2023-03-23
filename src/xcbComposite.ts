@@ -34,7 +34,7 @@ export async function getComposite(xConnection: XConnection): Promise<Composite>
   return protocolExtension
 }
 
-export const enum Redirect {
+export enum Redirect {
   Automatic = 0,
   Manual = 1,
 }

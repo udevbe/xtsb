@@ -840,7 +840,7 @@ def ts_close(self):
 def ts_enum(self, name):
   _ts_setlevel(0)
   _ts('')
-  _ts('export const enum %s {', _t(name))
+  _ts('export enum %s {', _t(name))
 
   count = 0
 

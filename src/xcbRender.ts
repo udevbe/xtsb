@@ -34,16 +34,16 @@ export async function getRender(xConnection: XConnection): Promise<Render> {
   return protocolExtension
 }
 
-export const enum PictType {
+export enum PictType {
   Indexed = 0,
   Direct = 1,
 }
 
-export const enum Picture {
+export enum Picture {
   None = 0,
 }
 
-export const enum PictOp {
+export enum PictOp {
   Clear = 0,
   Src = 1,
   Dst = 2,
@@ -99,17 +99,17 @@ export const enum PictOp {
   HSLLuminosity = 62,
 }
 
-export const enum PolyEdge {
+export enum PolyEdge {
   Sharp = 0,
   Smooth = 1,
 }
 
-export const enum PolyMode {
+export enum PolyMode {
   Precise = 0,
   Imprecise = 1,
 }
 
-export const enum CP {
+export enum CP {
   Repeat = 1,
   AlphaMap = 2,
   AlphaXOrigin = 4,
@@ -125,7 +125,7 @@ export const enum CP {
   ComponentAlpha = 4096,
 }
 
-export const enum SubPixel {
+export enum SubPixel {
   Unknown = 0,
   HorizontalRGB = 1,
   HorizontalBGR = 2,
@@ -134,7 +134,7 @@ export const enum SubPixel {
   None = 5,
 }
 
-export const enum Repeat {
+export enum Repeat {
   None = 0,
   Normal = 1,
   Pad = 2,

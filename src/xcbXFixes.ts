@@ -58,28 +58,28 @@ export const unmarshallQueryVersionReply: Unmarshaller<QueryVersionReply> = (buf
   }
 }
 
-export const enum SaveSetMode {
+export enum SaveSetMode {
   Insert = 0,
   Delete = 1,
 }
 
-export const enum SaveSetTarget {
+export enum SaveSetTarget {
   Nearest = 0,
   Root = 1,
 }
 
-export const enum SaveSetMapping {
+export enum SaveSetMapping {
   Map = 0,
   Unmap = 1,
 }
 
-export const enum SelectionEvent {
+export enum SelectionEvent {
   SetSelectionOwner = 0,
   SelectionWindowDestroy = 1,
   SelectionClientClose = 2,
 }
 
-export const enum SelectionEventMask {
+export enum SelectionEventMask {
   SetSelectionOwner = 1,
   SelectionWindowDestroy = 2,
   SelectionClientClose = 4,
@@ -127,11 +127,11 @@ export const marshallSelectionNotifyEvent = (instance: SelectionNotifyEvent): Ar
 }
 export type SelectionNotifyEventHandler = EventHandler<SelectionNotifyEvent>
 
-export const enum CursorNotify {
+export enum CursorNotify {
   DisplayCursor = 0,
 }
 
-export const enum CursorNotifyMask {
+export enum CursorNotifyMask {
   DisplayCursor = 1,
 }
 
@@ -238,7 +238,7 @@ export class BadRegion extends Error {
   }
 }
 
-export const enum Region {
+export enum Region {
   None = 0,
 }
 
@@ -349,7 +349,7 @@ export const unmarshallGetCursorImageAndNameReply: Unmarshaller<GetCursorImageAn
   }
 }
 
-export const enum BarrierDirections {
+export enum BarrierDirections {
   PositiveX = 1,
   PositiveY = 2,
   NegativeX = 4,

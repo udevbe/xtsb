@@ -190,7 +190,7 @@ export const marshallFORMAT = (instance: FORMAT): ArrayBuffer => {
   return concatArrayBuffers(buffers, byteLength)
 }
 
-export const enum VisualClass {
+export enum VisualClass {
   StaticGray = 0,
   GrayScale = 1,
   StaticColor = 2,
@@ -278,7 +278,7 @@ export const marshallDEPTH = (instance: DEPTH): ArrayBuffer => {
   return concatArrayBuffers(buffers, byteLength)
 }
 
-export const enum EventMask {
+export enum EventMask {
   NoEvent = 0,
   KeyPress = 1,
   KeyRelease = 2,
@@ -307,7 +307,7 @@ export const enum EventMask {
   OwnerGrabButton = 16777216,
 }
 
-export const enum BackingStore {
+export enum BackingStore {
   NotUseful = 0,
   WhenMapped = 1,
   Always = 2,
@@ -590,7 +590,7 @@ export const marshallSetupAuthenticate = (instance: SetupAuthenticate): ArrayBuf
   return concatArrayBuffers(buffers, byteLength)
 }
 
-export const enum ImageOrder {
+export enum ImageOrder {
   LSBFirst = 0,
   MSBFirst = 1,
 }
@@ -759,7 +759,7 @@ export const marshallSetup = (instance: Setup): ArrayBuffer => {
   return concatArrayBuffers(buffers, byteLength)
 }
 
-export const enum ModMask {
+export enum ModMask {
   Shift = 1,
   Lock = 2,
   Control = 4,
@@ -771,7 +771,7 @@ export const enum ModMask {
   Any = 32768,
 }
 
-export const enum KeyButMask {
+export enum KeyButMask {
   Shift = 1,
   Lock = 2,
   Control = 4,
@@ -787,7 +787,7 @@ export const enum KeyButMask {
   Button5 = 4096,
 }
 
-export const enum Window {
+export enum Window {
   None = 0,
 }
 
@@ -985,7 +985,7 @@ export const marshallKeyReleaseEvent = (instance: KeyReleaseEvent): ArrayBuffer 
 }
 export type KeyReleaseEventHandler = EventHandler<KeyReleaseEvent>
 
-export const enum ButtonMask {
+export enum ButtonMask {
   _1 = 256,
   _2 = 512,
   _3 = 1024,
@@ -1188,7 +1188,7 @@ export const marshallButtonReleaseEvent = (instance: ButtonReleaseEvent): ArrayB
 }
 export type ButtonReleaseEventHandler = EventHandler<ButtonReleaseEvent>
 
-export const enum Motion {
+export enum Motion {
   Normal = 0,
   Hint = 1,
 }
@@ -1290,7 +1290,7 @@ export const marshallMotionNotifyEvent = (instance: MotionNotifyEvent): ArrayBuf
 }
 export type MotionNotifyEventHandler = EventHandler<MotionNotifyEvent>
 
-export const enum NotifyDetail {
+export enum NotifyDetail {
   Ancestor = 0,
   Virtual = 1,
   Inferior = 2,
@@ -1301,7 +1301,7 @@ export const enum NotifyDetail {
   None = 7,
 }
 
-export const enum NotifyMode {
+export enum NotifyMode {
   Normal = 0,
   Grab = 1,
   Ungrab = 2,
@@ -1772,7 +1772,7 @@ export const marshallNoExposureEvent = (instance: NoExposureEvent): ArrayBuffer 
 }
 export type NoExposureEventHandler = EventHandler<NoExposureEvent>
 
-export const enum Visibility {
+export enum Visibility {
   Unobscured = 0,
   PartiallyObscured = 1,
   FullyObscured = 2,
@@ -2290,7 +2290,7 @@ export const marshallResizeRequestEvent = (instance: ResizeRequestEvent): ArrayB
 }
 export type ResizeRequestEventHandler = EventHandler<ResizeRequestEvent>
 
-export const enum Place {
+export enum Place {
   OnTop = 0,
   OnBottom = 1,
 }
@@ -2395,7 +2395,7 @@ export const marshallCirculateRequestEvent = (instance: CirculateRequestEvent): 
 }
 export type CirculateRequestEventHandler = EventHandler<CirculateRequestEvent>
 
-export const enum Property {
+export enum Property {
   NewValue = 0,
   Delete = 1,
 }
@@ -2486,11 +2486,11 @@ export const marshallSelectionClearEvent = (instance: SelectionClearEvent): Arra
 }
 export type SelectionClearEventHandler = EventHandler<SelectionClearEvent>
 
-export const enum Time {
+export enum Time {
   CurrentTime = 0,
 }
 
-export const enum Atom {
+export enum Atom {
   None = 0,
   Any = 0,
   PRIMARY = 1,
@@ -2637,12 +2637,12 @@ export const marshallSelectionNotifyEvent = (instance: SelectionNotifyEvent): Ar
 }
 export type SelectionNotifyEventHandler = EventHandler<SelectionNotifyEvent>
 
-export const enum ColormapState {
+export enum ColormapState {
   Uninstalled = 0,
   Installed = 1,
 }
 
-export const enum Colormap {
+export enum Colormap {
   None = 0,
 }
 
@@ -2809,7 +2809,7 @@ export const marshallClientMessageEvent = (instance: ClientMessageEvent): ArrayB
 }
 export type ClientMessageEventHandler = EventHandler<ClientMessageEvent>
 
-export const enum Mapping {
+export enum Mapping {
   Modifier = 0,
   Keyboard = 1,
   Pointer = 2,
@@ -3566,13 +3566,13 @@ export class BadImplementation extends Error {
   }
 }
 
-export const enum WindowClass {
+export enum WindowClass {
   CopyFromParent = 0,
   InputOutput = 1,
   InputOnly = 2,
 }
 
-export const enum CW {
+export enum CW {
   BackPixmap = 1,
   BackPixel = 2,
   BorderPixmap = 4,
@@ -3590,12 +3590,12 @@ export const enum CW {
   Cursor = 16384,
 }
 
-export const enum BackPixmap {
+export enum BackPixmap {
   None = 0,
   ParentRelative = 1,
 }
 
-export const enum Gravity {
+export enum Gravity {
   BitForget = 0,
   WinUnmap = 0,
   NorthWest = 1,
@@ -3610,7 +3610,7 @@ export const enum Gravity {
   Static = 10,
 }
 
-export const enum MapState {
+export enum MapState {
   Unmapped = 0,
   Unviewable = 1,
   Viewable = 2,
@@ -3723,12 +3723,12 @@ export const unmarshallGetWindowAttributesReply: Unmarshaller<GetWindowAttribute
   }
 }
 
-export const enum SetMode {
+export enum SetMode {
   Insert = 0,
   Delete = 1,
 }
 
-export const enum ConfigWindow {
+export enum ConfigWindow {
   X = 1,
   Y = 2,
   Width = 4,
@@ -3738,7 +3738,7 @@ export const enum ConfigWindow {
   StackMode = 64,
 }
 
-export const enum StackMode {
+export enum StackMode {
   Above = 0,
   Below = 1,
   TopIf = 2,
@@ -3746,7 +3746,7 @@ export const enum StackMode {
   Opposite = 4,
 }
 
-export const enum Circulate {
+export enum Circulate {
   RaiseLowest = 0,
   LowerHighest = 1,
 }
@@ -3891,13 +3891,13 @@ export const unmarshallGetAtomNameReply: Unmarshaller<GetAtomNameReply> = (buffe
   }
 }
 
-export const enum PropMode {
+export enum PropMode {
   Replace = 0,
   Prepend = 1,
   Append = 2,
 }
 
-export const enum GetPropertyType {
+export enum GetPropertyType {
   Any = 0,
 }
 
@@ -3996,17 +3996,17 @@ export const unmarshallGetSelectionOwnerReply: Unmarshaller<GetSelectionOwnerRep
   }
 }
 
-export const enum SendEventDest {
+export enum SendEventDest {
   PointerWindow = 0,
   ItemFocus = 1,
 }
 
-export const enum GrabMode {
+export enum GrabMode {
   Sync = 0,
   Async = 1,
 }
 
-export const enum GrabStatus {
+export enum GrabStatus {
   Success = 0,
   AlreadyGrabbed = 1,
   InvalidTime = 2,
@@ -4014,7 +4014,7 @@ export const enum GrabStatus {
   Frozen = 4,
 }
 
-export const enum Cursor {
+export enum Cursor {
   None = 0,
 }
 
@@ -4038,7 +4038,7 @@ export const unmarshallGrabPointerReply: Unmarshaller<GrabPointerReply> = (buffe
   }
 }
 
-export const enum ButtonIndex {
+export enum ButtonIndex {
   Any = 0,
   _1 = 1,
   _2 = 2,
@@ -4067,11 +4067,11 @@ export const unmarshallGrabKeyboardReply: Unmarshaller<GrabKeyboardReply> = (buf
   }
 }
 
-export const enum Grab {
+export enum Grab {
   Any = 0,
 }
 
-export const enum Allow {
+export enum Allow {
   AsyncPointer = 0,
   SyncPointer = 1,
   ReplayPointer = 2,
@@ -4233,7 +4233,7 @@ export const unmarshallTranslateCoordinatesReply: Unmarshaller<TranslateCoordina
   }
 }
 
-export const enum InputFocus {
+export enum InputFocus {
   None = 0,
   PointerRoot = 1,
   Parent = 2,
@@ -4285,7 +4285,7 @@ export const unmarshallQueryKeymapReply: Unmarshaller<QueryKeymapReply> = (buffe
   }
 }
 
-export const enum FontDraw {
+export enum FontDraw {
   LeftToRight = 0,
   RightToLeft = 1,
 }
@@ -4711,7 +4711,7 @@ export const unmarshallGetFontPathReply: Unmarshaller<GetFontPathReply> = (buffe
   }
 }
 
-export const enum GC {
+export enum GC {
   Function = 1,
   PlaneMask = 2,
   Foreground = 4,
@@ -4737,7 +4737,7 @@ export const enum GC {
   ArcMode = 4194304,
 }
 
-export const enum GX {
+export enum GX {
   clear = 0,
   and = 1,
   andReverse = 2,
@@ -4756,55 +4756,55 @@ export const enum GX {
   set = 15,
 }
 
-export const enum LineStyle {
+export enum LineStyle {
   Solid = 0,
   OnOffDash = 1,
   DoubleDash = 2,
 }
 
-export const enum CapStyle {
+export enum CapStyle {
   NotLast = 0,
   Butt = 1,
   Round = 2,
   Projecting = 3,
 }
 
-export const enum JoinStyle {
+export enum JoinStyle {
   Miter = 0,
   Round = 1,
   Bevel = 2,
 }
 
-export const enum FillStyle {
+export enum FillStyle {
   Solid = 0,
   Tiled = 1,
   Stippled = 2,
   OpaqueStippled = 3,
 }
 
-export const enum FillRule {
+export enum FillRule {
   EvenOdd = 0,
   Winding = 1,
 }
 
-export const enum SubwindowMode {
+export enum SubwindowMode {
   ClipByChildren = 0,
   IncludeInferiors = 1,
 }
 
-export const enum ArcMode {
+export enum ArcMode {
   Chord = 0,
   PieSlice = 1,
 }
 
-export const enum ClipOrdering {
+export enum ClipOrdering {
   Unsorted = 0,
   YSorted = 1,
   YXSorted = 2,
   YXBanded = 3,
 }
 
-export const enum CoordMode {
+export enum CoordMode {
   Origin = 0,
   Previous = 1,
 }
@@ -4840,13 +4840,13 @@ export const marshallSEGMENT = (instance: SEGMENT): ArrayBuffer => {
   return concatArrayBuffers(buffers, byteLength)
 }
 
-export const enum PolyShape {
+export enum PolyShape {
   Complex = 0,
   Nonconvex = 1,
   Convex = 2,
 }
 
-export const enum ImageFormat {
+export enum ImageFormat {
   XYBitmap = 0,
   XYPixmap = 1,
   ZPixmap = 2,
@@ -4879,7 +4879,7 @@ export const unmarshallGetImageReply: Unmarshaller<GetImageReply> = (buffer, off
   }
 }
 
-export const enum ColormapAlloc {
+export enum ColormapAlloc {
   None = 0,
   All = 1,
 }
@@ -5038,7 +5038,7 @@ export const unmarshallAllocColorPlanesReply: Unmarshaller<AllocColorPlanesReply
   }
 }
 
-export const enum ColorFlag {
+export enum ColorFlag {
   Red = 1,
   Green = 2,
   Blue = 4,
@@ -5165,15 +5165,15 @@ export const unmarshallLookupColorReply: Unmarshaller<LookupColorReply> = (buffe
   }
 }
 
-export const enum Pixmap {
+export enum Pixmap {
   None = 0,
 }
 
-export const enum Font {
+export enum Font {
   None = 0,
 }
 
-export const enum QueryShapeOf {
+export enum QueryShapeOf {
   LargestCursor = 0,
   FastestTile = 1,
   FastestStipple = 2,
@@ -5289,7 +5289,7 @@ export const unmarshallGetKeyboardMappingReply: Unmarshaller<GetKeyboardMappingR
   }
 }
 
-export const enum KB {
+export enum KB {
   KeyClickPercent = 1,
   BellPercent = 2,
   BellPitch = 4,
@@ -5300,12 +5300,12 @@ export const enum KB {
   AutoRepeatMode = 128,
 }
 
-export const enum LedMode {
+export enum LedMode {
   Off = 0,
   On = 1,
 }
 
-export const enum AutoRepeatMode {
+export enum AutoRepeatMode {
   Off = 0,
   On = 1,
   Default = 2,
@@ -5378,13 +5378,13 @@ export const unmarshallGetPointerControlReply: Unmarshaller<GetPointerControlRep
   }
 }
 
-export const enum Blanking {
+export enum Blanking {
   NotPreferred = 0,
   Preferred = 1,
   Default = 2,
 }
 
-export const enum Exposures {
+export enum Exposures {
   NotAllowed = 0,
   Allowed = 1,
   Default = 2,
@@ -5416,12 +5416,12 @@ export const unmarshallGetScreenSaverReply: Unmarshaller<GetScreenSaverReply> = 
   }
 }
 
-export const enum HostMode {
+export enum HostMode {
   Insert = 0,
   Delete = 1,
 }
 
-export const enum Family {
+export enum Family {
   Internet = 0,
   DECnet = 1,
   Chaos = 2,
@@ -5492,27 +5492,27 @@ export const unmarshallListHostsReply: Unmarshaller<ListHostsReply> = (buffer, o
   }
 }
 
-export const enum AccessControl {
+export enum AccessControl {
   Disable = 0,
   Enable = 1,
 }
 
-export const enum CloseDown {
+export enum CloseDown {
   DestroyAll = 0,
   RetainPermanent = 1,
   RetainTemporary = 2,
 }
 
-export const enum Kill {
+export enum Kill {
   AllTemporary = 0,
 }
 
-export const enum ScreenSaver {
+export enum ScreenSaver {
   Reset = 0,
   Active = 1,
 }
 
-export const enum MappingStatus {
+export enum MappingStatus {
   Success = 0,
   Busy = 1,
   Failure = 2,
@@ -5563,7 +5563,7 @@ export const unmarshallGetPointerMappingReply: Unmarshaller<GetPointerMappingRep
   }
 }
 
-export const enum MapIndex {
+export enum MapIndex {
   Shift = 0,
   Lock = 1,
   Control = 2,

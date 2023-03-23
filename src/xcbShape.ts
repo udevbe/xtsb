@@ -34,7 +34,7 @@ export async function getShape(xConnection: XConnection): Promise<Shape> {
   return protocolExtension
 }
 
-export const enum SO {
+export enum SO {
   Set = 0,
   Union = 1,
   Intersect = 2,
@@ -42,7 +42,7 @@ export const enum SO {
   Invert = 4,
 }
 
-export const enum SK {
+export enum SK {
   Bounding = 0,
   Clip = 1,
   Input = 2,
